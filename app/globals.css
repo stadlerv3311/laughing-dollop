@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Brand tokens — source of truth is docs/ARCHITECTURE.md → Brand / design tokens */
+@theme {
+  --color-ink: #252525;
+  --color-paper: #ffffff;
+  --color-mist: #f7f0f0;
+  --color-brand: #ff3000;
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: var(--color-paper);
+  }
+}
+
+/* Intro "Scroll" cue — a short line sliding down its track */
+@keyframes scroll-cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}
