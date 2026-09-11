@@ -30,7 +30,7 @@ components/                  → component library, one folder per area, each wi
   ui/                        → Button, Container, Logo, Reveal, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, AudiencePanel
-  intro/                     → TruckIntro, TruckScene, Truck, Highway, timeline, useSvgTexture
+  intro/                     → TruckIntro, TruckScene, Truck, Highway, Atmosphere, timeline, daylight, useSceneProgress, useSvgTexture
   providers/                 → IntroProgressProvider, SmoothScroll
 
 lib/
@@ -86,15 +86,19 @@ Design references (what we take from each — style and structure only, never th
 | dotlogics.com | Overall feel: premium but light and easy |
 
 ## Homepage intro (scroll-driven 3D)
-- `TruckIntro` pins a full-screen stage for 4 screen-heights of scroll (`INTRO.screens`); the page content overlaps its last 30% so it slides in as the logo lands.
+- `TruckIntro` pins a full-screen stage for 4.5 screen-heights of scroll (`INTRO.screens`); the page content overlaps its last 30% so it slides in as the logo lands.
 - Phases (fractions of that scroll, all in `components/intro/timeline.ts`):
-  - 0–0.52 camera swings from above the truck down to the trailer's side
-  - 0.52–0.62 slow push-in on the trailer logo
-  - 0.60–0.76 everything fades to white; a DOM copy of the logo fades in exactly over the 3D one
-  - 0.78–0.94 logo glides into the header's logo slot (`[data-intro-logo-target]`)
+  - 0–0.40 camera drops from a high aerial ahead of the truck to its grille, then flies around to the trailer's side — one smooth curve through the three shots
+  - 0.40–0.48 slow push-in; the camera stops on the trailer logo
+  - 0.43–0.49 a flat DOM copy of the logo fades in exactly over the 3D one, which then switches off
+  - 0.50–0.84 the truck drives off down the road into the sunset; the camera drops into the lane behind it while the logo stays on screen
+  - 0.10–0.74 the light warms from morning to sunset (colors in `daylight.ts`)
+  - 0.70–0.83 the sunset fades to white
+  - 0.83–0.94 logo glides into the header's logo slot (`[data-intro-logo-target]`)
   - 0.90–1 header nav drops in
-- Scene is procedural — no 3D model or video files: black tractor + white 53' dry van with `logo.svg` on the side and the star on the roof. The truck stays put; the road texture, guardrail posts and light poles slide past.
-- Each frame, `TruckScene` projects the trailer logo to screen coordinates and hands them to `TruckIntro`, which moves the DOM logo, white overlay and scroll cue.
+- Scene is procedural — no 3D model, image or video files: black tractor + white 53' dry van with `logo.svg` on the side and the star on the roof, a desert highway, and a shader sky dome with the sun and a distant mesa skyline. The road texture, guardrail posts and light poles slide past; during the drive-off they slow down while the truck pulls ahead.
+- Each frame, `TruckScene` sends `TruckIntro` two screen rects: where the trailer logo is now, and where it sits when the camera stops on it (the spot the DOM logo holds while the truck drives away). `TruckIntro` moves the DOM logo, white overlay and scroll cue.
+- 3D parts read progress through `useSceneProgress` (lightly damped so fast scrolls glide); DOM overlays use raw progress so they stay in lockstep with the header.
 - `IntroProgressProvider` shares progress with `Header`: 0 on `/` until the logo lands, 1 on every other page.
 - Skipped entirely (no pinned section, header visible immediately) for `prefers-reduced-motion` and browsers without WebGL.
 - three.js loads via `next/dynamic` with `ssr: false`, so other pages never download it. Rendering pauses when the intro is off screen.

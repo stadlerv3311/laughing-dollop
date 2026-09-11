@@ -25,7 +25,7 @@
 ## Pages
 
 ### 🏠 Homepage — `/`
-- Scroll intro: 3D truck with the logo on a highway → camera swings from above to the trailer's side → screen whitens → logo glides to the header's top-left corner
+- Scroll intro: 3D truck with the logo on a desert highway → camera drops from an aerial to the grille and flies around to the trailer's side → stops on the logo → truck drives off into the sunset → screen whitens → logo glides to the header's top-left corner
 - Hero: dual CTA panels — "Ship With Us" / "Drive For Us"
 - Trust bar: DOT/MC #, years in business, fleet size
 - Services preview (Dry Van)

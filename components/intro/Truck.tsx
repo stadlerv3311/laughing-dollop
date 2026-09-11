@@ -1,7 +1,10 @@
 import { RoundedBox } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import type { MotionValue } from "motion/react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { driveDistance, INTRO } from "./timeline";
+import { useSceneProgress } from "./useSceneProgress";
 import { useSvgTexture } from "./useSvgTexture";
 
 const LOGO_ASPECT = 192 / 764; // public/logo.svg viewBox
@@ -79,12 +82,17 @@ function Wheel({ x, z, width, materials, spinRef }: { x: number; z: number; widt
   );
 }
 
-/** Stylized black tractor + white dry van with the logo on its side and the star on its roof. */
-export function Truck({ speed }: { speed: number }) {
+/**
+ * Stylized black tractor + white dry van with the logo on its side and the star on its roof.
+ * Drives off toward the sunset near the end of the intro, leaving the logo behind on screen.
+ */
+export function Truck({ speed, progress }: { speed: number; progress: MotionValue<number> }) {
   const materials = useMaterials();
+  const scene = useSceneProgress(progress);
   const root = useRef<THREE.Group>(null);
   const tractor = useRef<THREE.Group>(null);
   const trailer = useRef<THREE.Group>(null);
+  const logoDecal = useRef<THREE.Mesh>(null);
   const wheels = useRef<Array<THREE.Group | null>>([]);
   const logo = useSvgTexture("/logo.svg", 2048);
   const icon = useSvgTexture("/logo-icon.svg", 1024);
@@ -96,6 +104,10 @@ export function Truck({ speed }: { speed: number }) {
   });
 
   useFrame((state, delta) => {
+    if (root.current) root.current.position.x = driveDistance(scene.current ?? progress.get());
+    // TruckIntro's flat logo is fully faded in on top by now, so swapping is invisible. Raw progress, like the overlay.
+    if (logoDecal.current) logoDecal.current.visible = progress.get() < INTRO.logoSwapEnd;
+
     const turn = (speed / WHEEL_RADIUS) * Math.min(delta, 0.1);
     for (const wheel of wheels.current) if (wheel) wheel.rotation.y -= turn;
 
@@ -187,7 +199,7 @@ export function Truck({ speed }: { speed: number }) {
         ))}
 
         {logo && (
-          <mesh userData={{ decal: true }} position={[TRAILER.logo.x, TRAILER.logo.y, TRAILER.width / 2 + 0.012]}>
+          <mesh ref={logoDecal} userData={{ decal: true }} position={[TRAILER.logo.x, TRAILER.logo.y, TRAILER.width / 2 + 0.012]}>
             <planeGeometry args={[TRAILER.logo.width, TRAILER.logo.height]} />
             <meshBasicMaterial map={logo} transparent toneMapped={false} depthWrite={false} />
           </mesh>

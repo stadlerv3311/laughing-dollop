@@ -27,9 +27,10 @@ function detectWebGL() {
 const subscribeNever = () => () => {};
 
 /**
- * Homepage scroll intro: a truck drives down the highway, the camera swings from above to
- * the trailer's side, the screen whitens around the logo, and the logo glides into the header.
- * Skipped entirely for reduced-motion visitors and browsers without WebGL.
+ * Homepage scroll intro: a truck drives down a desert highway. The camera drops from an aerial
+ * to the grille, flies around to the trailer's side and stops on the logo. The truck drives off
+ * into the sunset while the logo stays on screen, the sunset fades to white, and the logo glides
+ * into the header. Skipped entirely for reduced-motion visitors and browsers without WebGL.
  */
 export function TruckIntro() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -57,7 +58,7 @@ export function TruckIntro() {
   }, [skip, intro, scrollYProgress]);
 
   // Called by the 3D scene every frame, right after the camera moves.
-  const handleFrame = ({ logo: projected }: SceneFrame) => {
+  const handleFrame = ({ logo: projected, anchor }: SceneFrame) => {
     const stage = stageRef.current;
     const overlay = overlayRef.current;
     const cue = cueRef.current;
@@ -68,8 +69,11 @@ export function TruckIntro() {
     overlay.style.opacity = String(range(p, INTRO.whitenStart, INTRO.whitenEnd));
     cue.style.opacity = String(1 - range(p, 0.01, 0.08));
 
-    // Start on top of the 3D trailer logo, then glide into the header's logo slot.
-    let { x, y, width } = projected;
+    // Start on top of the 3D trailer logo, stay put while the truck drives away, then glide into the header's logo slot.
+    const settle = easeInOutCubic(range(p, INTRO.logoSwapEnd, INTRO.driveStart));
+    let x = lerp(projected.x, anchor.x, settle);
+    let y = lerp(projected.y, anchor.y, settle);
+    let width = lerp(projected.width, anchor.width, settle);
     const fly = easeInOutCubic(range(p, INTRO.flyStart, INTRO.flyEnd));
     const slot = document.querySelector<HTMLElement>("[data-intro-logo-target]");
     if (slot && fly > 0) {
@@ -80,9 +84,9 @@ export function TruckIntro() {
       width = lerp(width, slotBox.width, fly);
     }
 
-    // Fades in exactly over the 3D logo while the white comes up, so the handoff is invisible.
+    // Fades in exactly over the 3D logo, which then switches off, so the handoff is invisible.
     // Once it lands, the header's own logo takes over.
-    const opacity = p >= INTRO.flyEnd ? 0 : range(p, INTRO.whitenStart, INTRO.whitenStart + 0.08);
+    const opacity = p >= INTRO.flyEnd ? 0 : range(p, INTRO.logoSwapStart, INTRO.logoSwapEnd);
     logo.style.opacity = String(opacity);
     logo.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${width / logo.offsetWidth})`;
   };
@@ -99,7 +103,7 @@ export function TruckIntro() {
       }}
     >
       {!skip && (
-        <div ref={stageRef} aria-hidden className="sticky top-0 h-svh w-full overflow-hidden bg-[#e9e5e0]">
+        <div ref={stageRef} aria-hidden className="sticky top-0 h-svh w-full overflow-hidden bg-[#eee8e0]">
           {webgl && (
             <div className="absolute inset-0">
               <TruckScene

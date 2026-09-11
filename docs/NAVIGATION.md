@@ -19,8 +19,11 @@
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
 | Change the font | `app/layout.tsx` → `Manrope` import |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
-| Tune intro timing (length, when the white fade and logo glide happen) | `components/intro/timeline.ts` |
-| Tune the intro camera path | `components/intro/TruckScene.tsx` → `Director` |
+| Tune intro timing (length, when the drive-off, white fade and logo glide happen) | `components/intro/timeline.ts` |
+| Change how far the truck drives off | `components/intro/timeline.ts` → `DRIVE_DISTANCE` |
+| Tune the intro camera path | `components/intro/TruckScene.tsx` → `AERIAL`, `FRONT`, `DRIVE_CAMERA` shots and `Director` |
+| Change the morning / sunset colors and light | `components/intro/daylight.ts` |
+| Change the sky, sun or mesa skyline | `components/intro/Atmosphere.tsx` |
 | Change the truck's look or logo placement | `components/intro/Truck.tsx` |
 | Change the road, guardrail, light poles | `components/intro/Highway.tsx` |
 | Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `handleFrame` |
@@ -47,6 +50,7 @@ flowchart TD
   Page --> TruckIntro["intro/TruckIntro"]
   Page --> HomeHero["home/HomeHero"]
   TruckIntro --> TruckScene["intro/TruckScene (3D canvas)"]
+  TruckScene --> Atmosphere["intro/Atmosphere"]
   TruckScene --> Truck["intro/Truck"]
   TruckScene --> Highway["intro/Highway"]
   HomeHero --> AudiencePanel["home/AudiencePanel"]
@@ -69,11 +73,14 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
 | `home/` | `HomeHero` | Headline + the two audience panels after the intro | Server |
 | `home/` | `AudiencePanel` | One "Ship With Us" / "Drive For Us" card | Server |
-| `intro/` | `TruckIntro` | Pinned scroll stage: white fade, flying logo, scroll cue, loader | Client |
-| `intro/` | `TruckScene` | WebGL canvas, lights, camera `Director` (lazy-loaded) | Client |
-| `intro/` | `Truck` | Procedural tractor + dry van with logo decals, spinning wheels | Client |
-| `intro/` | `Highway` | Endless road texture, guardrail posts, light poles | Client |
-| `intro/` | `timeline.ts` | `INTRO` scroll phases + easing helpers | — |
+| `intro/` | `TruckIntro` | Pinned scroll stage: flying logo, white fade, scroll cue, loader | Client |
+| `intro/` | `TruckScene` | WebGL canvas and the camera `Director` (lazy-loaded) | Client |
+| `intro/` | `Truck` | Procedural tractor + dry van with logo decals, spinning wheels; drives off at the end | Client |
+| `intro/` | `Highway` | Endless road texture, guardrail posts, light poles, ground | Client |
+| `intro/` | `Atmosphere` | Sky dome with sun and mesa skyline; sun, ambient light and fog for the time of day | Client |
+| `intro/` | `daylight.ts` | Morning and sunset palettes, blended by scroll | — |
+| `intro/` | `useSceneProgress` | Damped scroll progress shared by the 3D parts | Client |
+| `intro/` | `timeline.ts` | `INTRO` scroll phases, drive-off distance + easing helpers | — |
 | `intro/` | `useSvgTexture` | Turns an SVG into a sharp 3D texture | Client |
 | `providers/` | `IntroProgressProvider`, `useIntroProgress` | Shares intro progress (0–1) between intro and header | Client |
 | `providers/` | `SmoothScroll` | Lenis smooth scrolling; off for reduced motion | Client |

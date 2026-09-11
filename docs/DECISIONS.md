@@ -17,7 +17,7 @@ All roles use the same short 5–6 question qualification form. HR contacts the 
 No public per-mile pay rates. The in-app driver bonus tracker is the featured differentiator instead — don't publish rate figures on the Drive For Us page.
 
 ### Hero media
-**Homepage** (requested 2026-09-10): a scroll-driven 3D truck intro. A truck with the logo drives down a highway; as you scroll, the camera swings from above the truck to the trailer's side, the screen whitens around the logo, the logo glides into the header's top-left corner, then the page content appears. Built in code (three.js), not a video file — the logo is always exact and the camera follows the scroll in both directions. Skipped for reduced-motion visitors and browsers without WebGL. A produced video could replace the 3D scene later on the same scroll timeline.
+**Homepage** (requested 2026-09-10, camera path revised the same day): a scroll-driven 3D truck intro. A truck with the logo drives down a desert highway. As you scroll, the camera starts high and ahead of the truck, drops in front of the grille, flies around to the trailer's side and stops on the logo. The truck then drives off into the sunset while the logo stays on screen, the sunset fades to white, the logo glides into the header's top-left corner, and the page content appears. The light goes from morning to sunset along the way. Built in code (three.js), not a video file — the logo is always exact and the camera follows the scroll in both directions. Skipped for reduced-motion visitors and browsers without WebGL. An AI-generated video (Runway) was tested and is on hold; a produced video could still replace the 3D scene later on the same scroll timeline.
 
 **Other pages** (e.g. Drive For Us): the hero must support photo or video — video may be produced and dropped in later, but is not required to launch.
 
@@ -46,5 +46,6 @@ The site's orange is `#FF3000`, matching the logo icon exactly. The earlier pale
 - **Additional trust badges**: beyond DOT/MC, TBD.
 - **Font**: Manrope is a provisional pick (free, close to the premium-but-light feel of the design references). Swap if a brand font exists — one line in `app/layout.tsx`.
 - **Homepage copy**: the headline and the two panel texts are drafts.
+- **Seasons in the intro**: discussed (winter → spring → summer → autumn, ending at sunset) but not built. Decide 3D seasons vs. an AI video before adding.
 - **Careers dropdown wording**: "Dispatch, Shop & Office" is a provisional label.
 - **Footer extras**: Privacy Policy, Terms of Service and Driver FAQ pages, plus contact info and socials, aren't defined yet — so they're not in the footer.

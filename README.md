@@ -6,7 +6,7 @@ Public marketing and lead-generation website for ITrucking Solutions, a trucking
 A Next.js (App Router) + Tailwind + TypeScript site serving two audiences: shippers requesting a quote, and drivers/staff applying to join. Light, premium, and easy to use — especially for a driver looking for a job.
 
 ## Features
-- Homepage scroll intro: a 3D truck with our logo drives down a highway, the camera swings to the trailer's side, and the logo glides into the header
+- Homepage scroll intro: a 3D truck with our logo drives down a desert highway, the camera flies from an aerial around to the trailer's side, the truck drives off into the sunset, and the logo glides into the header
 - Homepage "Ship With Us" / "Drive For Us" panels
 - Services page (Dry Van today, extensible for future trailer types) — *placeholder*
 - Request a Quote form — *placeholder*

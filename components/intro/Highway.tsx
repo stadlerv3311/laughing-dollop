@@ -1,19 +1,23 @@
 import { useFrame, useThree } from "@react-three/fiber";
+import type { MotionValue } from "motion/react";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { sampleDaylight } from "./daylight";
+import { easeInOutCubic, INTRO, range } from "./timeline";
+import { useSceneProgress } from "./useSceneProgress";
 
 /** Road layout in meters. The truck drives toward +x in the middle lane (z = 0). */
 const ROAD = {
   segment: 24, // one texture tile: two 3 m dashes with 9 m gaps
-  length: 600,
+  length: 1200, // long enough to stay unbroken while the camera looks down the road at the end
   halfWidth: 8.55, // 3 lanes × 3.7 m + 3 m shoulders
   oppositeZ: -25.1,
   railZ: -9.4,
   poleZ: -12.8,
 };
 
-const RAIL_POSTS = { count: 90, spacing: 4 };
-const LIGHT_POLES = { count: 16, spacing: 40, height: 11 };
+const RAIL_POSTS = { count: 300, spacing: 4 };
+const LIGHT_POLES = { count: 30, spacing: 40, height: 11 };
 
 function createRoadTexture(maxAnisotropy: number) {
   const canvas = document.createElement("canvas");
@@ -68,10 +72,15 @@ function layoutRow(mesh: THREE.InstancedMesh | null, spacing: number, travelled:
   mesh.instanceMatrix.needsUpdate = true;
 }
 
-/** Endless highway: the truck stays put and the road, rail posts and light poles slide past. */
-export function Highway({ speed }: { speed: number }) {
+/**
+ * Endless highway: the truck stays put and the road, rail posts and light poles slide past.
+ * During the drive-off the road slows down — the camera eases to a stop while the truck keeps going.
+ */
+export function Highway({ speed, progress }: { speed: number; progress: MotionValue<number> }) {
   const gl = useThree((state) => state.gl);
   const texture = useMemo(() => createRoadTexture(gl.capabilities.getMaxAnisotropy()), [gl]);
+  const scene = useSceneProgress(progress);
+  const ground = useRef<THREE.MeshStandardMaterial>(null);
   const road = useRef<THREE.MeshStandardMaterial>(null);
   const railPosts = useRef<THREE.InstancedMesh>(null);
   const poles = useRef<THREE.InstancedMesh>(null);
@@ -80,18 +89,22 @@ export function Highway({ speed }: { speed: number }) {
   useEffect(() => () => texture.dispose(), [texture]);
 
   useFrame((_, delta) => {
-    travelled.current += speed * Math.min(delta, 0.1);
+    const c = scene.current ?? progress.get();
+    const slowdown = 1 - 0.7 * easeInOutCubic(range(c, INTRO.driveStart, INTRO.driveEnd));
+    travelled.current += speed * slowdown * Math.min(delta, 0.1);
+
     // Both carriageways share this texture, so shifting it once moves both.
     if (road.current?.map) road.current.map.offset.x = (travelled.current / ROAD.segment) % 1;
     layoutRow(railPosts.current, RAIL_POSTS.spacing, travelled.current, 0.4, ROAD.railZ - 0.08);
     layoutRow(poles.current, LIGHT_POLES.spacing, travelled.current, LIGHT_POLES.height / 2, ROAD.poleZ);
+    ground.current?.color.copy(sampleDaylight(range(c, INTRO.sunsetStart, INTRO.sunsetEnd)).ground);
   });
 
   return (
     <group>
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} receiveShadow>
         <planeGeometry args={[1400, 1400]} />
-        <meshStandardMaterial color="#ddd7cf" roughness={1} />
+        <meshStandardMaterial ref={ground} roughness={1} />
       </mesh>
 
       {[0, ROAD.oppositeZ].map((z) => (
