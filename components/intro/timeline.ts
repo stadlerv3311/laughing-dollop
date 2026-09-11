@@ -25,7 +25,7 @@ export const INTRO = {
   /** Logo glides into the header's top-left slot. */
   flyStart: 0.83,
   flyEnd: 0.94,
-  /** Header nav drops in as the logo lands. */
+  /** Header nav goes from dimmed to fully visible as the logo lands. */
   navStart: 0.9,
 } as const;
 

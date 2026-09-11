@@ -17,7 +17,7 @@
 ## Global Navigation
 
 **Header**: Logo · Home · Services · About · Careers ▾ (Drive For Us / Dispatch, Shop & Office) · Track a Load (small, secondary) · Get a Quote · **Apply To Drive** (primary, locked CTA)
-- Hides on scroll down, returns on scroll up; Careers panel drops from under the bar (Lucid-inspired)
+- Stays in view while scrolling (on phones it hides on scroll down and returns on scroll up); Careers panel drops from under the bar (Lucid-inspired)
 
 **Footer**: Quick links (Services, About, Careers, Track a Load) · Privacy Policy · Terms of Service · Driver FAQ · Socials / contact info
 - Built so far: quick links + copyright. Legal pages, Driver FAQ and contact info are still to be defined.
@@ -26,8 +26,10 @@
 
 ### 🏠 Homepage — `/`
 - Scroll intro: 3D truck with the logo on a desert highway → camera drops from an aerial to the grille and flies around to the trailer's side → stops on the logo → truck drives off into the sunset → screen whitens → logo glides to the header's top-left corner
+- Top photo (built, AI placeholder): once the intro has played and scrolled away, it's replaced by a full-width photo of our truck on a bridge (sunset color grade + film grain) — scrolling back up shows the photo, not the intro. B-roll video will replace the photo
 - Hero: dual CTA panels — "Ship With Us" / "Drive For Us"
-- Trust bar: DOT/MC #, years in business, fleet size
+- Trust bar (built): 10+ years in business · 32M+ miles driven · 125,000+ loads completed · 48 states — numbers fill up on scroll. DOT/MC # and fleet size to add once the numbers are supplied
+- Story card (built, draft copy): short company history + milestones; the whole card links to `/about` for the full story
 - Services preview (Dry Van)
 - "Why Drive With Us" teaser → links to `/careers/drivers`
 - Testimonials / driver spotlight

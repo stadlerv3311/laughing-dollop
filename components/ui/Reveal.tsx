@@ -12,17 +12,21 @@ type RevealProps = {
   className?: string;
 };
 
-/** Fades and lifts its children in the first time they scroll into view. */
+/**
+ * Fades and lifts its children in the first time they scroll into view.
+ * Reduced-motion visitors get the same starting state (so the server HTML still matches on hydration)
+ * but an instant transition instead of the fade.
+ */
 export function Reveal({ children, delay = 0, y = 28, className }: RevealProps) {
   const reduceMotion = useReducedMotion();
 
   return (
     <motion.div
       className={className}
-      initial={reduceMotion ? false : { opacity: 0, y }}
+      initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>

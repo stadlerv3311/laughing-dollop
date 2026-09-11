@@ -4,13 +4,13 @@
 ## Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | Scroll intro + "Ship With Us / Drive For Us" panels built |
+| `/` | `app/page.tsx` | Scroll intro, "Ship With Us / Drive For Us" panels and numbers band built |
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | Placeholder |
 | `/track` | `app/track/page.tsx` | Placeholder |
 | `/careers/drivers` | `app/careers/drivers/page.tsx` | Placeholder |
 | `/careers/staff` | `app/careers/staff/page.tsx` | Placeholder |
-| `/about` | `app/about/page.tsx` | Placeholder |
+| `/about` | `app/about/page.tsx` | Story section built (draft copy); team, fleet and safety still to come |
 
 ## Common tasks
 | I need to... | Go to |
@@ -28,7 +28,10 @@
 | Change the road, guardrail, light poles | `components/intro/Highway.tsx` |
 | Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `handleFrame` |
 | Edit the homepage headline and panels | `components/home/HomeHero.tsx` |
-| Change header behavior (hide on scroll, Careers drop panel) | `components/layout/Header.tsx`, `components/layout/CareersPanel.tsx` |
+| Replace the homepage top photo or add the B-roll video | `app/page.tsx` → `HeroMedia` (`image` / `video`); files in `public/images/` |
+| Replace the draft company history (homepage card + About page) | `lib/story.ts` |
+| Change the homepage numbers (years, miles, loads, states) | `lib/site.ts` → `companyStats`; layout in `components/home/TrustBar.tsx` |
+| Change header behavior (hide on scroll on phones, dimmed state during the intro, Careers drop panel) | `components/layout/Header.tsx`, `components/layout/CareersPanel.tsx` |
 | Change the phone/tablet menu | `components/layout/MobileMenu.tsx` |
 | Change the footer | `components/layout/Footer.tsx` |
 | Add or change a button style | `components/ui/Button.tsx` |
@@ -49,6 +52,7 @@ flowchart TD
   Header --> MobileMenu["layout/MobileMenu"]
   Page --> TruckIntro["intro/TruckIntro"]
   Page --> HomeHero["home/HomeHero"]
+  Page --> TrustBar["home/TrustBar"]
   TruckIntro --> TruckScene["intro/TruckScene (3D canvas)"]
   TruckScene --> Atmosphere["intro/Atmosphere"]
   TruckScene --> Truck["intro/Truck"]
@@ -66,13 +70,16 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `Container` | Centered max-width wrapper with side padding | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
+| `ui/` | `HeroMedia` | Full-width photo or looping video filling the first screen under the header, with a sunset color grade and film grain on top; `image` now, optional `video` later | Server |
+| `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
-| `layout/` | `Header` | Fixed header: logo, nav, Careers drop panel, CTAs, hide-on-scroll | Client |
+| `layout/` | `Header` | Fixed header: logo, nav, Careers drop panel, CTAs, hide-on-scroll on phones | Client |
 | `layout/` | `CareersPanel` | Panel that drops from under the header with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
 | `home/` | `HomeHero` | Headline + the two audience panels after the intro | Server |
 | `home/` | `AudiencePanel` | One "Ship With Us" / "Drive For Us" card | Server |
+| `home/` | `TrustBar` | Rounded band of company numbers that fill up on scroll (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `intro/` | `TruckIntro` | Pinned scroll stage: flying logo, white fade, scroll cue, loader | Client |
 | `intro/` | `TruckScene` | WebGL canvas and the camera `Director` (lazy-loaded) | Client |
 | `intro/` | `Truck` | Procedural tractor + dry van with logo decals, spinning wheels; drives off at the end | Client |

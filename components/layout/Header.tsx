@@ -13,6 +13,8 @@ import { CareersPanel } from "./CareersPanel";
 import { MenuToggle, MobileMenu } from "./MobileMenu";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+/** Only phones hide the bar on scroll down; bigger screens keep the CTAs in view. Tailwind's `sm` breakpoint. */
+const PHONE_QUERY = "(width < 40rem)";
 
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -42,9 +44,11 @@ function NavItem({ href, active, small, children, ...rest }: NavItemProps) {
 }
 
 /**
- * Fixed site header (Lucid-style): transparent at the top, frosted white once you scroll,
- * slides away on scroll down and drops back on scroll up. Careers opens a panel that drops
- * from under the bar. On the homepage the logo and nav stay hidden until the intro lands them.
+ * Fixed site header (Lucid-style): transparent at the top, frosted white once you scroll, and
+ * stays in view as you scroll — except on phones, where it slides away on scroll down and drops
+ * back on scroll up. Careers opens a panel that drops from under the bar. During the homepage
+ * intro the nav stays dimmed over the scene (full on hover) and the logo stays hidden until the
+ * intro lands it.
  */
 export function Header() {
   const pathname = usePathname();
@@ -60,15 +64,13 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const logoOpacity = useTransform(intro, (p) => (p >= INTRO.flyEnd ? 1 : 0));
-  const navOpacity = useTransform(intro, [INTRO.navStart, 1], [0, 1]);
-  const navY = useTransform(intro, [INTRO.navStart, 1], [-14, 0]);
 
   useMotionValueEvent(intro, "change", (p) => setIntroDone(p >= INTRO.navStart));
 
   useMotionValueEvent(scrollY, "change", (y) => {
     const introFinished = intro.get() >= 1;
     setSolid(introFinished && y > 12);
-    if (!introFinished || careersOpen || mobileOpen) {
+    if (!introFinished || careersOpen || mobileOpen || !window.matchMedia(PHONE_QUERY).matches) {
       setHidden(false);
       return;
     }
@@ -102,11 +104,18 @@ export function Header() {
   const closeCareers = () => setCareersOpen(false);
   const careersActive = careersNav.some((link) => isActive(pathname, link.href));
 
+  // Over the intro scene the bar is dimmed; hovering or tabbing into it (or opening a menu) brings it to full.
+  const dimmed = !introDone && !careersOpen && !mobileOpen;
+  const dimClass = cx(
+    "transition-opacity duration-300",
+    dimmed && "opacity-60 group-hover:opacity-100 group-focus-within:opacity-100",
+  );
+
   return (
     <>
       <motion.header
         ref={headerRef}
-        className="fixed inset-x-0 top-0 z-50"
+        className="group fixed inset-x-0 top-0 z-50"
         initial={isHome ? false : { y: "-100%" }}
         animate={{ y: hidden ? "-100%" : "0%" }}
         transition={{ duration: 0.55, ease: EASE }}
@@ -115,7 +124,9 @@ export function Header() {
         <div
           className={cx(
             "relative transition-[background-color,backdrop-filter] duration-500",
-            solid || careersOpen ? "bg-paper/85 backdrop-blur-xl" : "bg-transparent",
+            solid || careersOpen
+              ? "bg-paper/85 backdrop-blur-xl"
+              : cx("bg-transparent", dimmed && "group-hover:bg-paper/85 group-hover:backdrop-blur-xl"),
           )}
         >
           <Container className="flex h-18 items-center gap-8">
@@ -132,11 +143,7 @@ export function Header() {
               </motion.div>
             </Link>
 
-            <motion.nav
-              aria-label="Main"
-              style={{ opacity: navOpacity, y: navY }}
-              className={cx("hidden flex-1 items-center justify-center gap-8 lg:flex", !introDone && "pointer-events-none")}
-            >
+            <nav aria-label="Main" className={cx("hidden flex-1 items-center justify-center gap-8 lg:flex", dimClass)}>
               {primaryNav.map((link) => (
                 <NavItem
                   key={link.href}
@@ -170,13 +177,9 @@ export function Header() {
               >
                 {trackLink.label}
               </NavItem>
-            </motion.nav>
+            </nav>
 
-            <motion.div
-              style={{ opacity: navOpacity, y: navY }}
-              className={cx("ml-auto flex items-center gap-3 lg:ml-0", !introDone && "pointer-events-none")}
-              onMouseEnter={closeCareers}
-            >
+            <div className={cx("ml-auto flex items-center gap-3 lg:ml-0", dimClass)} onMouseEnter={closeCareers}>
               {/* Breakpoint visibility lives on wrappers — Button's own inline-flex would override `hidden`. */}
               <div className="hidden lg:block">
                 <Button href={quoteLink.href} variant="outline" onClick={closeAll}>
@@ -189,7 +192,7 @@ export function Header() {
                 </Button>
               </div>
               <MenuToggle open={mobileOpen} onToggle={() => setMobileOpen((open) => !open)} />
-            </motion.div>
+            </div>
           </Container>
 
           <AnimatePresence>

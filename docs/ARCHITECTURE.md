@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — TruckIntro + HomeHero
+  page.tsx                   → Homepage (/) — TruckIntro + HomeHero + TrustBar + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   track/page.tsx             → Track a Load (/track)
@@ -27,18 +27,20 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Container, Logo, Reveal, PagePlaceholder
+  ui/                        → Button, Container, CountUp, HeroMedia, Logo, Reveal, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, AudiencePanel
+  home/                      → HomeHero, AudiencePanel, TrustBar, StoryTeaser
+  about/                     → StoryMilestones (also used by the homepage story card)
   intro/                     → TruckIntro, TruckScene, Truck, Highway, Atmosphere, timeline, daylight, useSceneProgress, useSvgTexture
   providers/                 → IntroProgressProvider, SmoothScroll
 
 lib/
-  site.ts                    → company name + every nav link (single source for Header, menu, Footer)
+  site.ts                    → company name, every nav link (single source for Header, menu, Footer), homepage numbers
   cx.ts                      → className join helper
 
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
+  images/                    → photos; home-hero-placeholder.jpg is a temporary AI-generated image (B-roll video will replace it)
 ```
 Full component list: NAVIGATION.md → Component library.
 
@@ -47,7 +49,7 @@ Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordi
 ## Component library conventions
 - Import from the folder barrel: `import { Button, Container } from "@/components/ui"`.
 - Server Components by default; add `"use client"` only for state, effects, or animation.
-- Style with Tailwind utilities and brand token names (`bg-brand`, `text-ink`, `bg-mist`, `bg-paper`, `ease-premium`) — no raw hex in components (the 3D scene is the exception).
+- Style with Tailwind utilities and brand token names (`bg-brand`, `text-ink`, `bg-mist`, `bg-paper`, `ease-premium`) — no raw hex in components (the 3D scene is the exception). The hero photo/video look (`sunset-grade`, `film-grain` utilities and the `grain` keyframes) lives in `app/globals.css`.
 - Company name and links come from `lib/site.ts` — never hardcode them.
 - Put breakpoint visibility (`hidden lg:block`) on a wrapper, not on `Button` — its `inline-flex` would override `hidden`.
 - Small text is `text-ink/70` or darker — lighter tints fail contrast.
@@ -81,7 +83,7 @@ Design references (what we take from each — style and structure only, never th
 | Site | Take |
 |---|---|
 | apple.com | Fluid motion; animations that complement each other rather than compete |
-| lucidmotors.com | Header behavior: transparent over the hero, panel that drops from under the bar, hides/returns on scroll |
+| lucidmotors.com | Header behavior: transparent over the hero, panel that drops from under the bar, hides/returns on scroll (phones only) |
 | sendsierra.com/drivers-enrollment | Big motion hero on the driver page |
 | dotlogics.com | Overall feel: premium but light and easy |
 
@@ -95,16 +97,19 @@ Design references (what we take from each — style and structure only, never th
   - 0.10–0.74 the light warms from morning to sunset (colors in `daylight.ts`)
   - 0.70–0.83 the sunset fades to white
   - 0.83–0.94 logo glides into the header's logo slot (`[data-intro-logo-target]`)
-  - 0.90–1 header nav drops in
+  - 0.90 header nav goes from dimmed to fully visible
 - Scene is procedural — no 3D model, image or video files: black tractor + white 53' dry van with `logo.svg` on the side and the star on the roof, a desert highway, and a shader sky dome with the sun and a distant mesa skyline. The road texture, guardrail posts and light poles slide past; during the drive-off they slow down while the truck pulls ahead.
 - Each frame, `TruckScene` sends `TruckIntro` two screen rects: where the trailer logo is now, and where it sits when the camera stops on it (the spot the DOM logo holds while the truck drives away). `TruckIntro` moves the DOM logo, white overlay and scroll cue.
 - 3D parts read progress through `useSceneProgress` (lightly damped so fast scrolls glide); DOM overlays use raw progress so they stay in lockstep with the header.
 - `IntroProgressProvider` shares progress with `Header`: 0 on `/` until the logo lands, 1 on every other page.
-- Skipped entirely (no pinned section, header visible immediately) for `prefers-reduced-motion` and browsers without WebGL.
+- Plays once per visit: a module-level flag in `TruckIntro` marks it played, so later client-side visits to `/` skip it. A reload resets the flag. (Works because pages unmount on navigation — if `cacheComponents` is ever turned on, Next keeps pages alive and this needs revisiting.)
+- After it has played, once the page content reaches the top of the screen, `TruckIntro` swaps the pinned section for its `children` (`HeroMedia` — placeholder photo now, B-roll video later) and scrolls by the height difference through Lenis, so nothing moves on screen. Scrolling back up shows the photo, not a replay.
+- Skipped entirely (`children` shown straight away, header visible immediately) for `prefers-reduced-motion`, browsers without WebGL, and repeat views in the same visit.
 - three.js loads via `next/dynamic` with `ssr: false`, so other pages never download it. Rendering pauses when the intro is off screen.
 
 ## Header behavior
-- Fixed. Transparent at the top, frosted white once scrolled. Hides on scroll down, drops back on scroll up (disabled during the intro and while a menu is open).
+- Fixed. Transparent at the top, frosted white once scrolled. Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the intro or while a menu is open).
+- During the homepage intro: nav and buttons sit at 60% opacity over the scene; hovering or tabbing into the header brings them to full with a frosted bar. The logo stays hidden until the intro lands it.
 - Careers opens a two-link panel that drops from under the bar (hover or click); Escape or clicking outside closes it.
 - Below `lg`: menu button opens a full-screen menu that drops from the top.
 

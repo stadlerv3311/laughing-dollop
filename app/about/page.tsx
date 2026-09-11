@@ -1,14 +1,34 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/ui";
+import { StoryMilestones } from "@/components/about";
+import { Container, Reveal } from "@/components/ui";
+import { story } from "@/lib/story";
 
 export const metadata: Metadata = { title: "About" };
 
+// Story section only for now (draft copy in lib/story.ts). Team, fleet and safety record are still to come.
 export default function AboutPage() {
   return (
-    <PagePlaceholder
-      eyebrow="About"
-      title="About ITrucking Solutions"
-      description="This page is being built. It will cover our story, team, fleet, and safety record."
-    />
+    <section className="pb-24 pt-40 sm:pb-32">
+      <Container>
+        <Reveal>
+          <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-ink/70">
+            <span className="size-1.5 rounded-full bg-brand" aria-hidden />
+            About
+          </p>
+          <h1 className="mt-5 max-w-3xl text-5xl font-semibold tracking-[-0.03em] sm:text-6xl">{story.headline}</h1>
+        </Reveal>
+
+        <div className="mt-14 grid gap-14 md:mt-20 md:grid-cols-[1.2fr_1fr] md:gap-20">
+          <Reveal delay={0.05} className="max-w-2xl space-y-6 text-lg text-ink/70 sm:text-xl">
+            {story.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </Reveal>
+          <Reveal delay={0.15}>
+            <StoryMilestones milestones={story.milestones} tone="light" />
+          </Reveal>
+        </div>
+      </Container>
+    </section>
   );
 }

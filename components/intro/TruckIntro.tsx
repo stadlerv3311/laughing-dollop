@@ -1,8 +1,9 @@
 "use client";
 
+import { useLenis } from "lenis/react";
 import { useInView, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useIntroProgress } from "@/components/providers";
 import { Logo } from "@/components/ui";
 import { cx } from "@/lib/cx";
@@ -26,36 +27,92 @@ function detectWebGL() {
 }
 const subscribeNever = () => () => {};
 
+// The intro plays once per visit: coming back to the homepage later goes straight to the content.
+// A reload or a new visit plays it again.
+let playedThisVisit = false;
+
+type TruckIntroProps = {
+  /**
+   * What the top of the page shows whenever the intro isn't playing: after it has played and scrolled out
+   * of sight (so scrolling back up lands here instead of replaying it), on repeat visits, and when it's skipped.
+   */
+  children: ReactNode;
+};
+
 /**
  * Homepage scroll intro: a truck drives down a desert highway. The camera drops from an aerial
  * to the grille, flies around to the trailer's side and stops on the logo. The truck drives off
  * into the sunset while the logo stays on screen, the sunset fades to white, and the logo glides
- * into the header. Skipped entirely for reduced-motion visitors and browsers without WebGL.
+ * into the header. Once it has played and scrolled out of sight it's swapped for `children`.
+ * Skipped entirely — `children` show straight away — for reduced-motion visitors, browsers
+ * without WebGL, and repeat homepage views in the same visit.
  */
-export function TruckIntro() {
+export function TruckIntro({ children }: TruckIntroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const cueRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
+  // Read once on mount, so marking it played below doesn't cut off the intro that's on screen.
+  const [alreadyPlayed] = useState(() => playedThisVisit);
+  const [finished, setFinished] = useState(false);
+  // Where the page content sat on screen right before the swap, so it can be held in place.
+  const contentTopBeforeSwap = useRef<number | null>(null);
 
   const intro = useIntroProgress();
+  const lenis = useLenis();
   const reduceMotion = useReducedMotion();
   const webgl = useSyncExternalStore(subscribeNever, detectWebGL, () => null);
-  const skip = webgl === false || reduceMotion === true;
-
-  const inView = useInView(sectionRef);
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-
-  useMotionValueEvent(scrollYProgress, "change", (p) => {
-    if (!skip) intro.set(p);
-  });
+  // False while hydrating, so the first client render matches the server HTML (the intro). useReducedMotion
+  // reads the setting immediately, which would otherwise swap in the photo mid-hydration and fail it.
+  const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const skip = alreadyPlayed || webgl === false || (hydrated && reduceMotion === true);
+  const showMedia = skip || finished;
 
   useEffect(() => {
-    intro.set(skip ? 1 : scrollYProgress.get());
+    playedThisVisit = true;
+  }, []);
+
+  const inView = useInView(sectionRef);
+  const { scrollY, scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
+
+  useMotionValueEvent(scrollYProgress, "change", (p) => {
+    if (!showMedia) intro.set(p);
+  });
+
+  // Once the page content reaches the top of the screen the intro has played and its stage is fully
+  // out of sight, so it can be swapped for the media without anything visibly changing.
+  useMotionValueEvent(scrollY, "change", () => {
+    // The page content is the section right after this one.
+    const content = sectionRef.current?.nextElementSibling;
+    if (showMedia || !content) return;
+    const top = content.getBoundingClientRect().top;
+    if (top > 0) return;
+    contentTopBeforeSwap.current = top;
+    setFinished(true);
+  });
+
+  // The section shrinks from several screens to the media's height, so scroll by the difference to keep
+  // the content exactly where it was. Lenis gets the new position too, or its smoothing would pull it back.
+  useLayoutEffect(() => {
+    const before = contentTopBeforeSwap.current;
+    const content = sectionRef.current?.nextElementSibling;
+    if (!finished || before === null || !content) return;
+    contentTopBeforeSwap.current = null;
+    const target = window.scrollY + content.getBoundingClientRect().top - before;
+    if (lenis) {
+      lenis.resize();
+      lenis.scrollTo(target, { immediate: true, force: true });
+    } else {
+      window.scrollTo(0, target);
+    }
+  }, [finished, lenis]);
+
+  useEffect(() => {
+    intro.set(showMedia ? 1 : scrollYProgress.get());
     return () => intro.set(1);
-  }, [skip, intro, scrollYProgress]);
+  }, [showMedia, intro, scrollYProgress]);
 
   // Called by the 3D scene every frame, right after the camera moves.
   const handleFrame = ({ logo: projected, anchor }: SceneFrame) => {
@@ -95,14 +152,20 @@ export function TruckIntro() {
     <section
       ref={sectionRef}
       className="relative"
-      style={{
-        height: skip ? 0 : `${INTRO.screens * 100}svh`,
-        // Let the page content slide up over the (by then all-white) stage as the logo lands,
-        // instead of scrolling through a screen of empty white first.
-        marginBottom: skip ? 0 : "-30svh",
-      }}
+      style={
+        showMedia
+          ? undefined
+          : {
+              height: `${INTRO.screens * 100}svh`,
+              // Let the page content slide up over the (by then all-white) stage as the logo lands,
+              // instead of scrolling through a screen of empty white first.
+              marginBottom: "-30svh",
+            }
+      }
     >
-      {!skip && (
+      {showMedia ? (
+        children
+      ) : (
         <div ref={stageRef} aria-hidden className="sticky top-0 h-svh w-full overflow-hidden bg-[#eee8e0]">
           {webgl && (
             <div className="absolute inset-0">
