@@ -16,10 +16,10 @@
 
 ## Global Navigation
 
-**Header**: Logo · Home · Services · About · Careers ▾ (Drive For Us / Dispatch, Shop & Office) · Track a Load (small, secondary) · Get a Quote · **Apply To Drive** (primary, locked CTA)
+**Header**: Logo · Home · Services · About · News · Careers ▾ (Drive For Us / Dispatch, Shop & Office) · Fleet Map (small, secondary) · Get a Quote · **Apply To Drive** (primary, locked CTA)
 - Stays in view while scrolling (on phones it hides on scroll down and returns on scroll up); Careers panel drops from under the bar (Lucid-inspired)
 
-**Footer**: Quick links (Services, About, Careers, Track a Load) · Privacy Policy · Terms of Service · Driver FAQ · Socials / contact info
+**Footer**: Quick links (Services, About, News, Careers, Fleet Map) · Privacy Policy · Terms of Service · Driver FAQ · Socials / contact info
 - Built so far: quick links + copyright. Legal pages, Driver FAQ and contact info are still to be defined.
 
 ## Pages
@@ -40,12 +40,18 @@
 - Built as a data-driven list under the hood, so adding Reefer/Flatbed later is one entry, not a rebuild
 - Copy shows Dry Van only — no "growing fleet" teaser language
 
-### 📝 Request a Quote — `/quote`
-- Fields: origin, destination, weight, freight type, contact info
+### 📝 Get a Quote — `/quote`
+- US map of the lower 48 (built): hover lifts a state, click pickup then delivery, a route line draws between them; Alaska and Hawaii left off
+- Form next to it (built): pickup and delivery (state + city or ZIP — typing a ZIP lights up the map), weight, what's being shipped, name, company, email, phone
+- Not connected to a backend yet
 
-### 🗺️ Track a Load — `/track`
-- Simple Samsara-fed map view — secondary utility, not a broker portal, no login
+### 🗺️ Fleet Map — `/fleet-map` (formerly Track a Load)
+- Public map of roughly where our trucks are, fed by Samsara and refreshed about hourly — part of our own site, not a broker portal; no load lookup, no login
+- Approximate positions only, no load or driver details
 - Linked from both main nav (small/utility styling) and footer
+
+### 📰 News — `/news`
+- Company news and updates — placeholder until the content source is decided
 
 ### 👥 Careers — `/careers`
 
@@ -72,7 +78,9 @@
 | Topic | Decision |
 |---|---|
 | Freight types | Dry Van only; services list built extensibly for future trailer types |
-| Track a Load | Simple map view, not a broker portal; no login required |
+| Fleet Map (was Track a Load) | Roughly where our trucks are, refreshed about hourly; not a broker portal, no load lookup, no login |
+| News | Added to the nav 2026-09-11; placeholder until the content source is decided |
+| Get a Quote | Lower-48 state map + short form; map picks states, City/ZIP gives the exact place; no Alaska/Hawaii |
 | Applications (all roles) | Uniform short form (5–6 Qs) → HR contacts applicant directly; no long online applications yet |
 | Pay transparency | No public per-mile rates for now; lead with in-app bonus tracking as the differentiator |
 | Hero media | Video planned but not required to start; component supports either |

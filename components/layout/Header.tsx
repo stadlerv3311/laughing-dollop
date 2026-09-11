@@ -8,7 +8,7 @@ import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
 import { Button, Container, Logo } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { applyLink, careersNav, primaryNav, quoteLink, site, trackLink } from "@/lib/site";
+import { applyLink, careersNav, primaryNav, quoteLink, site, fleetMapLink } from "@/lib/site";
 import { CareersPanel } from "./CareersPanel";
 import { MenuToggle, MobileMenu } from "./MobileMenu";
 
@@ -22,7 +22,7 @@ function isActive(pathname: string, href: string) {
 
 function navItemClass(active: boolean, small = false) {
   return cx(
-    "relative inline-flex items-center gap-1.5 py-2 font-medium transition-colors duration-300",
+    "relative inline-flex items-center gap-1.5 whitespace-nowrap py-2 font-medium transition-colors duration-300",
     small ? "text-sm" : "text-[15px]",
     active ? "text-ink" : "text-ink/70 hover:text-ink",
     "after:absolute after:inset-x-0 after:bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-brand after:transition-transform after:duration-500 after:ease-premium",
@@ -129,7 +129,7 @@ export function Header() {
               : cx("bg-transparent", dimmed && "group-hover:bg-paper/85 group-hover:backdrop-blur-xl"),
           )}
         >
-          <Container className="flex h-18 items-center gap-8">
+          <Container className="flex h-18 items-center gap-6 xl:gap-8">
             <Link
               href="/"
               aria-label={`${site.name} home`}
@@ -143,7 +143,7 @@ export function Header() {
               </motion.div>
             </Link>
 
-            <nav aria-label="Main" className={cx("hidden flex-1 items-center justify-center gap-8 lg:flex", dimClass)}>
+            <nav aria-label="Main" className={cx("hidden flex-1 items-center justify-center gap-5 lg:flex xl:gap-8", dimClass)}>
               {primaryNav.map((link) => (
                 <NavItem
                   key={link.href}
@@ -169,13 +169,13 @@ export function Header() {
                 </svg>
               </button>
               <NavItem
-                href={trackLink.href}
-                active={isActive(pathname, trackLink.href)}
+                href={fleetMapLink.href}
+                active={isActive(pathname, fleetMapLink.href)}
                 small
                 onMouseEnter={closeCareers}
                 onClick={closeAll}
               >
-                {trackLink.label}
+                {fleetMapLink.label}
               </NavItem>
             </nav>
 

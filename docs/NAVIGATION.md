@@ -6,8 +6,9 @@
 |---|---|---|
 | `/` | `app/page.tsx` | Scroll intro, "Ship With Us / Drive For Us" panels and numbers band built |
 | `/services` | `app/services/page.tsx` | Placeholder |
-| `/quote` | `app/quote/page.tsx` | Placeholder |
-| `/track` | `app/track/page.tsx` | Placeholder |
+| `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
+| `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
+| `/news` | `app/news/page.tsx` | Placeholder |
 | `/careers/drivers` | `app/careers/drivers/page.tsx` | Placeholder |
 | `/careers/staff` | `app/careers/staff/page.tsx` | Placeholder |
 | `/about` | `app/about/page.tsx` | Story section built (draft copy); team, fleet and safety still to come |
@@ -31,6 +32,12 @@
 | Replace the homepage top photo or add the B-roll video | `app/page.tsx` → `HeroMedia` (`image` / `video`); files in `public/images/` |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
 | Change the homepage numbers (years, miles, loads, states) | `lib/site.ts` → `companyStats`; layout in `components/home/TrustBar.tsx` |
+| Change quote form fields, error messages or the thank-you screen | `components/quote/QuoteForm.tsx` |
+| Change the quote map's colors, hover lift, route line or pins | `components/quote/StateMap.tsx` |
+| Connect the quote form to the backend | `lib/forms.ts` → `submitQuote` (keep `QuoteRequest` in sync) |
+| Regenerate or re-project the state shapes | `scripts/build-us-states.mjs` → writes `lib/us-states.ts` |
+| Fix a ZIP that lights up the wrong state | `lib/zip.ts` |
+| Change the shared input/select look | `components/ui/Field.tsx` → `controlClass` |
 | Change header behavior (hide on scroll on phones, dimmed state during the intro, Careers drop panel) | `components/layout/Header.tsx`, `components/layout/CareersPanel.tsx` |
 | Change the phone/tablet menu | `components/layout/MobileMenu.tsx` |
 | Change the footer | `components/layout/Footer.tsx` |
@@ -70,8 +77,9 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `Container` | Centered max-width wrapper with side padding | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
-| `ui/` | `HeroMedia` | Full-width photo or looping video filling the first screen under the header, with a sunset color grade and film grain on top; `image` now, optional `video` later | Server |
+| `ui/` | `HeroMedia` | Full-width photo or looping video band under the header (5:2 from `sm`, headline still visible below it), with a sunset color grade and film grain on top; `image` now, optional `video` later | Server |
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
+| `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
 | `layout/` | `Header` | Fixed header: logo, nav, Careers drop panel, CTAs, hide-on-scroll on phones | Client |
 | `layout/` | `CareersPanel` | Panel that drops from under the header with the two Careers links | Client |
@@ -80,6 +88,8 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `HomeHero` | Headline + the two audience panels after the intro | Server |
 | `home/` | `AudiencePanel` | One "Ship With Us" / "Drive For Us" card | Server |
 | `home/` | `TrustBar` | Rounded band of company numbers that fill up on scroll (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
+| `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
+| `quote/` | `StateMap` | Lower-48 map: hover lift + name tag, click pickup then delivery, route line and pins | Client |
 | `intro/` | `TruckIntro` | Pinned scroll stage: flying logo, white fade, scroll cue, loader | Client |
 | `intro/` | `TruckScene` | WebGL canvas and the camera `Director` (lazy-loaded) | Client |
 | `intro/` | `Truck` | Procedural tractor + dry van with logo decals, spinning wheels; drives off at the end | Client |
@@ -95,8 +105,9 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 ## Directory map
 ```
 app/          → routes, one folder per page (App Router), globals.css, icon.svg
-components/   → the component library (ui, layout, home, intro, providers)
-lib/          → site config (names + links) and small helpers
+components/   → the component library (ui, layout, home, about, quote, intro, providers)
+lib/          → site config (names + links), story copy, quote types + stub, state shapes, ZIP lookup
+scripts/      → one-off generators (state shapes for the quote map)
 public/       → logo.svg, logo-icon.svg
 docs/         → project docs + original logo files
 ```

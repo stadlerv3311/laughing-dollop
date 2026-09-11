@@ -15,11 +15,13 @@ export type NavLink = {
 };
 
 export const aboutLink: NavLink = { label: "About", href: "/about" };
+export const newsLink: NavLink = { label: "News", href: "/news" };
 
 export const primaryNav: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   aboutLink,
+  newsLink,
 ];
 
 export const careersNav: NavLink[] = [
@@ -35,7 +37,7 @@ export const careersNav: NavLink[] = [
   },
 ];
 
-export const trackLink: NavLink = { label: "Track a Load", href: "/track" };
+export const fleetMapLink: NavLink = { label: "Fleet Map", href: "/fleet-map" };
 export const quoteLink: NavLink = { label: "Get a Quote", href: "/quote" };
 export const applyLink: NavLink = { label: "Apply To Drive", href: "/careers/drivers" };
 
@@ -58,6 +60,7 @@ export const companyStats: CompanyStat[] = [
 export const footerNav: NavLink[] = [
   { label: "Services", href: "/services" },
   aboutLink,
+  newsLink,
   { label: "Careers", href: "/careers/drivers" },
-  trackLink,
+  fleetMapLink,
 ];

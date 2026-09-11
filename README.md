@@ -12,8 +12,9 @@ A Next.js (App Router) + Tailwind + TypeScript site serving two audiences: shipp
 - Homepage numbers band: 10+ years in business, 32M+ miles driven, 125,000+ loads completed, 48 states — numbers fill up as it scrolls into view
 - Homepage story card: short company history that links to the full story on the About page (draft copy for now)
 - Services page (Dry Van today, extensible for future trailer types) — *placeholder*
-- Request a Quote form — *placeholder*
-- Track a Load (simple map view, no login) — *placeholder*
+- Get a Quote: clickable map of the lower 48 (pickup → delivery with a route line) next to a short quote form — built, not connected to a backend yet
+- Fleet Map (roughly where our trucks are, refreshed about hourly, no login) — *placeholder*
+- News (company news and updates) — *placeholder*
 - Careers: Drive For Us + staff (dispatcher/mechanic/office) applications — short form, HR follows up directly — *placeholder*
 - About (story, team, safety/compliance) — story section built with draft copy; team and safety still *placeholder*
 

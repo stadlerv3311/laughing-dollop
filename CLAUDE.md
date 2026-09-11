@@ -24,7 +24,7 @@ Stack: Next.js (App Router) + Tailwind CSS + TypeScript
 | A one-off implementation note for this specific change | Commit message — not a doc |
 
 ## 3. Do not silently expand scope
-This is a narrow, deliberately scoped site. DECISIONS.md exists because several choices are easy to "helpfully" undo — no login on Track a Load, short applications only, Dry Van only, no public pay rates, minimal nav. Before adding anything not covered in DECISIONS.md or ARCHITECTURE.md, stop and flag it rather than building it.
+This is a narrow, deliberately scoped site. DECISIONS.md exists because several choices are easy to "helpfully" undo — no login on Fleet Map, short applications only, Dry Van only, no public pay rates, minimal nav. Before adding anything not covered in DECISIONS.md or ARCHITECTURE.md, stop and flag it rather than building it.
 
 ## 4. Task format
 ```
