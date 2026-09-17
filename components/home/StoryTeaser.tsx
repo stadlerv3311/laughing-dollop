@@ -4,27 +4,27 @@ import { Container, Reveal } from "@/components/ui";
 import { aboutLink } from "@/lib/site";
 import { story } from "@/lib/story";
 
-/** Homepage card with the short company story. The whole card links to the About page. */
+/**
+ * Homepage band with the short company story — the page's one dark passage, edge to edge rather than a card
+ * floating in white. The whole band links to the About page (docs/DECISIONS.md → Company story).
+ */
 export function StoryTeaser() {
   return (
-    <section aria-labelledby="story-teaser-title" className="bg-paper pb-24 sm:pb-32">
+    <section aria-labelledby="story-teaser-title" className="group relative bg-ink py-20 text-paper sm:py-28 lg:py-36">
       <Container>
         <Reveal>
-          <article className="group relative grid gap-12 rounded-[2rem] bg-ink p-8 text-paper transition-colors duration-500 hover:bg-black sm:p-12 md:grid-cols-[1.15fr_1fr] md:gap-16 lg:p-16">
+          <div className="grid gap-12 md:grid-cols-[1.15fr_1fr] md:gap-16">
             <div>
-              <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-paper/70">
-                <span className="size-1.5 rounded-full bg-brand" aria-hidden />
-                Our story
-              </p>
-              <h2 id="story-teaser-title" className="mt-6 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+              <p className="text-sm font-semibold text-paper/60">Our story</p>
+              <h2 id="story-teaser-title" className="mt-5 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
                 {story.headline}
               </h2>
               <p className="mt-4 max-w-lg text-lg text-paper/70">{story.summary}</p>
 
-              {/* The link's ::after covers the whole card (above the timeline), so clicking anywhere on it opens About. */}
+              {/* The link's ::after covers the whole band, so clicking anywhere in it opens About. */}
               <Link
                 href={aboutLink.href}
-                className="mt-10 inline-flex items-center gap-2 text-lg font-semibold outline-none after:absolute after:inset-0 after:z-10 after:rounded-[2rem] focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-brand"
+                className="mt-10 inline-flex items-center gap-2 text-lg font-semibold outline-none after:absolute after:inset-0 after:z-10 focus-visible:after:outline-2 focus-visible:after:-outline-offset-4 focus-visible:after:outline-brand"
               >
                 Read our full story
                 <svg viewBox="0 0 16 16" aria-hidden className="size-4 transition-transform duration-500 ease-premium group-hover:translate-x-1">
@@ -33,9 +33,9 @@ export function StoryTeaser() {
               </Link>
             </div>
 
-            {/* Hidden on phones to keep the card short — the About page always shows the timeline. */}
+            {/* Hidden on phones to keep the band short — the About page always shows the timeline. */}
             <StoryMilestones milestones={story.milestones} tone="dark" className="hidden self-center md:block" />
-          </article>
+          </div>
         </Reveal>
       </Container>
     </section>

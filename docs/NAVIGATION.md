@@ -56,10 +56,11 @@ flowchart TD
   Header --> MobileMenu["layout/MobileMenu"]
   Page --> TruckIntro["intro/TruckIntro"]
   Page --> HomeHero["home/HomeHero"]
+  Page --> AudienceSplit["home/AudienceSplit"]
   Page --> TrustBar["home/TrustBar"]
   TruckIntro --> Video["public/videos/home-intro-*.mp4"]
   TruckIntro --> LogoTrack["intro/logoTrack + quad"]
-  HomeHero --> AudiencePanel["home/AudiencePanel"]
+  AudienceSplit --> AudiencePanel["home/AudiencePanel"]
   TruckIntro -. "intro progress" .-> Header
 ```
 
@@ -72,7 +73,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `Container` | Centered max-width wrapper with side padding | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
-| `ui/` | `HeroMedia` | Full-width photo or looping video band under the header (5:2 from `sm`, headline still visible below it), with a sunset color grade and film grain on top; `image` now, optional `video` later | Server |
+| `ui/` | `HeroMedia` | Full-width photo or looping video band, 500px tall, sitting below the page's opening headline; shown straight with no overlay; `image` now, optional `video` later | Server |
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
@@ -80,9 +81,10 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `layout/` | `CareersPanel` | Glass panel that drops from under the nav pill with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
-| `home/` | `HomeHero` | Headline + the two audience panels after the intro | Server |
-| `home/` | `AudiencePanel` | One "Ship With Us" / "Drive For Us" card | Server |
-| `home/` | `TrustBar` | Rounded band of company numbers that fill up on scroll (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
+| `home/` | `HomeHero` | The page's opening headline, above the photo band; carries the fixed header's clearance | Server |
+| `home/` | `AudienceSplit` | The flush light/dark "Ship with us" / "Drive for us" split; paints both halves edge to edge from `md` | Server |
+| `home/` | `AudiencePanel` | One half of the flush "Ship with us" / "Drive for us" split — a full-bleed band, not a card | Server |
+| `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
 | `quote/` | `StateMap` | Lower-48 map: hover lift + name tag, click pickup then delivery, route line and pins | Client |
 | `intro/` | `TruckIntro` | Plays the intro over the top of the page on load: the video, the logo handoff, white fade, Skip intro button, skip on scroll/tap | Client |

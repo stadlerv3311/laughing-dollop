@@ -26,10 +26,11 @@
 
 ### 🏠 Homepage — `/`
 - Intro (plays by itself, 6 seconds): a 5-second video of our truck on a desert highway → the shot ends on the trailer's side, held on the logo → our own logo fades in exactly over the painted one → the screen whitens as the logo turns to face you → it glides to the header's top-left corner as the page shows through. Scrolling, a tap, a scroll key or "Skip intro" jumps to the end; the header stays clickable throughout
-- Top photo (built, AI placeholder): a full-width photo of our truck on a desert highway (sunset color grade + film grain) at the top of the page — the intro plays over it and fades away to reveal it; repeat views show it straight away. B-roll video will replace the photo
-- Hero: dual CTA panels — "Ship With Us" / "Drive For Us"
+- Headline (built, draft copy): "Freight that moves. A team that drives it." — the first thing on the page, directly under the nav
+- Photo band (built, AI placeholder): a full-width 500px-tall photo of our truck on a desert highway, shown straight, below the headline — the intro plays over the top of the page and fades away to reveal it; repeat views show it straight away. B-roll video will replace the photo
+- Audience split (built): flush light/dark halves — "Ship with us" / "Drive for us"
 - Trust bar (built): 10+ years in business · 32M+ miles driven · 125,000+ loads completed · 48 states — numbers fill up on scroll. DOT/MC # and fleet size to add once the numbers are supplied
-- Story card (built, draft copy): short company history + milestones; the whole card links to `/about` for the full story
+- Story band (built, draft copy): short company history + milestones on a full-bleed dark band; the whole band links to `/about` for the full story
 - Services preview (Dry Van)
 - "Why Drive With Us" teaser → links to `/careers/drivers`
 - Testimonials / driver spotlight

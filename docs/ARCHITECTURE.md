@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — TruckIntro + HomeHero + TrustBar + StoryTeaser
+  page.tsx                   → Homepage (/) — TruckIntro(HomeHero + HeroMedia) + AudienceSplit + TrustBar + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -30,7 +30,7 @@ app/
 components/                  → component library, one folder per area, each with an index.ts
   ui/                        → Button, Container, CountUp, Field, HeroMedia, Logo, Reveal, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, AudiencePanel, TrustBar, StoryTeaser
+  home/                      → HomeHero, AudienceSplit, AudiencePanel, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
   quote/                     → QuoteForm, StateMap
   intro/                     → TruckIntro, timeline, logoTrack (where the logo sits on the trailer), quad (corners → matrix3d)
@@ -58,7 +58,7 @@ Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordi
 ## Component library conventions
 - Import from the folder barrel: `import { Button, Container } from "@/components/ui"`.
 - Server Components by default; add `"use client"` only for state, effects, or animation.
-- Style with Tailwind utilities and brand token names (`bg-brand`, `text-ink`, `bg-mist`, `bg-paper`, `ease-premium`) — no raw hex in components. The hero photo/video look (`sunset-grade`, `film-grain` utilities and the `grain` keyframes) lives in `app/globals.css`.
+- Style with Tailwind utilities and brand token names (`bg-brand`, `text-ink`, `bg-mist`, `bg-paper`, `ease-premium`) — no raw hex in components. The hero photo is shown straight: the `sunset-grade` and `film-grain` utilities and the `grain` keyframes were removed from `app/globals.css` on 2026-09-17.
 - Company name and links come from `lib/site.ts` — never hardcode them.
 - Put breakpoint visibility (`hidden lg:block`) on a wrapper, not on `Button` — its `inline-flex` would override `hidden`.
 - Small text is `text-ink/70` or darker — lighter tints fail contrast.
