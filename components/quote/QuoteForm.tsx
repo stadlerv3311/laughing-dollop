@@ -104,7 +104,7 @@ function toRequest(values: Values): QuoteRequest {
 }
 
 /**
- * Get a Quote: the state map on one side, the form on the other, kept in sync — clicking a state fills the dropdown,
+ * Get a Quote: the form on the left, the state map on the right, kept in sync — clicking a state fills the dropdown,
  * choosing a state or typing a ZIP lights up the map. Validates in the browser, then hands off to `submitQuote`.
  */
 export function QuoteForm({ className }: { className?: string }) {
@@ -165,24 +165,7 @@ export function QuoteForm({ className }: { className?: string }) {
   const delivery = values.delivery.state || null;
 
   return (
-    <div className={cx("grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-14", className)}>
-      <div className="lg:sticky lg:top-28">
-        <div className="rounded-[2rem] bg-mist p-4 sm:p-8">
-          <StateMap
-            pickup={pickup}
-            delivery={delivery}
-            onPick={(code) => status.kind !== "sent" && setValues((current) => pickOnMap(current, code))}
-          />
-          <RouteSummary
-            pickup={pickup}
-            delivery={delivery}
-            locked={status.kind === "sent"}
-            onSwap={() => setValues((current) => ({ ...current, pickup: current.delivery, delivery: current.pickup }))}
-            onClear={() => setValues((current) => ({ ...current, pickup: emptyStop, delivery: emptyStop }))}
-          />
-        </div>
-      </div>
-
+    <div className={cx("grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-14", className)}>
       {status.kind === "sent" ? (
         <div className="rounded-[2rem] bg-ink p-8 text-paper sm:p-10">
           <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-paper/70">
@@ -313,6 +296,21 @@ export function QuoteForm({ className }: { className?: string }) {
           </div>
         </form>
       )}
+
+      <div className="order-first lg:order-none lg:sticky lg:mt-[50px] lg:top-[162px]">
+        <StateMap
+          pickup={pickup}
+          delivery={delivery}
+          onPick={(code) => status.kind !== "sent" && setValues((current) => pickOnMap(current, code))}
+        />
+        <RouteSummary
+          pickup={pickup}
+          delivery={delivery}
+          locked={status.kind === "sent"}
+          onSwap={() => setValues((current) => ({ ...current, pickup: current.delivery, delivery: current.pickup }))}
+          onClear={() => setValues((current) => ({ ...current, pickup: emptyStop, delivery: emptyStop }))}
+        />
+      </div>
     </div>
   );
 }

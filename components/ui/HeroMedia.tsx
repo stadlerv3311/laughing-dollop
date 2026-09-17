@@ -16,18 +16,18 @@ export function HeroMedia({ image, video }: HeroMediaProps) {
   return (
     <div className="pt-18">
       <div className="relative h-[62svh] min-h-80 w-full overflow-hidden bg-ink sm:aspect-[5/2] sm:h-auto sm:max-h-[calc(100svh-15rem)]">
-        {/* Crop sits a little low so the truck's wheels stay in frame in the wide strip. */}
+        {/* Crop sits a little low so the road stays in frame in the wide strip, without clipping the cab roof. */}
         <Image
           src={image.src}
           alt={image.alt}
           fill
           loading="eager"
           sizes="100vw"
-          className="object-cover object-[50%_65%] saturate-[1.15]"
+          className="object-cover object-[50%_58%] saturate-[1.15]"
         />
         {video && (
           <video
-            className="absolute inset-0 size-full object-cover object-[50%_65%] saturate-[1.15] motion-reduce:hidden"
+            className="absolute inset-0 size-full object-cover object-[50%_58%] saturate-[1.15] motion-reduce:hidden"
             autoPlay
             muted
             loop

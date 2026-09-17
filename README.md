@@ -6,8 +6,8 @@ Public marketing and lead-generation website for ITrucking Solutions, a trucking
 A Next.js (App Router) + Tailwind + TypeScript site serving two audiences: shippers requesting a quote, and drivers/staff applying to join. Light, premium, and easy to use — especially for a driver looking for a job.
 
 ## Features
-- Homepage scroll intro: a 3D truck with our logo drives down a desert highway, the camera flies from an aerial around to the trailer's side, the truck drives off into the sunset, and the logo glides into the header
-- Homepage top photo that takes the intro's place once it has played (temporary AI placeholder — B-roll video later)
+- Homepage intro that plays by itself in 6 seconds: a video of our truck on a desert highway that ends on the trailer's logo — the logo then lifts off the trailer, turns to face you and glides into the header. Scrolling, a tap or "Skip intro" jumps to the end
+- Homepage top photo under the intro, shown straight away on repeat views (temporary AI placeholder — B-roll video later)
 - Homepage "Ship With Us" / "Drive For Us" panels
 - Homepage numbers band: 10+ years in business, 32M+ miles driven, 125,000+ loads completed, 48 states — numbers fill up as it scrolls into view
 - Homepage story card: short company history that links to the full story on the About page (draft copy for now)

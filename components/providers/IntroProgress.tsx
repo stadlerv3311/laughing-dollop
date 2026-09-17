@@ -6,7 +6,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 /**
  * Shared 0 → 1 progress of the homepage truck intro.
- * TruckIntro writes it while you scroll; Header reads it to know when the logo
+ * TruckIntro writes it as the intro plays; Header reads it to know when the logo
  * has landed. Every other page sits at 1 ("intro finished").
  */
 const IntroProgressContext = createContext<MotionValue<number> | null>(null);

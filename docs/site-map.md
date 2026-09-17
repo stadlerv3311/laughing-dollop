@@ -25,8 +25,8 @@
 ## Pages
 
 ### 🏠 Homepage — `/`
-- Scroll intro: 3D truck with the logo on a desert highway → camera drops from an aerial to the grille and flies around to the trailer's side → stops on the logo → truck drives off into the sunset → screen whitens → logo glides to the header's top-left corner
-- Top photo (built, AI placeholder): once the intro has played and scrolled away, it's replaced by a full-width photo of our truck on a bridge (sunset color grade + film grain) — scrolling back up shows the photo, not the intro. B-roll video will replace the photo
+- Intro (plays by itself, 6 seconds): a 5-second video of our truck on a desert highway → the shot ends on the trailer's side, held on the logo → our own logo fades in exactly over the painted one → the screen whitens as the logo turns to face you → it glides to the header's top-left corner as the page shows through. Scrolling, a tap, a scroll key or "Skip intro" jumps to the end; the header stays clickable throughout
+- Top photo (built, AI placeholder): a full-width photo of our truck on a desert highway (sunset color grade + film grain) at the top of the page — the intro plays over it and fades away to reveal it; repeat views show it straight away. B-roll video will replace the photo
 - Hero: dual CTA panels — "Ship With Us" / "Drive For Us"
 - Trust bar (built): 10+ years in business · 32M+ miles driven · 125,000+ loads completed · 48 states — numbers fill up on scroll. DOT/MC # and fleet size to add once the numbers are supplied
 - Story card (built, draft copy): short company history + milestones; the whole card links to `/about` for the full story

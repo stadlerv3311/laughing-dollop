@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { Container } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import type { NavLink } from "@/lib/site";
 
@@ -14,18 +13,19 @@ type CareersPanelProps = {
   onNavigate: () => void;
 };
 
-/** The small panel that drops from under the header when "Careers" is hovered or clicked. */
+/** The small glass panel that drops from under the nav pill when "Careers" is hovered or clicked. */
 export function CareersPanel({ links, pathname, onNavigate }: CareersPanelProps) {
   return (
     <motion.div
       id="careers-panel"
-      className="absolute inset-x-0 top-full overflow-hidden bg-paper/95 backdrop-blur-xl"
-      initial={{ clipPath: "inset(0% 0% 100% 0%)" }}
-      animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
-      exit={{ clipPath: "inset(0% 0% 100% 0%)" }}
-      transition={{ duration: 0.55, ease: EASE }}
+      // Padding, not margin, above the panel: the gap stays part of the header, so moving the pointer down doesn't close it.
+      className="absolute top-full w-[40rem] pt-3"
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.4, ease: EASE }}
     >
-      <Container className="grid gap-4 pb-10 pt-4 md:grid-cols-2 lg:max-w-4xl">
+      <div className="grid grid-cols-2 gap-2 rounded-3xl bg-paper/80 p-2 shadow-[0_16px_48px_rgb(37_37_37/0.12)] ring-1 ring-inset ring-ink/10 backdrop-blur-xl backdrop-saturate-150">
         {links.map((link, index) => {
           const active = pathname.startsWith(link.href);
           return (
@@ -40,7 +40,7 @@ export function CareersPanel({ links, pathname, onNavigate }: CareersPanelProps)
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
                 className={cx(
-                  "group flex h-full items-start justify-between gap-6 rounded-2xl bg-mist p-6 ring-1 ring-inset transition-shadow duration-300",
+                  "group flex h-full items-start justify-between gap-6 rounded-2xl bg-paper/70 p-6 ring-1 ring-inset transition-shadow duration-300",
                   active ? "ring-ink/20" : "ring-transparent hover:ring-ink/10",
                 )}
               >
@@ -59,7 +59,7 @@ export function CareersPanel({ links, pathname, onNavigate }: CareersPanelProps)
             </motion.div>
           );
         })}
-      </Container>
+      </div>
     </motion.div>
   );
 }

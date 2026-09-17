@@ -7,7 +7,7 @@
 - Tailwind CSS v4 — brand tokens live in `app/globals.css` → `@theme`
 - motion (`motion/react`) — UI animation and scroll-linked values
 - Lenis — smooth wheel scrolling (turned off for reduced motion)
-- three.js + @react-three/fiber + @react-three/drei — homepage 3D truck intro only; lazy-loaded, client-only
+- No 3D library — the homepage intro is a `<video>` plus a CSS `matrix3d` transform (three.js and React Three Fiber were removed on 2026-09-11)
 - Font: Manrope via `next/font/google` (provisional — see DECISIONS.md → Open)
 - Form backend: owned by the backend teammate, not yet decided — see DECISIONS.md
 
@@ -33,7 +33,7 @@ components/                  → component library, one folder per area, each wi
   home/                      → HomeHero, AudiencePanel, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
   quote/                     → QuoteForm, StateMap
-  intro/                     → TruckIntro, TruckScene, Truck, Highway, Atmosphere, timeline, daylight, useSceneProgress, useSvgTexture
+  intro/                     → TruckIntro, timeline, logoTrack (where the logo sits on the trailer), quad (corners → matrix3d)
   providers/                 → IntroProgressProvider, SmoothScroll
 
 lib/
@@ -48,7 +48,8 @@ scripts/
 
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
-  images/                    → photos; home-hero-placeholder.jpg is a temporary AI-generated image (B-roll video will replace it)
+  images/                    → photos; home-hero-desert.jpg is a temporary AI-generated image (B-roll video will replace it)
+  videos/                    → homepage intro: home-intro-1080.mp4, home-intro-720.mp4 (phones), home-intro-poster.jpg (first frame)
 ```
 Full component list: NAVIGATION.md → Component library.
 
@@ -57,7 +58,7 @@ Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordi
 ## Component library conventions
 - Import from the folder barrel: `import { Button, Container } from "@/components/ui"`.
 - Server Components by default; add `"use client"` only for state, effects, or animation.
-- Style with Tailwind utilities and brand token names (`bg-brand`, `text-ink`, `bg-mist`, `bg-paper`, `ease-premium`) — no raw hex in components (the 3D scene is the exception). The hero photo/video look (`sunset-grade`, `film-grain` utilities and the `grain` keyframes) lives in `app/globals.css`.
+- Style with Tailwind utilities and brand token names (`bg-brand`, `text-ink`, `bg-mist`, `bg-paper`, `ease-premium`) — no raw hex in components. The hero photo/video look (`sunset-grade`, `film-grain` utilities and the `grain` keyframes) lives in `app/globals.css`.
 - Company name and links come from `lib/site.ts` — never hardcode them.
 - Put breakpoint visibility (`hidden lg:block`) on a wrapper, not on `Button` — its `inline-flex` would override `hidden`.
 - Small text is `text-ink/70` or darker — lighter tints fail contrast.
@@ -78,8 +79,8 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 ### Logo
 | Source file (`docs/`) | Web copy (`public/`) | What it is | Use |
 |---|---|---|---|
-| `Logo black.svg` | `logo.svg` | Orange star icon + lowercase "itrucking" wordmark (764×192) | Header, footer, trailer side in the intro |
-| `Only logo Solutions.svg` | `logo-icon.svg` (+ `app/icon.svg`) | 8-piece orange star only (248×248) | Favicon, loader, trailer roof in the intro |
+| `Logo black.svg` | `logo.svg` | Orange star icon + lowercase "itrucking" wordmark (764×192) | Header, footer, the intro's flying logo |
+| `Only logo Solutions.svg` | `logo-icon.svg` (+ `app/icon.svg`) | 8-piece orange star only (248×248) | Favicon |
 
 The `docs/` copies are the source originals. The wordmark reads "itrucking" only — the full name "ITrucking Solutions" appears in page text, titles, and footer.
 
@@ -95,25 +96,26 @@ Design references (what we take from each — style and structure only, never th
 | sendsierra.com/drivers-enrollment | Big motion hero on the driver page |
 | dotlogics.com | Overall feel: premium but light and easy |
 
-## Homepage intro (scroll-driven 3D)
-- `TruckIntro` pins a full-screen stage for 4.5 screen-heights of scroll (`INTRO.screens`); the page content overlaps its last 30% so it slides in as the logo lands.
-- Phases (fractions of that scroll, all in `components/intro/timeline.ts`):
-  - 0–0.40 camera drops from a high aerial ahead of the truck to its grille, then flies around to the trailer's side — one smooth curve through the three shots
-  - 0.40–0.48 slow push-in; the camera stops on the trailer logo
-  - 0.43–0.49 a flat DOM copy of the logo fades in exactly over the 3D one, which then switches off
-  - 0.50–0.84 the truck drives off down the road into the sunset; the camera drops into the lane behind it while the logo stays on screen
-  - 0.10–0.74 the light warms from morning to sunset (colors in `daylight.ts`)
-  - 0.70–0.83 the sunset fades to white
-  - 0.83–0.94 logo glides into the header's logo slot (`[data-intro-logo-target]`)
-  - 0.90 header nav goes from dimmed to fully visible
-- Scene is procedural — no 3D model, image or video files: black tractor + white 53' dry van with `logo.svg` on the side and the star on the roof, a desert highway, and a shader sky dome with the sun and a distant mesa skyline. The road texture, guardrail posts and light poles slide past; during the drive-off they slow down while the truck pulls ahead.
-- Each frame, `TruckScene` sends `TruckIntro` two screen rects: where the trailer logo is now, and where it sits when the camera stops on it (the spot the DOM logo holds while the truck drives away). `TruckIntro` moves the DOM logo, white overlay and scroll cue.
-- 3D parts read progress through `useSceneProgress` (lightly damped so fast scrolls glide); DOM overlays use raw progress so they stay in lockstep with the header.
+## Homepage intro (plays on load, video)
+- `TruckIntro` lays a full-screen stage over the top of the page (fixed, `z-40`, under the header) and plays it by itself in 6 seconds (`INTRO.duration`): a 5-second video, then the logo's handoff to the header. The page itself (`children` — the `HeroMedia` photo band — and the content below) is always rendered underneath; at the end the stage fades away and unmounts.
+- The video is a plain `<video>` (muted, `playsInline`, `preload="auto"`, first frame as `poster`) covering the stage. Two `<source>`s: phones (`max-width: 767px`) get `home-intro-720.mp4`, everyone else `home-intro-1080.mp4`. It's started by hand with `play()` rather than `autoPlay`, because React leaves `muted` out of the server HTML and browsers only autoplay muted video.
+- One `requestAnimationFrame` loop drives everything. The clock itself is `advanceClock` in `components/intro/clock.ts` — a pure function, so it can be exercised without a browser. While the video plays the clock follows its `currentTime`, smoothed between frames and never more than `MAX_LEAD` ahead, so the logo stays locked to the picture. The loop writes intro progress 0 → 1 and moves the logo, the white overlay, the stage fade and the Skip button's progress line.
+- **Once the video is on its last frame the clock runs on real time — it never waits for the `ended` event.** That event can arrive late or not at all; while it was the only way past the video's length, the clock stayed pinned at `currentTime + MAX_LEAD` (≈5.14 s of a 6 s intro) and the intro hung on a white screen with the logo mid-flight until the visitor clicked (found and fixed 2026-09-11). For the same reason, "has the picture moved?" ignores the media clock wobbling by a fraction of a millisecond — that wobble used to reset the stall check forever.
+- If the picture stops moving mid-video for longer than `STALL_GRACE` — buffering, a backgrounded tab, a phone saving power — the clock carries on by itself and nudges a paused video back into playing, so the intro can never sit frozen on screen waiting for a video that isn't coming.
+- Phases (seconds on that clock, all in `components/intro/timeline.ts`, stored as fractions of the play length):
+  - 0–5.04 the video: the truck on a desert highway, ending on the trailer's side, held on the logo
+  - 4.4–4.7 our `logo.svg` fades in exactly over the painted one (under the white, since the painted logo has a bigger star and smaller letters)
+  - 4.5–5.05 the picture fades to white around the logo
+  - 4.7–5.2 the logo peels off the trailer and turns flat to face you
+  - 5.25–5.9 logo glides into the header's logo slot (`[data-intro-logo-target]`)
+  - 5.4–1 the white fades away and the page shows through
+  - 5.5 header nav goes from dimmed to fully visible
+- Sitting the logo on the trailer: `logoTrack.ts` holds the corners of the painted logo in video px, measured from the frames for the last second and blended between them; `quad.ts` turns any four corners into a CSS `matrix3d` (Heckbert's square-to-quad), so the flat SVG takes on the trailer's perspective. Video px → screen px accounts for `object-cover`. Unfolding and flying are the same four corners interpolated toward a flat rectangle and then the header's slot — no separate transform stack. **A different video means re-measuring `TRACK`.**
+- While it plays the page doesn't scroll. A wheel or touch scroll, any tap or click (header included), a scroll key, Escape or the Skip intro button jumps to the end: the picture fades to white (`INTRO.skipFade`, 0.2 s), then the logo glides in while the page shows (`INTRO.skipGlide`, 0.4 s). Wheel and touch events are caught in the capture phase on `window`, so Lenis never sees them. Skipping before the video has started just shows the page.
+- The header sits above the stage, so its links and buttons work during the intro.
 - `IntroProgressProvider` shares progress with `Header`: 0 on `/` until the logo lands, 1 on every other page.
 - Plays once per visit: a module-level flag in `TruckIntro` marks it played, so later client-side visits to `/` skip it. A reload resets the flag. (Works because pages unmount on navigation — if `cacheComponents` is ever turned on, Next keeps pages alive and this needs revisiting.)
-- After it has played, once the page content reaches the top of the screen, `TruckIntro` swaps the pinned section for its `children` (`HeroMedia` — placeholder photo now, B-roll video later) and scrolls by the height difference through Lenis, so nothing moves on screen. Scrolling back up shows the photo, not a replay.
-- Skipped entirely (`children` shown straight away, header visible immediately) for `prefers-reduced-motion`, browsers without WebGL, and repeat views in the same visit.
-- three.js loads via `next/dynamic` with `ssr: false`, so other pages never download it. Rendering pauses when the intro is off screen.
+- Skipped entirely (page shown straight away, header visible immediately) for `prefers-reduced-motion` and repeat views in the same visit. If the video hasn't started within `INTRO.loadTimeout` (3 s) — slow network, autoplay turned off — the page shows instead.
 
 ## Header behavior
 - Fixed. Transparent at the top, frosted white once scrolled. Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the intro or while a menu is open).
@@ -141,7 +143,7 @@ QuoteRequest { pickup: { state, place }, delivery: { state, place }, weightLbs, 
 - Hover lifts a copy of the state on top with a shadow and shows a name tag; touch skips hover. Clicks set pickup → delivery; a route curve draws between the two pin spots (`cx`, `cy`: centroid of each state's largest piece).
 - `QuoteForm` owns the state: map clicks, the state dropdowns and ZIPs typed into City or ZIP (`lib/zip.ts`) all update the same pickup/delivery values. A ZIP from a different state is cleared when the state changes.
 - The SVG is `aria-hidden`; the dropdowns are the accessible way to pick states. Errors show after the first submit (an Alaska/Hawaii ZIP is flagged right away), and the first invalid field gets focus.
-- Map sits left and stays in view (sticky) from `lg`; below that it's above the form.
+- Map sits right of the form and stays in view (sticky) from `lg`; below that it's above the form (`order-first lg:order-none` — the map is second in the DOM so it falls right at `lg` without reordering the form). It sits straight on the page background — no card — so its `stroke-paper` borders read as gaps between the states.
 
 ### Qualification form (Drive For Us + staff roles)
 5–6 short questions only. Submits into an HR contact flow, not a document/e-signature pipeline. See DECISIONS.md → Applications.

@@ -9,8 +9,8 @@ export default function HomePage() {
         {/* Temporary AI-generated placeholder photo. A B-roll video will replace it — pass `video`. */}
         <HeroMedia
           image={{
-            src: "/images/home-hero-placeholder.jpg",
-            alt: "White ITrucking semi truck crossing a cable-stayed bridge at sunset",
+            src: "/images/home-hero-desert.jpg",
+            alt: "White ITrucking semi truck on an open desert highway at sunset",
           }}
         />
       </TruckIntro>

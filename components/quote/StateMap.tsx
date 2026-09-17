@@ -8,7 +8,7 @@ import { US_MAP_HEIGHT, US_MAP_WIDTH, usStates, type StateCode, type UsState } f
 const byCode = new Map(usStates.map((state) => [state.code, state]));
 const EASE = [0.22, 1, 0.36, 1] as const;
 /** Opaque version of the resting fill, a step darker, so the lifted state hides the borders underneath it. */
-const HOVER_FILL = "fill-[color-mix(in_oklab,var(--color-ink)_24%,var(--color-mist))]";
+const HOVER_FILL = "fill-[color-mix(in_oklab,var(--color-ink)_24%,var(--color-paper))]";
 
 type StateMapProps = {
   pickup: StateCode | null;

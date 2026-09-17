@@ -4,7 +4,7 @@
 ## Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | Scroll intro, "Ship With Us / Drive For Us" panels and numbers band built |
+| `/` | `app/page.tsx` | 6-second video truck intro, "Ship With Us / Drive For Us" panels and numbers band built |
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
@@ -20,14 +20,11 @@
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
 | Change the font | `app/layout.tsx` → `Manrope` import |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
-| Tune intro timing (length, when the drive-off, white fade and logo glide happen) | `components/intro/timeline.ts` |
-| Change how far the truck drives off | `components/intro/timeline.ts` → `DRIVE_DISTANCE` |
-| Tune the intro camera path | `components/intro/TruckScene.tsx` → `AERIAL`, `FRONT`, `DRIVE_CAMERA` shots and `Director` |
-| Change the morning / sunset colors and light | `components/intro/daylight.ts` |
-| Change the sky, sun or mesa skyline | `components/intro/Atmosphere.tsx` |
-| Change the truck's look or logo placement | `components/intro/Truck.tsx` |
-| Change the road, guardrail, light poles | `components/intro/Highway.tsx` |
-| Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `handleFrame` |
+| Tune intro timing (length, how fast skipping is, when the logo swap, white fade, unfold and glide happen) | `components/intro/timeline.ts` |
+| Replace the intro video | `public/videos/home-intro-1080.mp4`, `-720.mp4`, `-poster.jpg` — then re-measure the logo track |
+| Fix the logo sitting crooked on the trailer | `components/intro/logoTrack.ts` → `TRACK` (the painted logo's corners, in video px) |
+| Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `draw` |
+| Fix the intro hanging, or how it keeps time with the video | `components/intro/clock.ts` → `advanceClock` |
 | Edit the homepage headline and panels | `components/home/HomeHero.tsx` |
 | Replace the homepage top photo or add the B-roll video | `app/page.tsx` → `HeroMedia` (`image` / `video`); files in `public/images/` |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
@@ -60,10 +57,8 @@ flowchart TD
   Page --> TruckIntro["intro/TruckIntro"]
   Page --> HomeHero["home/HomeHero"]
   Page --> TrustBar["home/TrustBar"]
-  TruckIntro --> TruckScene["intro/TruckScene (3D canvas)"]
-  TruckScene --> Atmosphere["intro/Atmosphere"]
-  TruckScene --> Truck["intro/Truck"]
-  TruckScene --> Highway["intro/Highway"]
+  TruckIntro --> Video["public/videos/home-intro-*.mp4"]
+  TruckIntro --> LogoTrack["intro/logoTrack + quad"]
   HomeHero --> AudiencePanel["home/AudiencePanel"]
   TruckIntro -. "intro progress" .-> Header
 ```
@@ -73,7 +68,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 
 | Folder | Component | What it does | Runs on |
 |---|---|---|---|
-| `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (orange), `dark`, `outline`. Sizes: `md`, `lg` | Server |
+| `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (orange), `dark`, `outline`, `glass` (frosted pill, matches the header's nav pill). Sizes: `md`, `lg` | Server |
 | `ui/` | `Container` | Centered max-width wrapper with side padding | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
@@ -81,8 +76,8 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
-| `layout/` | `Header` | Fixed header: logo, nav, Careers drop panel, CTAs, hide-on-scroll on phones | Client |
-| `layout/` | `CareersPanel` | Panel that drops from under the header with the two Careers links | Client |
+| `layout/` | `Header` | Fixed header with no bar: logo alone top-left, glass nav pill in the middle, Get a Quote / Apply To Drive as their own pills on the right; Careers drop panel, hide-on-scroll on phones | Client |
+| `layout/` | `CareersPanel` | Glass panel that drops from under the nav pill with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
 | `home/` | `HomeHero` | Headline + the two audience panels after the intro | Server |
@@ -90,15 +85,11 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `TrustBar` | Rounded band of company numbers that fill up on scroll (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
 | `quote/` | `StateMap` | Lower-48 map: hover lift + name tag, click pickup then delivery, route line and pins | Client |
-| `intro/` | `TruckIntro` | Pinned scroll stage: flying logo, white fade, scroll cue, loader | Client |
-| `intro/` | `TruckScene` | WebGL canvas and the camera `Director` (lazy-loaded) | Client |
-| `intro/` | `Truck` | Procedural tractor + dry van with logo decals, spinning wheels; drives off at the end | Client |
-| `intro/` | `Highway` | Endless road texture, guardrail posts, light poles, ground | Client |
-| `intro/` | `Atmosphere` | Sky dome with sun and mesa skyline; sun, ambient light and fog for the time of day | Client |
-| `intro/` | `daylight.ts` | Morning and sunset palettes, blended by scroll | — |
-| `intro/` | `useSceneProgress` | Damped scroll progress shared by the 3D parts | Client |
-| `intro/` | `timeline.ts` | `INTRO` scroll phases, drive-off distance + easing helpers | — |
-| `intro/` | `useSvgTexture` | Turns an SVG into a sharp 3D texture | Client |
+| `intro/` | `TruckIntro` | Plays the intro over the top of the page on load: the video, the logo handoff, white fade, Skip intro button, skip on scroll/tap | Client |
+| `intro/` | `timeline.ts` | `INTRO` play length, skip speed and phases + easing helpers | — |
+| `intro/` | `clock.ts` | Advances the intro clock: follows the video, then real time once the picture has run out | — |
+| `intro/` | `logoTrack.ts` | Where the painted logo sits on the trailer through the video's last second (video px) | — |
+| `intro/` | `quad.ts` | Four corners → CSS `matrix3d`, and the corner helpers the handoff interpolates | — |
 | `providers/` | `IntroProgressProvider`, `useIntroProgress` | Shares intro progress (0–1) between intro and header | Client |
 | `providers/` | `SmoothScroll` | Lenis smooth scrolling; off for reduced motion | Client |
 

@@ -20,13 +20,19 @@ function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
+/** Frosted-glass pill surface shared by the nav, the CTAs and the menu button. Firmer once the page scrolls. */
+function glassClass(solid: boolean) {
+  return cx(
+    "rounded-full ring-1 ring-inset ring-ink/10 shadow-[0_8px_32px_rgb(37_37_37/0.08)] backdrop-blur-xl backdrop-saturate-150 transition-[background-color] duration-500",
+    solid ? "bg-paper/80" : "bg-paper/55",
+  );
+}
+
 function navItemClass(active: boolean, small = false) {
   return cx(
-    "relative inline-flex items-center gap-1.5 whitespace-nowrap py-2 font-medium transition-colors duration-300",
+    "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-4 font-medium transition-[background-color,color,box-shadow] duration-300 xl:px-5",
     small ? "text-sm" : "text-[15px]",
-    active ? "text-ink" : "text-ink/70 hover:text-ink",
-    "after:absolute after:inset-x-0 after:bottom-0.5 after:h-0.5 after:origin-left after:rounded-full after:bg-brand after:transition-transform after:duration-500 after:ease-premium",
-    active ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100",
+    active ? "bg-paper text-ink shadow-[0_1px_4px_rgb(37_37_37/0.1)]" : "text-ink/70 hover:bg-paper/60 hover:text-ink",
   );
 }
 
@@ -44,9 +50,10 @@ function NavItem({ href, active, small, children, ...rest }: NavItemProps) {
 }
 
 /**
- * Fixed site header (Lucid-style): transparent at the top, frosted white once you scroll, and
+ * Fixed site header: no bar — the logo sits alone top-left, the nav is a frosted-glass pill in the
+ * middle and the two CTAs are their own pills on the right (glass firms up once you scroll). It
  * stays in view as you scroll — except on phones, where it slides away on scroll down and drops
- * back on scroll up. Careers opens a panel that drops from under the bar. During the homepage
+ * back on scroll up. Careers opens a glass panel that drops from under the nav pill. During the homepage
  * intro the nav stays dimmed over the scene (full on hover) and the logo stays hidden until the
  * intro lands it.
  */
@@ -121,15 +128,7 @@ export function Header() {
         transition={{ duration: 0.55, ease: EASE }}
         onMouseLeave={closeCareers}
       >
-        <div
-          className={cx(
-            "relative transition-[background-color,backdrop-filter] duration-500",
-            solid || careersOpen
-              ? "bg-paper/85 backdrop-blur-xl"
-              : cx("bg-transparent", dimmed && "group-hover:bg-paper/85 group-hover:backdrop-blur-xl"),
-          )}
-        >
-          <Container className="flex h-18 items-center gap-6 xl:gap-8">
+          <Container className="flex h-18 items-center gap-6">
             <Link
               href="/"
               aria-label={`${site.name} home`}
@@ -143,62 +142,65 @@ export function Header() {
               </motion.div>
             </Link>
 
-            <nav aria-label="Main" className={cx("hidden flex-1 items-center justify-center gap-5 lg:flex xl:gap-8", dimClass)}>
-              {primaryNav.map((link) => (
+            <div className={cx("relative hidden flex-1 justify-center lg:flex", dimClass)}>
+              <nav aria-label="Main" className={cx("flex items-center p-1", glassClass(solid || careersOpen))}>
+                {primaryNav.map((link) => (
+                  <NavItem
+                    key={link.href}
+                    href={link.href}
+                    active={isActive(pathname, link.href)}
+                    onMouseEnter={closeCareers}
+                    onClick={closeAll}
+                  >
+                    {link.label}
+                  </NavItem>
+                ))}
+                <button
+                  type="button"
+                  aria-expanded={careersOpen}
+                  aria-controls="careers-panel"
+                  onMouseEnter={() => setCareersOpen(true)}
+                  onClick={() => setCareersOpen((open) => !open)}
+                  className={navItemClass(careersActive || careersOpen)}
+                >
+                  Careers
+                  <svg viewBox="0 0 12 12" aria-hidden className={cx("size-3 transition-transform duration-500 ease-premium", careersOpen && "rotate-180")}>
+                    <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
                 <NavItem
-                  key={link.href}
-                  href={link.href}
-                  active={isActive(pathname, link.href)}
+                  href={fleetMapLink.href}
+                  active={isActive(pathname, fleetMapLink.href)}
+                  small
                   onMouseEnter={closeCareers}
                   onClick={closeAll}
                 >
-                  {link.label}
+                  {fleetMapLink.label}
                 </NavItem>
-              ))}
-              <button
-                type="button"
-                aria-expanded={careersOpen}
-                aria-controls="careers-panel"
-                onMouseEnter={() => setCareersOpen(true)}
-                onClick={() => setCareersOpen((open) => !open)}
-                className={navItemClass(careersActive)}
-              >
-                Careers
-                <svg viewBox="0 0 12 12" aria-hidden className={cx("size-3 transition-transform duration-500 ease-premium", careersOpen && "rotate-180")}>
-                  <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              <NavItem
-                href={fleetMapLink.href}
-                active={isActive(pathname, fleetMapLink.href)}
-                small
-                onMouseEnter={closeCareers}
-                onClick={closeAll}
-              >
-                {fleetMapLink.label}
-              </NavItem>
-            </nav>
+              </nav>
+
+              <AnimatePresence>
+                {careersOpen && <CareersPanel links={careersNav} pathname={pathname} onNavigate={closeAll} />}
+              </AnimatePresence>
+            </div>
 
             <div className={cx("ml-auto flex items-center gap-3 lg:ml-0", dimClass)} onMouseEnter={closeCareers}>
               {/* Breakpoint visibility lives on wrappers — Button's own inline-flex would override `hidden`. */}
               <div className="hidden lg:block">
-                <Button href={quoteLink.href} variant="outline" onClick={closeAll}>
+                <Button href={quoteLink.href} variant="glass" onClick={closeAll}>
                   {quoteLink.label}
                 </Button>
               </div>
               <div className="hidden sm:block">
-                <Button href={applyLink.href} onClick={closeAll}>
+                <Button href={applyLink.href} onClick={closeAll} className="shadow-[0_8px_32px_rgb(255_48_0/0.25)]">
                   {applyLink.label}
                 </Button>
               </div>
-              <MenuToggle open={mobileOpen} onToggle={() => setMobileOpen((open) => !open)} />
+              <div className={cx("lg:hidden", glassClass(solid || mobileOpen))}>
+                <MenuToggle open={mobileOpen} onToggle={() => setMobileOpen((open) => !open)} />
+              </div>
             </div>
           </Container>
-
-          <AnimatePresence>
-            {careersOpen && <CareersPanel links={careersNav} pathname={pathname} onNavigate={closeAll} />}
-          </AnimatePresence>
-        </div>
       </motion.header>
 
       <AnimatePresence>

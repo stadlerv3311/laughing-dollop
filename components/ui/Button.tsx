@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cx } from "@/lib/cx";
 
-type Variant = "primary" | "dark" | "outline";
+type Variant = "primary" | "dark" | "outline" | "glass";
 type Size = "md" | "lg";
 
 const base =
@@ -14,6 +14,9 @@ const variants: Record<Variant, string> = {
   primary: "bg-brand text-paper text-[19px] font-bold hover:brightness-[0.92]",
   dark: "bg-ink text-paper text-base font-semibold hover:bg-black",
   outline: "text-ink text-base font-semibold ring-1 ring-inset ring-ink/20 hover:ring-ink/60",
+  // Frosted pill for use over photos and the header — matches the header's nav pill.
+  glass:
+    "bg-paper/55 text-ink text-base font-semibold ring-1 ring-inset ring-ink/10 shadow-[0_8px_32px_rgb(37_37_37/0.08)] backdrop-blur-xl backdrop-saturate-150 hover:bg-paper/85",
 };
 
 const sizes: Record<Size, string> = {
