@@ -127,9 +127,42 @@ export const applyRoutes: readonly ApplyRoute[] = [
     body: "Mount, balance and road service, in our own shop.",
     href: "/careers/staff",
     image: {
+      // The owner's tire-tech portrait (2026-09-18), replacing an empty shop interior — the row now shows
+      // three people instead of two people and a room.
       src: "/images/apply-tire-shop.jpg",
-      alt: "Racks of truck tires along the wall of a bright service bay",
+      alt: "A tire technician standing with folded arms in a truck tire shop",
+      // Nearly square, so phones' 3:2 crop cuts over a third of the height. Biased up to keep headroom
+      // above his cap; centred, it nearly touches the top edge.
+      position: "50% 30%",
     },
+  },
+];
+
+export type SafetySystem = {
+  name: string;
+  body: string;
+};
+
+// The homepage's safety band (requested 2026-09-18). Behind it: Samsara for GPS on trucks and trailers, basic
+// telematics and dash cams; Fleetio for maintenance history. The copy lists what we have, not whose it is —
+// the owner chose not to name the vendors for now (2026-09-18).
+//
+// Draft copy. Two rules to keep while editing (docs/DECISIONS.md → Safety band):
+// - GPS lines say *we* track the equipment, never that a shipper can watch their load. The public Fleet Map
+//   is approximate on purpose, because exact positions are a cargo-theft and driver-privacy risk.
+// - Cameras are framed as recording the road, not as watching the driver — the page above is recruiting.
+export const safetySystems: readonly SafetySystem[] = [
+  {
+    name: "GPS on every truck and trailer",
+    body: "Every tractor and trailer has its own tracker, so one dropped at a yard is never out of sight.",
+  },
+  {
+    name: "Dash cameras",
+    body: "Our cameras face the road, so when something happens there’s footage of what really did.",
+  },
+  {
+    name: "Maintenance on record",
+    body: "Every repair and inspection is logged, so each truck’s full service history is on file.",
   },
 ];
 

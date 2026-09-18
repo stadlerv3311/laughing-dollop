@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — TruckIntro(HomeHero + ApplyRoutes) + AudienceSplit + TrustBar + StoryTeaser
+  page.tsx                   → Homepage (/) — TruckIntro(HomeHero + ApplyRoutes) + ShipWithUs + TrustBar + SafetyBand + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -28,9 +28,9 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, PagePlaceholder
+  ui/                        → Button, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, ApplyRoutes, AudienceSplit, AudiencePanel, TrustBar, StoryTeaser
+  home/                      → HomeHero, ApplyRoutes, ShipWithUs, SafetyBand, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
   quote/                     → QuoteForm, StateMap
   intro/                     → TruckIntro, timeline, logoTrack (where the logo sits on the trailer), quad (corners → matrix3d)

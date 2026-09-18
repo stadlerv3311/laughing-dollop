@@ -1,4 +1,4 @@
-import { ApplyRoutes, AudienceSplit, HomeHero, StoryTeaser, TrustBar } from "@/components/home";
+import { ApplyRoutes, HomeHero, SafetyBand, ShipWithUs, StoryTeaser, TrustBar } from "@/components/home";
 import { TruckIntro } from "@/components/intro";
 
 export default function HomePage() {
@@ -10,8 +10,10 @@ export default function HomePage() {
         {/* Took the photo band's place on 2026-09-17 — the truck photo is the driver card now. */}
         <ApplyRoutes />
       </TruckIntro>
-      <AudienceSplit />
+      <ShipWithUs />
+      {/* The numbers are the divider between the two photo bands (2026-09-18) — no colour change. */}
       <TrustBar />
+      <SafetyBand />
       <StoryTeaser />
     </>
   );

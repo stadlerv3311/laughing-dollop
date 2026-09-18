@@ -7,3 +7,4 @@ export { Logo } from "./Logo";
 export { PagePlaceholder } from "./PagePlaceholder";
 export { Reveal } from "./Reveal";
 export { RotatingSlogan } from "./RotatingSlogan";
+export { SlideGroup, SlideItem } from "./SlideIn";
