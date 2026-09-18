@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — TruckIntro(HomeHero + HeroMedia) + AudienceSplit + TrustBar + StoryTeaser
+  page.tsx                   → Homepage (/) — TruckIntro(HomeHero + ApplyRoutes) + AudienceSplit + TrustBar + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -28,16 +28,17 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Container, CountUp, Field, HeroMedia, Logo, Reveal, PagePlaceholder
+  ui/                        → Button, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, AudienceSplit, AudiencePanel, TrustBar, StoryTeaser
+  home/                      → HomeHero, ApplyRoutes, AudienceSplit, AudiencePanel, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
   quote/                     → QuoteForm, StateMap
   intro/                     → TruckIntro, timeline, logoTrack (where the logo sits on the trailer), quad (corners → matrix3d)
   providers/                 → IntroProgressProvider, SmoothScroll
 
 lib/
-  site.ts                    → company name, every nav link (single source for Header, menu, Footer), homepage numbers
+  site.ts                    → company name, every nav link (single source for Header, menu, Footer), homepage numbers,
+                               rolling slogans, the three apply cards
   cx.ts                      → className join helper
   forms.ts                   → QuoteRequest type + submitQuote stub (backend contract goes here)
   us-states.ts               → generated lower-48 state shapes for the quote map — don't edit by hand
@@ -97,7 +98,7 @@ Design references (what we take from each — style and structure only, never th
 | dotlogics.com | Overall feel: premium but light and easy |
 
 ## Homepage intro (plays on load, video)
-- `TruckIntro` lays a full-screen stage over the top of the page (fixed, `z-40`, under the header) and plays it by itself in 6 seconds (`INTRO.duration`): a 5-second video, then the logo's handoff to the header. The page itself (`children` — the `HeroMedia` photo band — and the content below) is always rendered underneath; at the end the stage fades away and unmounts.
+- `TruckIntro` lays a full-screen stage over the top of the page (fixed, `z-40`, under the header) and plays it by itself in 6 seconds (`INTRO.duration`): a 5-second video, then the logo's handoff to the header. The page itself (`children` — the headline and the apply cards — and the content below) is always rendered underneath; at the end the stage fades away and unmounts.
 - The video is a plain `<video>` (muted, `playsInline`, `preload="auto"`, first frame as `poster`) covering the stage. Two `<source>`s: phones (`max-width: 767px`) get `home-intro-720.mp4`, everyone else `home-intro-1080.mp4`. It's started by hand with `play()` rather than `autoPlay`, because React leaves `muted` out of the server HTML and browsers only autoplay muted video.
 - One `requestAnimationFrame` loop drives everything. The clock itself is `advanceClock` in `components/intro/clock.ts` — a pure function, so it can be exercised without a browser. While the video plays the clock follows its `currentTime`, smoothed between frames and never more than `MAX_LEAD` ahead, so the logo stays locked to the picture. The loop writes intro progress 0 → 1 and moves the logo, the white overlay, the stage fade and the Skip button's progress line.
 - **Once the video is on its last frame the clock runs on real time — it never waits for the `ended` event.** That event can arrive late or not at all; while it was the only way past the video's length, the clock stayed pinned at `currentTime + MAX_LEAD` (≈5.14 s of a 6 s intro) and the intro hung on a white screen with the logo mid-flight until the visitor clicked (found and fixed 2026-09-11). For the same reason, "has the picture moved?" ignores the media clock wobbling by a fraction of a millisecond — that wobble used to reset the stall check forever.

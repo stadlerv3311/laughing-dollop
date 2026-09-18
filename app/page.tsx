@@ -1,6 +1,5 @@
-import { AudienceSplit, HomeHero, StoryTeaser, TrustBar } from "@/components/home";
+import { ApplyRoutes, AudienceSplit, HomeHero, StoryTeaser, TrustBar } from "@/components/home";
 import { TruckIntro } from "@/components/intro";
-import { HeroMedia } from "@/components/ui";
 
 export default function HomePage() {
   return (
@@ -8,13 +7,8 @@ export default function HomePage() {
       {/* The intro plays as a fixed overlay on top of these two, then fades away to reveal them. */}
       <TruckIntro>
         <HomeHero />
-        {/* Temporary AI-generated placeholder photo. A B-roll video will replace it — pass `video`. */}
-        <HeroMedia
-          image={{
-            src: "/images/home-hero-desert.jpg",
-            alt: "White ITrucking semi truck on an open desert highway at sunset",
-          }}
-        />
+        {/* Took the photo band's place on 2026-09-17 — the truck photo is the driver card now. */}
+        <ApplyRoutes />
       </TruckIntro>
       <AudienceSplit />
       <TrustBar />

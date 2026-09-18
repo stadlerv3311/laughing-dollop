@@ -25,8 +25,9 @@
 | Fix the logo sitting crooked on the trailer | `components/intro/logoTrack.ts` → `TRACK` (the painted logo's corners, in video px) |
 | Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `draw` |
 | Fix the intro hanging, or how it keeps time with the video | `components/intro/clock.ts` → `advanceClock` |
-| Edit the homepage headline and panels | `components/home/HomeHero.tsx` |
-| Replace the homepage top photo or add the B-roll video | `app/page.tsx` → `HeroMedia` (`image` / `video`); files in `public/images/` |
+| Edit the homepage headline | `components/home/HomeHero.tsx`; the slogans themselves are `lib/site.ts` → `driverSlogans` |
+| Change the three homepage apply cards (roles, copy, photos, where they link) | `lib/site.ts` → `applyRoutes`; layout in `components/home/ApplyRoutes.tsx`; photos in `public/images/apply-*.jpg` |
+| Bring back the full-width homepage photo band, or add the B-roll video | `components/ui/HeroMedia.tsx` is still there but unused since 2026-09-17 — the apply cards took its place in `app/page.tsx` |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
 | Change the homepage numbers (years, miles, loads, states) | `lib/site.ts` → `companyStats`; layout in `components/home/TrustBar.tsx` |
 | Change quote form fields, error messages or the thank-you screen | `components/quote/QuoteForm.tsx` |
@@ -40,6 +41,7 @@
 | Change the footer | `components/layout/Footer.tsx` |
 | Add or change a button style | `components/ui/Button.tsx` |
 | Fade a block in when it scrolls into view | Wrap it in `<Reveal>` from `components/ui` |
+| Change or reorder the homepage's rolling slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey). This is the homepage h1, so the first one is what crawlers and screen readers get; keep every lead and tail a similar length |
 | Start a new page | Copy a placeholder in `app/`, then add its link in `lib/site.ts` (check DECISIONS.md nav rules first) |
 | Check whether something is in scope | `docs/DECISIONS.md` |
 | Find the original logo files | `docs/Logo black.svg` (full logo), `docs/Only logo Solutions.svg` (icon only) |
@@ -73,15 +75,17 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `Container` | Centered max-width wrapper with side padding | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
-| `ui/` | `HeroMedia` | Full-width photo or looping video band, 500px tall, sitting below the page's opening headline; shown straight with no overlay; `image` now, optional `video` later | Server |
+| `ui/` | `HeroMedia` | Full-width photo or looping video band, 500px tall; shown straight with no overlay; `image` now, optional `video` later. **Not currently used** — the homepage apply cards replaced it on 2026-09-17; kept for other pages' heroes | Server |
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
+| `ui/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag (the homepage passes `h1`); pauses on hover/focus and in a background tab; static under reduced motion | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
 | `layout/` | `Header` | Fixed header with no bar: logo alone top-left, glass nav pill in the middle, Get a Quote / Apply To Drive as their own pills on the right; Careers drop panel, hide-on-scroll on phones | Client |
 | `layout/` | `CareersPanel` | Glass panel that drops from under the nav pill with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
-| `home/` | `HomeHero` | The page's opening headline, above the photo band; carries the fixed header's clearance | Server |
+| `home/` | `HomeHero` | The page's opening headline, above the apply cards; carries the fixed header's clearance | Server |
+| `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `AudienceSplit` | The flush light/dark "Ship with us" / "Drive for us" split; paints both halves edge to edge from `md` | Server |
 | `home/` | `AudiencePanel` | One half of the flush "Ship with us" / "Drive for us" split — a full-bleed band, not a card | Server |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |

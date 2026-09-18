@@ -6,3 +6,4 @@ export { HeroMedia } from "./HeroMedia";
 export { Logo } from "./Logo";
 export { PagePlaceholder } from "./PagePlaceholder";
 export { Reveal } from "./Reveal";
+export { RotatingSlogan } from "./RotatingSlogan";
