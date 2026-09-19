@@ -1,5 +1,5 @@
-/** Play length in seconds: the 5-second video, then the logo turns to face you and glides into the header. */
-const DURATION = 6;
+/** Play length in seconds: the 5-second video, then the logo appears in the middle and glides into the header. */
+const DURATION = 6.2;
 
 /** Seconds on the intro clock → a fraction (0–1) of the play length. */
 const at = (seconds: number) => seconds / DURATION;
@@ -18,26 +18,22 @@ export const INTRO = {
   skipGlide: 0.4,
   /** If the video hasn't started by now (slow network, autoplay turned off), the page shows instead (s). */
   loadTimeout: 3,
-  /**
-   * The video ends on the trailer's side. A copy of the logo fades in exactly over the painted one and follows it.
-   * It comes in as the white does: the painted logo is drawn with a bigger star and smaller letters than ours, so
-   * the swap happens under the veil instead of in full view.
-   */
-  logoSwapStart: at(4.4),
-  logoSwapEnd: at(4.7),
-  /** The video fades to white around the logo. */
+  /** The video fades to white as it ends. */
   whitenStart: at(4.5),
   whitenEnd: at(5.05),
-  /** The logo peels off the trailer and turns flat to face you. */
-  unfoldStart: at(4.7),
-  unfoldEnd: at(5.2),
+  /**
+   * Our logo appears in the middle of the white screen, fading in and settling from slightly larger (changed
+   * 2026-09-18 — it used to fade in over the logo painted on the trailer and peel off it).
+   */
+  appearStart: at(4.85),
+  appearEnd: at(5.35),
   /** Logo glides into the header's top-left slot. */
-  flyStart: at(5.25),
-  flyEnd: at(5.9),
+  flyStart: at(5.45),
+  flyEnd: at(6.1),
   /** The white fades away and the page shows through, while the logo is still gliding. Ends at 1. */
-  revealStart: at(5.4),
+  revealStart: at(5.6),
   /** Header nav goes from dimmed to fully visible as the logo lands. */
-  navStart: at(5.5),
+  navStart: at(5.7),
 } as const;
 
 export function range(value: number, start: number, end: number) {

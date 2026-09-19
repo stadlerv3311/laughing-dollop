@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — TruckIntro(HomeHero + ApplyRoutes) + ShipWithUs + TrustBar + SafetyBand + StoryTeaser
+  page.tsx                   → Homepage (/) — TruckIntro(HomeHero) + DriverSlogans + ApplyRoutes + ShipWithUs + TrustBar + SafetyBand + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -30,10 +30,10 @@ app/
 components/                  → component library, one folder per area, each with an index.ts
   ui/                        → Button, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, ApplyRoutes, ShipWithUs, SafetyBand, TrustBar, StoryTeaser
+  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, SafetyBand, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
   quote/                     → QuoteForm, StateMap
-  intro/                     → TruckIntro, timeline, logoTrack (where the logo sits on the trailer), quad (corners → matrix3d)
+  intro/                     → TruckIntro, timeline, clock, quad (corners → matrix3d)
   providers/                 → IntroProgressProvider, SmoothScroll
 
 lib/
@@ -98,21 +98,20 @@ Design references (what we take from each — style and structure only, never th
 | dotlogics.com | Overall feel: premium but light and easy |
 
 ## Homepage intro (plays on load, video)
-- `TruckIntro` lays a full-screen stage over the top of the page (fixed, `z-40`, under the header) and plays it by itself in 6 seconds (`INTRO.duration`): a 5-second video, then the logo's handoff to the header. The page itself (`children` — the headline and the apply cards — and the content below) is always rendered underneath; at the end the stage fades away and unmounts.
+- `TruckIntro` lays a full-screen stage over the top of the page (fixed, `z-40`, under the header) and plays it by itself in 6.2 seconds (`INTRO.duration`): a 5-second video, then the logo's handoff to the header. The page itself (`children` — the photo hero — and the content below) is always rendered underneath; at the end the stage fades away and unmounts.
 - The video is a plain `<video>` (muted, `playsInline`, `preload="auto"`, first frame as `poster`) covering the stage. Two `<source>`s: phones (`max-width: 767px`) get `home-intro-720.mp4`, everyone else `home-intro-1080.mp4`. It's started by hand with `play()` rather than `autoPlay`, because React leaves `muted` out of the server HTML and browsers only autoplay muted video.
-- One `requestAnimationFrame` loop drives everything. The clock itself is `advanceClock` in `components/intro/clock.ts` — a pure function, so it can be exercised without a browser. While the video plays the clock follows its `currentTime`, smoothed between frames and never more than `MAX_LEAD` ahead, so the logo stays locked to the picture. The loop writes intro progress 0 → 1 and moves the logo, the white overlay, the stage fade and the Skip button's progress line.
+- One `requestAnimationFrame` loop drives everything. The clock itself is `advanceClock` in `components/intro/clock.ts` — a pure function, so it can be exercised without a browser. While the video plays the clock follows its `currentTime`, smoothed between frames and never more than `MAX_LEAD` ahead. The loop writes intro progress 0 → 1 and moves the logo, the white overlay, the stage fade and the Skip button's progress line.
 - **Once the video is on its last frame the clock runs on real time — it never waits for the `ended` event.** That event can arrive late or not at all; while it was the only way past the video's length, the clock stayed pinned at `currentTime + MAX_LEAD` (≈5.14 s of a 6 s intro) and the intro hung on a white screen with the logo mid-flight until the visitor clicked (found and fixed 2026-09-11). For the same reason, "has the picture moved?" ignores the media clock wobbling by a fraction of a millisecond — that wobble used to reset the stall check forever.
 - If the picture stops moving mid-video for longer than `STALL_GRACE` — buffering, a backgrounded tab, a phone saving power — the clock carries on by itself and nudges a paused video back into playing, so the intro can never sit frozen on screen waiting for a video that isn't coming.
 - Phases (seconds on that clock, all in `components/intro/timeline.ts`, stored as fractions of the play length):
-  - 0–5.04 the video: the truck on a desert highway, ending on the trailer's side, held on the logo
-  - 4.4–4.7 our `logo.svg` fades in exactly over the painted one (under the white, since the painted logo has a bigger star and smaller letters)
-  - 4.5–5.05 the picture fades to white around the logo
-  - 4.7–5.2 the logo peels off the trailer and turns flat to face you
-  - 5.25–5.9 logo glides into the header's logo slot (`[data-intro-logo-target]`)
-  - 5.4–1 the white fades away and the page shows through
-  - 5.5 header nav goes from dimmed to fully visible
-- Sitting the logo on the trailer: `logoTrack.ts` holds the corners of the painted logo in video px, measured from the frames for the last second and blended between them; `quad.ts` turns any four corners into a CSS `matrix3d` (Heckbert's square-to-quad), so the flat SVG takes on the trailer's perspective. Video px → screen px accounts for `object-cover`. Unfolding and flying are the same four corners interpolated toward a flat rectangle and then the header's slot — no separate transform stack. **A different video means re-measuring `TRACK`.**
-- While it plays the page doesn't scroll. A wheel or touch scroll, any tap or click (header included), a scroll key, Escape or the Skip intro button jumps to the end: the picture fades to white (`INTRO.skipFade`, 0.2 s), then the logo glides in while the page shows (`INTRO.skipGlide`, 0.4 s). Wheel and touch events are caught in the capture phase on `window`, so Lenis never sees them. Skipping before the video has started just shows the page.
+  - 0–5.04 the video: the truck on a desert highway
+  - 4.5–5.05 the picture fades to white
+  - 4.85–5.35 our `logo.svg` appears in the middle of the screen: fades in while settling from 108% to its resting size (`centerSpot` — about a third of the screen width, 240–480px)
+  - 5.45–6.1 logo glides into the header's logo slot (`[data-intro-logo-target]`)
+  - 5.6–1 the white fades away and the page shows through
+  - 5.7 header nav goes from dimmed to fully visible
+- The logo is drawn large and placed by its four corners each frame: `quad.ts` turns them into a CSS `matrix3d`, and the glide is those corners interpolated from the centered rectangle to the header's slot. Until 2026-09-18 the logo first appeared over the one painted on the trailer, bent to its angle (corners measured frame by frame in a `logoTrack.ts`), then peeled off it; the owner asked for it to appear in the middle instead, so the intro no longer depends on where the logo sits in the video.
+- While it plays the page doesn't scroll. A wheel or touch scroll, any tap or click (header included), a scroll key, Escape or the Skip intro button jumps to the end: the picture fades to white (`INTRO.skipFade`, 0.2 s), then the logo, already in the middle, glides in while the page shows (`INTRO.skipGlide`, 0.4 s). Wheel and touch events are caught in the capture phase on `window`, so Lenis never sees them. Skipping before the video has started just shows the page.
 - The header sits above the stage, so its links and buttons work during the intro.
 - `IntroProgressProvider` shares progress with `Header`: 0 on `/` until the logo lands, 1 on every other page.
 - Plays once per visit: a module-level flag in `TruckIntro` marks it played, so later client-side visits to `/` skip it. A reload resets the flag. (Works because pages unmount on navigation — if `cacheComponents` is ever turned on, Next keeps pages alive and this needs revisiting.)

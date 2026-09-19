@@ -64,14 +64,20 @@ export type Slogan = {
   tail: string;
 };
 
-// Draft copy — these ARE the homepage's rolling h1. The first one is the approved line, and the only one
-// crawlers and screen readers see, so it stays first. Lines 2–4 need sign-off before launch: the dispatcher
-// promise, the live bonus and the home-time line are commitments, not descriptions (docs/DECISIONS.md → Open).
+// The homepage's h1, fixed over the hero photo (2026-09-18). The owner's approved line.
+export const homeHeadline: Slogan = { lead: "Where you're known by your name,", tail: "not your truck number." };
+
+// The line under the h1 (from the owner's "2a" hero reference, 2026-09-18). Draft copy: like the rolling slogans,
+// these are promises — answered on the first ring, agreed routes, home on time — and need sign-off before launch.
+export const homeLede = "Dispatch that answers on the first ring. Routes you agreed to. Home when we said.";
+
+// Draft copy — the smaller rolling line under the hero (moved out of the h1 on 2026-09-18). All three need
+// sign-off before launch: the dispatcher promise, the live bonus and the home-time line are commitments, not
+// descriptions (docs/DECISIONS.md → Open). The first one is what screen readers get.
 //
-// Keep them all within a few characters of each other. They're rendered at headline size in a band sized to
-// the tallest one, so a noticeably shorter slogan would sit above a blank line the height of a headline row.
+// Keep them within a few characters of each other: the line is sized to the tallest one, so a noticeably
+// shorter slogan would sit above a blank row.
 export const driverSlogans: readonly Slogan[] = [
-  { lead: "Where you're known by your name,", tail: "not your truck number." },
   { lead: "A dispatcher who knows your route,", tail: "and answers the phone." },
   { lead: "Watch your bonus grow live,", tail: "so payday is never a surprise." },
   { lead: "Home time you planned on,", tail: "not home time you hoped for." },

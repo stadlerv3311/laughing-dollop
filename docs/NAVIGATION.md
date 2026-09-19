@@ -4,7 +4,7 @@
 ## Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | 6-second video truck intro, rolling slogan headline, three apply cards, Ship with us band, safety band and numbers band built |
+| `/` | `app/page.tsx` | 6-second video truck intro, split photo hero with the fixed h1, rolling slogan line, three apply cards, Ship with us band, safety band and numbers band built |
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
@@ -20,14 +20,15 @@
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
 | Change the font | `app/layout.tsx` → `Manrope` import |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
-| Tune intro timing (length, how fast skipping is, when the logo swap, white fade, unfold and glide happen) | `components/intro/timeline.ts` |
-| Replace the intro video | `public/videos/home-intro-1080.mp4`, `-720.mp4`, `-poster.jpg` — then re-measure the logo track |
-| Fix the logo sitting crooked on the trailer | `components/intro/logoTrack.ts` → `TRACK` (the painted logo's corners, in video px) |
+| Tune intro timing (length, how fast skipping is, when the white fade, the logo appearing and the glide happen) | `components/intro/timeline.ts` |
+| Replace the intro video | `public/videos/home-intro-1080.mp4`, `-720.mp4`, `-poster.jpg` |
+| Change the logo's size or spot in the middle of the screen | `components/intro/TruckIntro.tsx` → `centerSpot`, `APPEAR_SCALE` |
 | Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `draw` |
 | Fix the intro hanging, or how it keeps time with the video | `components/intro/clock.ts` → `advanceClock` |
 | Change the Ship with us band (copy, photo, the angled edge) | `components/home/ShipWithUs.tsx`; photo is `public/images/ship-truck-side.jpg` |
 | Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/safety-truck-front.jpg` |
-| Edit the homepage headline | `components/home/HomeHero.tsx`; the slogans themselves are `lib/site.ts` → `driverSlogans` |
+| Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
+| Change the hero photo, its crop or its lede line | `components/home/HomeHero.tsx` (photo file, `object-position`, panel width); the lede is `lib/site.ts` → `homeLede` |
 | Change the three homepage apply cards (roles, copy, photos, where they link) | `lib/site.ts` → `applyRoutes`; layout in `components/home/ApplyRoutes.tsx`; photos in `public/images/apply-*.jpg` |
 | Bring back the full-width homepage photo band, or add the B-roll video | `components/ui/HeroMedia.tsx` is still there but unused since 2026-09-17 — the apply cards took its place in `app/page.tsx` |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
@@ -44,7 +45,7 @@
 | Add or change a button style | `components/ui/Button.tsx` |
 | Fade a block in when it scrolls into view | Wrap it in `<Reveal>` from `components/ui` |
 | Slide a photo and its text in from opposite sides, landing together | Make the section a `<SlideGroup>` and wrap each piece in `<SlideItem from="left" \| "right">` (`components/ui/SlideIn.tsx`); used by Ship with us and the safety band |
-| Change or reorder the homepage's rolling slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey). This is the homepage h1, so the first one is what crawlers and screen readers get; keep every lead and tail a similar length |
+| Change or reorder the homepage's rolling slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey), the smaller line under the hero (`components/home/DriverSlogans.tsx`). The first one is what screen readers get; keep every lead and tail a similar length |
 | Start a new page | Copy a placeholder in `app/`, then add its link in `lib/site.ts` (check DECISIONS.md nav rules first) |
 | Check whether something is in scope | `docs/DECISIONS.md` |
 | Find the original logo files | `docs/Logo black.svg` (full logo), `docs/Only logo Solutions.svg` (icon only) |
@@ -61,11 +62,12 @@ flowchart TD
   Header --> MobileMenu["layout/MobileMenu"]
   Page --> TruckIntro["intro/TruckIntro"]
   Page --> HomeHero["home/HomeHero"]
+  Page --> DriverSlogans["home/DriverSlogans"]
   Page --> ShipWithUs["home/ShipWithUs"]
   Page --> SafetyBand["home/SafetyBand"]
   Page --> TrustBar["home/TrustBar"]
   TruckIntro --> Video["public/videos/home-intro-*.mp4"]
-  TruckIntro --> LogoTrack["intro/logoTrack + quad"]
+  TruckIntro --> Quad["intro/quad"]
   TruckIntro -. "intro progress" .-> Header
 ```
 
@@ -81,14 +83,15 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `SlideGroup`, `SlideItem` | A section that slides its items in from the sides on one shared trigger, so they start and stop together; `distance="100%"` starts an item fully off the screen edge. Clips sideways overflow | Client |
 | `ui/` | `HeroMedia` | Full-width photo or looping video band, 500px tall; shown straight with no overlay; `image` now, optional `video` later. **Not currently used** — the homepage apply cards replaced it on 2026-09-17; kept for other pages' heroes | Server |
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
-| `ui/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag (the homepage passes `h1`); pauses on hover/focus and in a background tab; static under reduced motion | Client |
+| `ui/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag (the homepage uses the default `p`); pauses on hover/focus and in a background tab; static under reduced motion | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
 | `layout/` | `Header` | Fixed header with no bar: logo alone top-left, glass nav pill in the middle, Get a Quote / Apply To Drive as their own pills on the right; Careers drop panel, hide-on-scroll on phones | Client |
 | `layout/` | `CareersPanel` | Glass panel that drops from under the nav pill with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
-| `home/` | `HomeHero` | The page's opening headline, above the apply cards; carries the fixed header's clearance | Server |
+| `home/` | `HomeHero` | Light split hero: place line, fixed h1, lede, Apply to drive + Get a quote on the left, photo panel on the right; stacks below `xl` | Server |
+| `home/` | `DriverSlogans` | The rolling slogans as a smaller line under the hero, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `ShipWithUs` | The shipper band: text left, the logo truck right with an angled left edge, running to the screen edge from `lg`. Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
 | `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — photo left with an angled right edge, text and a hairline list right, on white; the numbers band sits between it and Ship with us as the divider | Server |
@@ -98,8 +101,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `intro/` | `TruckIntro` | Plays the intro over the top of the page on load: the video, the logo handoff, white fade, Skip intro button, skip on scroll/tap | Client |
 | `intro/` | `timeline.ts` | `INTRO` play length, skip speed and phases + easing helpers | — |
 | `intro/` | `clock.ts` | Advances the intro clock: follows the video, then real time once the picture has run out | — |
-| `intro/` | `logoTrack.ts` | Where the painted logo sits on the trailer through the video's last second (video px) | — |
-| `intro/` | `quad.ts` | Four corners → CSS `matrix3d`, and the corner helpers the handoff interpolates | — |
+| `intro/` | `quad.ts` | Four corners → CSS `matrix3d`, and the corner helpers the glide into the header interpolates | — |
 | `providers/` | `IntroProgressProvider`, `useIntroProgress` | Shares intro progress (0–1) between intro and header | Client |
 | `providers/` | `SmoothScroll` | Lenis smooth scrolling; off for reduced motion | Client |
 

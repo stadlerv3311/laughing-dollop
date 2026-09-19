@@ -6,9 +6,8 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Re
 import { useIntroProgress } from "@/components/providers";
 import { Logo } from "@/components/ui";
 import { advanceClock, startClock } from "./clock";
-import { logoInVideo, VIDEO } from "./logoTrack";
-import { lerpQuad, mapQuad, quadToMatrix3d, rectToQuad, type Quad, type Rect } from "./quad";
-import { easeInOutCubic, INTRO, range } from "./timeline";
+import { lerpQuad, quadToMatrix3d, rectToQuad, type Rect } from "./quad";
+import { easeInOutCubic, INTRO, lerp, range } from "./timeline";
 
 const subscribeNever = () => () => {};
 
@@ -19,18 +18,20 @@ let playedThisVisit = false;
 /** Keys that would scroll the page. While the intro plays they skip it instead. */
 const SCROLL_KEYS = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "]);
 
-/** Space (px) the flat logo keeps from the sides of the screen. */
+/** Space (px) the logo keeps from the sides of the screen. */
 const EDGE = 24;
 
-/** Where the logo turns to face you: as tall as the painted logo's near edge, centered on it, kept on screen. */
-function flatSpot([topLeft, topRight, bottomRight, bottomLeft]: Quad, aspect: number, stageWidth: number): Rect {
-  const tallest = Math.max(bottomLeft.y - topLeft.y, bottomRight.y - topRight.y);
-  const width = Math.min(tallest * aspect, stageWidth - EDGE * 2);
+/** How much larger than its resting size the logo starts as it appears; it settles down to 1. */
+const APPEAR_SCALE = 1.08;
+
+/**
+ * Where the logo sits in the middle of the screen: about a third of the width, between 240 and 480px wide,
+ * kept off the edges on narrow phones. `scale` grows it around its own center.
+ */
+function centerSpot(stageWidth: number, stageHeight: number, aspect: number, scale = 1): Rect {
+  const width = Math.min(Math.max(stageWidth * 0.32, 240), 480, stageWidth - EDGE * 2) * scale;
   const height = width / aspect;
-  const centerX = (topLeft.x + topRight.x + bottomRight.x + bottomLeft.x) / 4;
-  const centerY = (topLeft.y + topRight.y + bottomRight.y + bottomLeft.y) / 4;
-  const x = Math.min(Math.max(centerX - width / 2, EDGE), stageWidth - EDGE - width);
-  return { x, y: centerY - height / 2, width, height };
+  return { x: (stageWidth - width) / 2, y: (stageHeight - height) / 2, width, height };
 }
 
 type TruckIntroProps = {
@@ -39,10 +40,9 @@ type TruckIntroProps = {
 };
 
 /**
- * Homepage intro that plays by itself on load: a 5-second video of our truck on a desert highway that ends on the
- * trailer's logo. A copy of the logo fades in exactly over the painted one (bent to the trailer's angle) and
- * follows it, the video fades to white while the logo turns to face you, then it glides into the header and the
- * page shows through (`INTRO.duration` in all). Scrolling, tapping, a scroll key or the Skip button jumps to the
+ * Homepage intro that plays by itself on load: a 5-second video of our truck on a desert highway. The video fades to
+ * white, our logo appears in the middle of the screen, then it glides into the header and the page shows through
+ * (`INTRO.duration` in all). Scrolling, tapping, a scroll key or the Skip button jumps to the
  * end in about half a second. The header stays clickable the whole time. Skipped entirely for reduced-motion
  * visitors and repeat homepage views in the same visit; if the video can't start in time, the page just shows.
  */
@@ -64,7 +64,7 @@ export function TruckIntro({ children }: TruckIntroProps) {
 
   // Intro progress 0 → 1, shared with the header. The video's clock drives it.
   const intro = useIntroProgress();
-  // 0 → 1 while skipping: fades the video to white and brings the flat logo in at its resting spot.
+  // 0 → 1 while skipping: fades the video to white and brings the logo in, in the middle.
   const skipped = useMotionValue(0);
   const lenis = useLenis();
   const reduceMotion = useReducedMotion();
@@ -194,23 +194,13 @@ export function TruckIntro({ children }: TruckIntroProps) {
       skip.style.opacity = String(Math.min(1 - range(p, INTRO.whitenStart - 0.04, INTRO.whitenStart), 1 - s));
       if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
 
-      // The video covers the stage, centered (`object-cover`): video px → stage px.
       const stageBox = stage.getBoundingClientRect();
-      const scale = Math.max(stageBox.width / VIDEO.width, stageBox.height / VIDEO.height);
-      const offsetX = (stageBox.width - VIDEO.width * scale) / 2;
-      const offsetY = (stageBox.height - VIDEO.height * scale) / 2;
-      const onStage = (quad: Quad) => mapQuad(quad, ({ x, y }) => ({ x: offsetX + x * scale, y: offsetY + y * scale }));
       const aspect = logo.offsetWidth / logo.offsetHeight;
 
-      // Starts on the painted logo, bent to the trailer's angle, then turns flat to face you.
-      // Skipping takes it to the flat spot it would reach from the video's last frame.
-      const painted = onStage(logoInVideo(p * INTRO.duration));
-      const unfold = easeInOutCubic(range(p, INTRO.unfoldStart, INTRO.unfoldEnd));
-      let corners = lerpQuad(painted, rectToQuad(flatSpot(painted, aspect, stageBox.width)), unfold);
-      if (s > 0) {
-        const resting = flatSpot(onStage(logoInVideo(Infinity)), aspect, stageBox.width);
-        corners = lerpQuad(corners, rectToQuad(resting), s);
-      }
+      // Appears in the middle of the white screen, settling from slightly larger. Skipping brings it in there too.
+      const appear = Math.max(range(p, INTRO.appearStart, INTRO.appearEnd), s);
+      const settle = 1 - Math.pow(1 - appear, 3);
+      let corners = rectToQuad(centerSpot(stageBox.width, stageBox.height, aspect, lerp(APPEAR_SCALE, 1, settle)));
 
       // Then it glides into the header's logo slot.
       const fly = easeInOutCubic(range(p, INTRO.flyStart, INTRO.flyEnd));
@@ -221,9 +211,8 @@ export function TruckIntro({ children }: TruckIntroProps) {
         corners = lerpQuad(corners, rectToQuad(target), fly);
       }
 
-      // Fades in over the painted logo. Once it lands, the header's own logo takes over.
-      const opacity = p >= INTRO.flyEnd ? 0 : Math.max(range(p, INTRO.logoSwapStart, INTRO.logoSwapEnd), s);
-      logo.style.opacity = String(opacity);
+      // Once it lands, the header's own logo takes over.
+      logo.style.opacity = String(p >= INTRO.flyEnd ? 0 : appear);
       logo.style.transform = quadToMatrix3d(logo.offsetWidth, logo.offsetHeight, corners);
     };
 
