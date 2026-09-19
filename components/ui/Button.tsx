@@ -2,21 +2,22 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cx } from "@/lib/cx";
 
-type Variant = "primary" | "dark" | "outline" | "glass";
+type Variant = "primary" | "apply" | "outline";
 type Size = "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full transition-[background-color,color,box-shadow,filter,transform] duration-300 ease-premium active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-base font-semibold transition-[background-color,color,box-shadow,transform] duration-300 ease-premium active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
-// White on #FF3000 is 3.70:1 — it only passes WCAG AA as large text, so primary
-// buttons are always 19px bold. See docs/ARCHITECTURE.md → Orange contrast rules.
+// Black and outlined-black since 2026-09-19 (owner): the orange buttons were replaced site-wide, so orange is
+// left for the logo, the active marks and small accents. Both variants share one type size, so a pair of
+// them sized alike reads as a matched set.
 const variants: Record<Variant, string> = {
-  primary: "bg-brand text-paper text-[19px] font-bold hover:brightness-[0.92]",
-  dark: "bg-ink text-paper text-base font-semibold hover:bg-black",
-  outline: "text-ink text-base font-semibold ring-1 ring-inset ring-ink/20 hover:ring-ink/60",
-  // Frosted pill for use over photos and the header — matches the header's nav pill.
-  glass:
-    "bg-paper/55 text-ink text-base font-semibold ring-1 ring-inset ring-ink/10 shadow-[0_8px_32px_rgb(37_37_37/0.08)] backdrop-blur-xl backdrop-saturate-150 hover:bg-paper/85",
+  primary: "bg-ink text-paper hover:bg-black",
+  // Apply To Drive only: black at rest, brand orange on hover (owner, 2026-09-19). White on orange is 3.70:1,
+  // under AA for 16px text, but only while hovered — at rest it's white on black.
+  apply: "bg-ink text-paper hover:bg-brand",
+  // A light fill under the ring, so it still reads over the intro scene and photos.
+  outline: "bg-paper/70 text-ink ring-[1.5px] ring-inset ring-ink backdrop-blur-xl hover:bg-ink hover:text-paper",
 };
 
 const sizes: Record<Size, string> = {

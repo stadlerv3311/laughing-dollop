@@ -80,7 +80,7 @@ export function MobileMenu({ open, pathname, onNavigate }: MobileMenuProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.45, ease: EASE }}
             >
-              <Button href={applyLink.href} size="lg" onClick={onNavigate}>
+              <Button href={applyLink.href} variant="apply" size="lg" onClick={onNavigate}>
                 {applyLink.label}
               </Button>
               <Button href={quoteLink.href} size="lg" variant="outline" onClick={onNavigate}>

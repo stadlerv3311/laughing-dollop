@@ -25,8 +25,8 @@
 | Change the logo's size or spot in the middle of the screen | `components/intro/TruckIntro.tsx` → `centerSpot`, `APPEAR_SCALE` |
 | Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `draw` |
 | Fix the intro hanging, or how it keeps time with the video | `components/intro/clock.ts` → `advanceClock` |
-| Change the Ship with us band (copy, photo, the angled edge) | `components/home/ShipWithUs.tsx`; photo is `public/images/ship-truck-side.jpg` |
-| Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/safety-truck-front.jpg` |
+| Change the Ship with us band (copy, photo, the angled edge) | `components/home/ShipWithUs.tsx`; photo is `public/images/safety-truck-front.jpg` (swapped with the safety band 2026-09-19) |
+| Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
 | Change the hero photo, its crop or its lede line | `components/home/HomeHero.tsx` (photo file, `object-position`, panel width); the lede is `lib/site.ts` → `homeLede` |
 | Change the three homepage apply cards (roles, copy, photos, where they link) | `lib/site.ts` → `applyRoutes`; layout in `components/home/ApplyRoutes.tsx`; photos in `public/images/apply-*.jpg` |
@@ -76,7 +76,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 
 | Folder | Component | What it does | Runs on |
 |---|---|---|---|
-| `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (orange), `dark`, `outline`, `glass` (frosted pill, matches the header's nav pill). Sizes: `md`, `lg` | Server |
+| `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (solid black), `apply` (black, orange on hover — Apply To Drive only), `outline` (black ring on a light frosted fill). Both share one type size so a pair sized alike matches. Sizes: `md`, `lg` | Server |
 | `ui/` | `Container` | Centered max-width wrapper with side padding | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
@@ -86,15 +86,15 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag (the homepage uses the default `p`); pauses on hover/focus and in a background tab; static under reduced motion | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
-| `layout/` | `Header` | Fixed header with no bar: logo alone top-left, glass nav pill in the middle, Get a Quote / Apply To Drive as their own pills on the right; Careers drop panel, hide-on-scroll on phones | Client |
+| `layout/` | `Header` | Fixed header with no bar: logo alone top-left, glass nav pill in the middle with a black pill on the current page that glides to the new item on navigation, Get a Quote (outline) / Apply To Drive (black) as a same-width pair on the right; Careers drop panel, hide-on-scroll on phones | Client |
 | `layout/` | `CareersPanel` | Glass panel that drops from under the nav pill with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
 | `home/` | `HomeHero` | Light split hero: place line, fixed h1, lede, Apply to drive + Get a quote on the left, photo panel on the right; stacks below `xl` | Server |
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under the hero, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
-| `home/` | `ShipWithUs` | The shipper band: text left, the logo truck right with an angled left edge, running to the screen edge from `lg`. Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
-| `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — photo left with an angled right edge, text and a hairline list right, on white; the numbers band sits between it and Ship with us as the divider | Server |
+| `home/` | `ShipWithUs` | The shipper band: the logo truck left with an angled right edge, running to the screen edge from `lg`, text right (swapped 2026-09-19 to zigzag off the hero). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
+| `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — text and a hairline list left, photo right with an angled left edge; hovering a row swaps the photo for that row's clip, on white; the numbers band sits between it and Ship with us as the divider | Client (hover state) |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
 | `quote/` | `StateMap` | Lower-48 map: hover lift + name tag, click pickup then delivery, route line and pins | Client |

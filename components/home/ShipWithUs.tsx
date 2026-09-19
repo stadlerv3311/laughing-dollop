@@ -7,8 +7,8 @@ import { quoteLink } from "@/lib/site";
  * "Drive for us" split: the three apply cards above now carry all the recruiting, so the split's dark half
  * was asking the driver a third time and this band only has one audience left to talk to.
  *
- * Text left, photo right, and from `lg` the photo is absolute so it runs to the screen edge — the page has
- * no other full-bleed image since the photo band became the apply cards. The angled left edge echoes the
+ * Photo left, text right (swapped 2026-09-19 so the page zigzags off the hero, whose photo is on the right),
+ * and from `lg` the photo is absolute so it runs to the left screen edge. The angled right edge echoes the
  * logo's points; it's a clip, not a border, so nothing floats (docs/DECISIONS.md → Homepage section look).
  *
  * On first scroll into view the photo slides in from its screen edge and the text from the other side, on
@@ -24,7 +24,7 @@ export function ShipWithUs() {
         hairline (46px at 1920). The min-height keeps a 2rem margin above and below it, and the text centres.
       */}
       <Container className="py-16 sm:py-20 lg:py-28">
-        <SlideItem from="left" className="lg:w-[46%] lg:pr-8">
+        <SlideItem from="right" className="lg:ml-auto lg:w-[46%] lg:pl-8">
           <p className="text-sm font-semibold text-ink/60">Ship with us</p>
 
           {/*
@@ -51,7 +51,7 @@ export function ShipWithUs() {
 
       {/*
         Below `lg` this is an ordinary full-width band under the text; from `lg` it lifts out of the flow
-        into the right half of the section and runs to the screen edge, so the angled edge has room to read.
+        into the left half of the section and runs to the screen edge, so the angled edge has room to read.
       */}
       {/*
         Fixed aspect rather than the section's full height, because `object-cover` crops width to fit the
@@ -59,15 +59,15 @@ export function ShipWithUs() {
         logo off the trailer — at 1024px it lost a third of the frame. A set ratio crops the same everywhere,
         so the whole truck stays in it. Centred vertically, which also matches the reference's inset look.
       */}
-      <div className="relative h-64 sm:h-80 lg:absolute lg:right-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:w-[54%] lg:-translate-y-1/2">
-        {/* Starts fully off the right edge, so the photo arrives from outside the screen. */}
-        <SlideItem from="right" distance="100%" className="absolute inset-0">
+      <div className="relative h-64 sm:h-80 lg:absolute lg:left-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:w-[54%] lg:-translate-y-1/2">
+        {/* Starts fully off the left edge, so the photo arrives from outside the screen. */}
+        <SlideItem from="left" distance="100%" className="absolute inset-0">
           <Image
-            src="/images/ship-truck-side.jpg"
-            alt="An ITrucking dry van on a desert highway at sunset, the logo on its trailer"
+            src="/images/safety-truck-front.jpg"
+            alt="An ITrucking tractor and dry van trailer on a desert highway at sunrise"
             fill
             sizes="(width >= 64rem) 54vw, 100vw"
-            className="object-cover lg:[clip-path:polygon(10%_0%,100%_0%,100%_100%,10%_100%,0%_50%)]"
+            className="object-cover lg:[clip-path:polygon(0%_0%,90%_0%,100%_50%,90%_100%,0%_100%)]"
           />
         </SlideItem>
       </div>

@@ -70,11 +70,11 @@ Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordi
 | Near-black | `ink` | `#252525` | Text, dark UI elements |
 | White | `paper` | `#FFFFFF` | Primary background |
 | Soft off-white | `mist` | `#F7F0F0` | Alternate section backgrounds — gives rhythm without shadows/borders |
-| Orange | `brand` | `#FF3000` | Accent / CTAs only — never a dominant fill. Matches the logo icon exactly |
+| Orange | `brand` | `#FF3000` | Accent only — the logo, active marks, small dots and bars; never a button fill (buttons went black 2026-09-19) or a dominant fill. Matches the logo icon exactly |
 | Easing | `ease-premium` | `cubic-bezier(0.22, 1, 0.36, 1)` | Default for UI transitions |
 
 Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA minimum for normal text):
-- White text on orange buttons must be large/bold (≥ 18.66px bold or ≥ 24px regular) — `Button` primary is 19px bold
+- If orange ever carries white text again, it must be large/bold (≥ 18.66px bold or ≥ 24px regular). No button does today
 - Never use orange for small body text or links — use near-black
 
 ### Logo
@@ -85,7 +85,7 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 
 The `docs/` copies are the source originals. The wordmark reads "itrucking" only — the full name "ITrucking Solutions" appears in page text, titles, and footer.
 
-Design principles: generous whitespace, restrained, not template-looking, not gradient-heavy. Orange used sparingly — CTAs, active states, accents only.
+Design principles: generous whitespace, restrained, not template-looking, not gradient-heavy. Orange used sparingly — accents only. Buttons are black (solid) or outlined in black.
 
 Tone: easy, light, and approachable — especially for a driver looking for a job. This is a simple marketing site, not a heavy portal: plain language, short pages, fast to load, obvious next step on every page.
 

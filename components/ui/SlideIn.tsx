@@ -19,6 +19,11 @@ type SlideGroupProps = {
  * each item so a photo and its text start on the same frame — separate in-view checks fire at different
  * scroll positions when the two sit at different heights.
  *
+ * Fires when half the section is on screen (was 0.3 until 2026-09-19). The photos sit centred in their
+ * section, so half the section showing means the photo's middle has reached the bottom of the screen,
+ * however tall the text column makes the section. At 0.3 the taller safety band's photo slid in while it
+ * was still below the fold, so the slide went unseen.
+ *
  * Clips horizontally, so an item waiting off the screen edge doesn't widen the page. `overflow-x: clip`,
  * not `hidden`, so the section doesn't become a scroll container.
  */
@@ -29,7 +34,7 @@ export function SlideGroup({ className, children, "aria-labelledby": labelledBy 
       className={cx("overflow-x-clip", className)}
       initial="hidden"
       whileInView="shown"
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.5 }}
     >
       {children}
     </motion.section>

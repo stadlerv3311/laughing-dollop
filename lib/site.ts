@@ -147,6 +147,8 @@ export const applyRoutes: readonly ApplyRoute[] = [
 export type SafetySystem = {
   name: string;
   body: string;
+  /** Muted clip that replaces the band's photo while this row is hovered, focused or tapped. */
+  video: string;
 };
 
 // The homepage's safety band (requested 2026-09-18). Behind it: Samsara for GPS on trucks and trailers, basic
@@ -161,14 +163,20 @@ export const safetySystems: readonly SafetySystem[] = [
   {
     name: "GPS on every truck and trailer",
     body: "Every tractor and trailer has its own tracker, so one dropped at a yard is never out of sight.",
+    // PLACEHOLDER — Samsara's own marketing clip, with their demo data. Must not go live (DECISIONS.md → Safety band).
+    video: "/videos/safety-gps-placeholder.mp4",
   },
   {
     name: "Dash cameras",
     body: "Our cameras face the road, so when something happens there’s footage of what really did.",
+    // PLACEHOLDER — Pexels stock (5382495, real dash cam footage on a US interstate), until the owner sends our own.
+    video: "/videos/safety-dashcam-placeholder.mp4",
   },
   {
     name: "Maintenance on record",
     body: "Every repair and inspection is logged, so each truck’s full service history is on file.",
+    // PLACEHOLDER — Pexels stock (6685045, Gustavo Fring), until the owner sends our own shop footage.
+    video: "/videos/safety-maintenance-placeholder.mp4",
   },
 ];
 

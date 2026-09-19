@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { Button, Container } from "@/components/ui";
 import { applyLink, homeHeadline, homeLede, quoteLink } from "@/lib/site";
 
@@ -36,30 +35,22 @@ export function HomeHero() {
         />
       </div>
 
-      <Container className="relative pt-8 pb-14 sm:pt-12 xl:pt-[clamp(8rem,21vh,12rem)] xl:pb-24">
+      <Container className="relative pt-8 pb-14 sm:pt-12 xl:pt-[clamp(10rem,32vh,18rem)] xl:pb-24">
         <div className="xl:w-[48%] xl:pr-12">
-          <div className="max-w-[540px]">
-            <p className="flex items-center gap-2.5 text-sm font-semibold text-ink/55">
-              <span aria-hidden className="size-[7px] rounded-full bg-brand" />
-              I-80, Sierra Nevada
-            </p>
-            <h1 className="mt-5 text-pretty text-[clamp(2.2rem,3.9vw,3.5rem)] font-medium leading-[0.96] tracking-[-0.045em]">
+          <div className="max-w-[640px]">
+            <h1 className="text-pretty text-[clamp(2.6rem,4.6vw,4.4rem)] font-medium leading-[0.96] tracking-[-0.045em]">
               {homeHeadline.lead} <span className="text-ink/55">{homeHeadline.tail}</span>
             </h1>
-            <p className="mt-6 max-w-[430px] leading-relaxed text-ink/70">
+            <p className="mt-7 max-w-[480px] text-lg leading-relaxed text-ink/70 sm:text-xl">
               {homeLede}
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
-              <Button href={applyLink.href} variant="dark" size="lg">
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Button href={applyLink.href} variant="apply" size="lg" className="w-44">
                 Apply to drive
               </Button>
-              {/* Ink, not orange: orange text this small fails contrast (ARCHITECTURE.md → Orange contrast rules). */}
-              <Link
-                href={quoteLink.href}
-                className="border-b border-ink/25 pb-0.5 font-semibold transition-colors hover:border-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
-              >
+              <Button href={quoteLink.href} variant="outline" size="lg" className="w-44">
                 Get a quote
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
