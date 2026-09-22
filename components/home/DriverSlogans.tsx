@@ -2,7 +2,7 @@ import { Container, Reveal, RotatingSlogan } from "@/components/ui";
 import { driverSlogans } from "@/lib/site";
 
 /**
- * The rolling slogans, as a smaller line straight under the hero (2026-09-18). They were the page's h1 until the
+ * The rolling slogans, as a smaller line under the safety band, heading the driver block (moved 2026-09-21). They were the page's h1 until the
  * photo hero took a fixed one; now they're a paragraph, so the h1 no longer changes under a screen reader.
  * The apply cards follow directly, so this band only carries top space.
  */

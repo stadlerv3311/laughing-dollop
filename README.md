@@ -9,7 +9,7 @@ A Next.js (App Router) + Tailwind + TypeScript site serving two audiences: shipp
 - Homepage intro that plays by itself in 6 seconds: a video of our truck on a desert highway that ends on the trailer's logo — the logo then lifts off the trailer, turns to face you and glides into the header. Scrolling, a tap or "Skip intro" jumps to the end
 - Homepage top photo under the intro, shown straight away on repeat views (temporary AI placeholder — B-roll video later)
 - Homepage "Ship With Us" / "Drive For Us" panels
-- Homepage numbers band: 10+ years in business, 32M+ miles driven, 125,000+ loads completed, 48 states — numbers fill up as it scrolls into view
+- Homepage numbers band: 32M+ miles driven, 125,000+ loads completed, 48 states — numbers fill up as it scrolls into view
 - Homepage story card: short company history that links to the full story on the About page (draft copy for now)
 - Services page (Dry Van today, extensible for future trailer types) — *placeholder*
 - Get a Quote: clickable map of the lower 48 (pickup → delivery with a route line) next to a short quote form — built, not connected to a backend yet

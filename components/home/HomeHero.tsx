@@ -1,58 +1,61 @@
 import Image from "next/image";
 import { Button, Container } from "@/components/ui";
-import { applyLink, homeHeadline, homeLede, quoteLink } from "@/lib/site";
+import { applyLink, heroStats, homeHeadline, homeLede, quoteLink } from "@/lib/site";
 
 /**
- * The homepage's opening screen (rebuilt 2026-09-18 from the owner's "2a" design reference): a light split — the
- * words on white on the left, our truck climbing I-80 through the Sierra in a panel on the right. The header
- * is the site's own and sits over it unchanged; the owner asked for it not to move.
- *
- * Laid out two ways:
- * - `xl` up: the photo panel takes the right 52% and runs the full height of the screen, under the header's
- *   buttons. Not from `lg`: a 1024px screen leaves a panel too narrow for the rig and cuts the trailer's logo.
- * - Below `xl`: the header clearance, then the photo, then the words.
+ * The homepage's opening screen (rebuilt 2026-09-21 from the owner's "4a" design reference): the truck photo
+ * fills the whole screen, and a white wash from the left keeps the words readable over it — the headline and buttons up top, the lede and two numbers along the bottom. The header is the site's own and sits over it
+ * unchanged; the owner asked for it and the logo not to move.
  */
 // Draft copy — swap in approved wording when it's ready. The h1 is the owner's approved line; the lede is not.
 export function HomeHero() {
   return (
-    <section id="content" className="relative bg-paper xl:min-h-svh">
+    <section id="content" className="relative flex min-h-svh flex-col overflow-hidden bg-paper">
       {/*
-        The photo is lifted a touch — slightly lighter and less saturated — so it sits with the white page.
-        Below `xl` the height follows the width (112vw, capped at 46% of the screen), so the slice of photo is
-        always wide enough to hold the whole rig, trailer logo included. In the panel the rig spans about
-        25–68% of the photo's width; the crop leans left so, on a screen tall enough to narrow the slice, the
-        cab's nose goes before the trailer's logo does.
+        The rig sits right of centre in the photo, clear of the words. On narrow screens the crop moves right
+        so the cab stays in, and the wash turns top-to-bottom instead, since the words then sit over the photo.
       */}
-      <div className="relative mt-18 h-[min(112vw,max(300px,46svh))] overflow-hidden xl:absolute xl:inset-y-0 xl:right-0 xl:mt-0 xl:h-auto xl:w-[52%]">
-        <Image
-          src="/images/home-hero-sierra.jpg"
-          alt="An ITrucking dry van climbing a mountain highway through pine forest at dawn"
-          fill
-          loading="eager"
-          fetchPriority="high"
-          sizes="(min-width: 1280px) 52vw, 100vw"
-          className="object-cover object-[42%_60%] brightness-110 contrast-[.94] saturate-[.82] xl:object-[41%_50%]"
-        />
-      </div>
+      <Image
+        src="/images/home-hero-desert.jpg"
+        alt="An ITrucking tractor and dry van trailer on a desert highway at dusk"
+        fill
+        loading="eager"
+        fetchPriority="high"
+        sizes="100vw"
+        className="animate-hero-settle object-cover object-[66%_60%] motion-reduce:animate-none lg:object-[62%_58%]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[linear-gradient(170deg,rgb(255_255_255/.95)_0%,rgb(255_255_255/.86)_42%,rgb(255_255_255/.55)_70%,rgb(255_255_255/.2)_100%)] lg:bg-[linear-gradient(100deg,rgb(255_255_255/.95)_0%,rgb(255_255_255/.88)_26%,rgb(255_255_255/.45)_48%,rgb(255_255_255/0)_68%)]"
+      />
 
-      <Container className="relative pt-8 pb-14 sm:pt-12 xl:pt-[clamp(10rem,32vh,18rem)] xl:pb-24">
-        <div className="xl:w-[48%] xl:pr-12">
-          <div className="max-w-[640px]">
-            <h1 className="text-pretty text-[clamp(2.6rem,4.6vw,4.4rem)] font-medium leading-[0.96] tracking-[-0.045em]">
-              {homeHeadline.lead} <span className="text-ink/55">{homeHeadline.tail}</span>
-            </h1>
-            <p className="mt-7 max-w-[480px] text-lg leading-relaxed text-ink/70 sm:text-xl">
-              {homeLede}
-            </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Button href={applyLink.href} variant="apply" size="lg" className="w-44">
-                Apply to drive
-              </Button>
-              <Button href={quoteLink.href} variant="outline" size="lg" className="w-44">
-                Get a quote
-              </Button>
-            </div>
+      <Container className="relative flex flex-1 flex-col">
+        <div className="max-w-[700px] animate-hero-rise pt-36 motion-reduce:animate-none lg:pt-[clamp(9rem,24vh,13rem)]">
+          <h1 className="text-pretty text-[clamp(2.3rem,4.8vw,4.25rem)] font-medium leading-[0.96] tracking-[-0.048em]">
+            {homeHeadline.lead} <span className="text-ink/70">{homeHeadline.tail}</span>
+          </h1>
+
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <Button href={applyLink.href} variant="apply" size="lg" className="w-44">
+              Apply to drive
+            </Button>
+            <Button href={quoteLink.href} variant="outline" size="lg" className="w-44 bg-white/80">
+              Get a quote
+            </Button>
           </div>
+        </div>
+
+        <div className="mt-auto flex flex-wrap items-end gap-7 pt-12 pb-12 lg:gap-11 lg:pt-16 lg:pb-13">
+          <p className="max-w-[420px] text-base leading-relaxed text-ink/85">{homeLede}</p>
+
+          <dl className="flex gap-9 lg:border-l lg:border-ink/15 lg:pl-11">
+            {heroStats.map((stat) => (
+              <div key={stat.label} className="flex flex-col-reverse">
+                <dt className="mt-1.5 text-[13px] text-ink/70">{stat.label}</dt>
+                <dd className="text-[28px] leading-none font-medium tracking-[-0.03em]">{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </Container>
     </section>

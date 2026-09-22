@@ -72,8 +72,7 @@ export function RotatingSlogan({ slogans, hold = 3.6, className, as: Tag = "p" }
       <span aria-hidden className="relative grid overflow-hidden">
         {slogans.map((slogan) => (
           <span key={slogan.lead} className="invisible [grid-area:1/1]">
-            <span className="md:block">{slogan.lead}</span>{" "}
-            <span className="md:block">{slogan.tail}</span>
+            {slogan.lead} {slogan.tail}
           </span>
         ))}
 
@@ -88,10 +87,9 @@ export function RotatingSlogan({ slogans, hold = 3.6, className, as: Tag = "p" }
               reduceMotion ? { duration: 0 } : { duration: ROLL_SECONDS, ease: [0.22, 1, 0.36, 1] }
             }
           >
-            {/* Two lines from `md` up, where they fit; below that the sentence just flows and the
-                grey starts mid-line, because a forced break there costs a whole extra line. */}
-            <span className="md:block">{active.lead}</span>{" "}
-            <span className="md:block text-ink/60">{active.tail}</span>
+            {/* One running sentence, the grey starting mid-line (2026-09-21). It fits on one line on
+                desktop and wraps naturally on narrower screens. */}
+            {active.lead} <span className="text-ink/60">{active.tail}</span>
           </motion.span>
         </AnimatePresence>
       </span>

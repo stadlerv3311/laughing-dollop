@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — TruckIntro(HomeHero) + DriverSlogans + ApplyRoutes + ShipWithUs + TrustBar + SafetyBand + StoryTeaser
+  page.tsx                   → Homepage (/) — TruckIntro(HomeHero) + TrustBar + ShipWithUs + SafetyBand + DriverSlogans + ApplyRoutes + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load

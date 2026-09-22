@@ -43,6 +43,11 @@ export function ShipWithUs() {
             load runs in a dry van, so there&rsquo;s nothing else to choose.
           </p>
 
+          {/* The fleet's model years (requested 2026-09-21). Update the years as the fleet turns over. */}
+          <p className="mt-4 max-w-lg text-lg font-medium text-ink">
+            Nearly all new equipment: 2025&ndash;2026 Volvo trucks pulling brand-new 2025&ndash;2026 trailers.
+          </p>
+
           <Button href={quoteLink.href} size="lg" className="mt-9">
             {quoteLink.label}
           </Button>
@@ -63,8 +68,8 @@ export function ShipWithUs() {
         {/* Starts fully off the left edge, so the photo arrives from outside the screen. */}
         <SlideItem from="left" distance="100%" className="absolute inset-0">
           <Image
-            src="/images/safety-truck-front.jpg"
-            alt="An ITrucking tractor and dry van trailer on a desert highway at sunrise"
+            src="/images/home-hero-sierra.jpg"
+            alt="An ITrucking dry van climbing a mountain highway through pine forest at dawn"
             fill
             sizes="(width >= 64rem) 54vw, 100vw"
             className="object-cover lg:[clip-path:polygon(0%_0%,90%_0%,100%_50%,90%_100%,0%_100%)]"

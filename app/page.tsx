@@ -8,12 +8,13 @@ export default function HomePage() {
       <TruckIntro>
         <HomeHero />
       </TruckIntro>
+      {/* The numbers straight under the hero, then the two shipper bands (what we haul, how it's looked
+          after), then the driver slogans and the apply cards together (2026-09-21). */}
+      <TrustBar />
+      <ShipWithUs />
+      <SafetyBand />
       <DriverSlogans />
       <ApplyRoutes />
-      <ShipWithUs />
-      {/* The numbers are the divider between the two photo bands (2026-09-18) — no colour change. */}
-      <TrustBar />
-      <SafetyBand />
       <StoryTeaser />
     </>
   );
