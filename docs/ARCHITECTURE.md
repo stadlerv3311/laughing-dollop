@@ -8,7 +8,7 @@
 - motion (`motion/react`) — UI animation and scroll-linked values
 - Lenis — smooth wheel scrolling (turned off for reduced motion)
 - No 3D library — the homepage intro is a `<video>` plus a CSS `matrix3d` transform (three.js and React Three Fiber were removed on 2026-09-11)
-- Font: Manrope via `next/font/google` (provisional — see DECISIONS.md → Open)
+- Font: Manrope via `next/font/google` (provisional — see DECISIONS.md → Open). Display: Archivo (variable, `wdth` axis) as `font-display`, used only for the homepage hero's big word
 - Form backend: owned by the backend teammate, not yet decided — see DECISIONS.md
 
 ## Folder structure (App Router)
@@ -50,8 +50,8 @@ scripts/
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
-  images/                    → photos; home-hero-desert.jpg is a temporary AI-generated image (B-roll video will replace it)
-  videos/                    → homepage intro: home-intro-1080.mp4, home-intro-720.mp4 (phones), home-intro-poster.jpg (first frame)
+  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used
+  videos/                    → homepage intro: home-intro-1080.mp4, home-intro-720.mp4 (phones), home-intro-poster.jpg (first frame); home-hero-forest.mp4 is the hero's seamless loop (AI-generated)
 ```
 Full component list: NAVIGATION.md → Component library.
 

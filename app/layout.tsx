@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Archivo, Manrope } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { Footer, Header } from "@/components/layout";
@@ -12,6 +12,13 @@ const manrope = Manrope({
   subsets: ["latin"],
 });
 
+// Display face for the homepage hero's one oversized word only (2026-09-23): Archivo at its widest (wdth 125).
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  axes: ["wdth"],
+});
+
 export const metadata: Metadata = {
   title: {
     default: `${site.name} | Dry Van Trucking & Driver Jobs`,
@@ -22,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={manrope.variable}>
+    <html lang="en" className={`${manrope.variable} ${archivo.variable}`}>
       <body className="flex min-h-svh flex-col font-sans">
         <a
           href="#main"

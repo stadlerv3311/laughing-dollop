@@ -18,7 +18,7 @@
 |---|---|
 | Change a nav link or the company name | `lib/site.ts` — Header, mobile menu and Footer all read from it |
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
-| Change the font | `app/layout.tsx` → `Manrope` import |
+| Change the font | `app/layout.tsx` → `Manrope` import (the hero's big word uses `Archivo`, same file) |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
 | Tune intro timing (length, how fast skipping is, when the white fade, the logo appearing and the glide happen) | `components/intro/timeline.ts` |
 | Replace the intro video | `public/videos/home-intro-1080.mp4`, `-720.mp4`, `-poster.jpg` |
@@ -28,7 +28,7 @@
 | Change the Ship with us band (copy, photo, the angled edge) | `components/home/ShipWithUs.tsx`; photo is `public/images/home-hero-sierra.jpg` (swapped with the hero 2026-09-21; the hero's is now `safety-truck-front.jpg`) |
 | Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
-| Change the hero photo, its crop, its lede line or its two numbers | `components/home/HomeHero.tsx` (photo `public/images/home-hero-desert.jpg`, `object-position`, the white wash); the lede and numbers are `lib/site.ts` → `homeLede`, `heroStats` |
+| Change the hero video, its big word or its scrims | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
 | Change the three homepage apply cards (roles, copy, photos, where they link) | `lib/site.ts` → `applyRoutes`; layout in `components/home/ApplyRoutes.tsx`; photos in `public/images/apply-*.jpg` |
 | Bring back the full-width homepage photo band, or add the B-roll video | `components/ui/HeroMedia.tsx` is still there but unused since 2026-09-17 — the apply cards took its place in `app/page.tsx` |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |

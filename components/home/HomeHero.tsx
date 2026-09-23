@@ -1,63 +1,117 @@
-import Image from "next/image";
+"use client";
+
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { useIntroProgress } from "@/components/providers";
 import { Button, Container } from "@/components/ui";
-import { applyLink, homeHeadline, homeLede } from "@/lib/site";
+import { applyLink, homeHeadline } from "@/lib/site";
+
+const HEADLINE_WORDS = `${homeHeadline.lead} ${homeHeadline.tail}`.split(" ");
 
 /**
- * The homepage's opening screen (rebuilt 2026-09-23 as a cinematic full-bleed hero, after a Mobbin review
- * against Waabi and Aurora). The truck photo is shown at full strength — no white wash — and a dark scrim
- * rises from the bottom so the white headline reads over the road. The top of the frame stays clear sky, so
- * the site header (dark logo, glass pills) sits over it unchanged. One action only: the headline speaks to
- * drivers, so Apply to drive is the button, and Get a Quote stays in the header. The numbers that used to sit
- * here moved into the trust bar below (docs/DECISIONS.md → Hero media).
+ * The homepage's opening screen (rebuilt 2026-09-23 after the United Carriers hero on Mobbin). A top-down drone
+ * loop of our truck on a forest highway fills the screen; the road runs down the middle, so the words sit on the
+ * calm forest either side of it. One oversized decorative word, DRIVE., along the bottom left (Archivo at its
+ * widest — the only place that face is used), and the approved line as the h1 on the right, its words lighting up
+ * one by one as the intro hands over. On scroll the footage zooms in a touch and darkens, and the big word drifts
+ * up slower than the page. The loop is AI-generated (Grok) and baked to loop seamlessly — see docs/DECISIONS.md →
+ * Hero media.
  */
-// Draft copy — the h1 is the owner's approved line; the lede is not.
 export function HomeHero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const reduceMotion = useReducedMotion();
+  const intro = useIntroProgress();
+
+  // The words light up once the intro is almost gone (straight away when there's no intro).
+  const [lit, setLit] = useState(false);
+  useMotionValueEvent(intro, "change", (v) => {
+    if (v >= 0.9) setLit(true);
+  });
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      if (intro.get() >= 0.9) setLit(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [intro]);
+
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const shade = useTransform(scrollYProgress, [0, 1], [0, 0.55]);
+  const wordY = useTransform(scrollYProgress, [0, 1], ["0%", "-35%"]);
+
+  // Started by hand, not with `autoPlay`: React leaves `muted` out of the server HTML, and browsers only autoplay
+  // muted video. Paused while off screen, and never played for reduced-motion visitors (they keep the poster).
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || reduceMotion) return;
+    video.muted = true;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) video.play().catch(() => {});
+      else video.pause();
+    });
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [reduceMotion]);
+
   return (
-    <section id="content" className="relative isolate flex min-h-svh flex-col overflow-hidden bg-ink text-paper">
-      <Image
-        src="/images/home-hero-desert.jpg"
-        alt="An ITrucking tractor and dry van trailer on a desert highway at dusk"
-        fill
-        loading="eager"
-        fetchPriority="high"
-        sizes="100vw"
-        className="-z-10 animate-hero-settle object-cover object-[64%_40%] motion-reduce:animate-none lg:object-[100%_40%]"
-      />
+    <section
+      ref={sectionRef}
+      id="content"
+      data-header-theme="dark"
+      className="relative isolate flex min-h-svh flex-col overflow-hidden bg-ink text-paper"
+    >
+      <motion.div aria-hidden className="absolute inset-0 -z-10" style={reduceMotion ? undefined : { scale: videoScale }}>
+        <video
+          ref={videoRef}
+          className="h-full w-full object-cover"
+          src="/videos/home-hero-forest.mp4"
+          poster="/images/home-hero-forest.jpg"
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+      </motion.div>
+
       {/*
-        Scrims for the words: one rising from the bottom, one from the left where the headline sits. The top
-        right stays clear, so the rig and the header's sky are untouched.
+        Scrims: a light overall dim, a band at the top for the header, and a rise from the bottom under the big
+        word. The forest is dark already, so they stay gentle.
       */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgb(12_12_12/.9)_0%,rgb(12_12_12/.66)_32%,rgb(12_12_12/.22)_60%,rgb(12_12_12/0)_78%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgb(12_12_12/.45)_0%,rgb(12_12_12/0)_22%),linear-gradient(to_top,rgb(12_12_12/.6)_0%,rgb(12_12_12/0)_45%),linear-gradient(rgb(12_12_12/.18),rgb(12_12_12/.18))]"
       />
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_right,rgb(12_12_12/.5)_0%,rgb(12_12_12/.25)_40%,rgb(12_12_12/0)_62%)] [mask-image:linear-gradient(to_bottom,transparent_15%,black_55%)] lg:block"
-      />
+      <motion.div aria-hidden className="absolute inset-0 -z-10 bg-[rgb(12_12_12)]" style={{ opacity: shade }} />
 
-      {/* The scrimmed lower part is dark, so the header switches to its light logo while that passes under it. */}
-      <div aria-hidden data-header-theme="dark" className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]" />
-
-      <Container className="flex flex-1 flex-col justify-end pt-32 pb-10 sm:pb-14 lg:pb-16">
-        <div className="animate-hero-rise motion-reduce:animate-none">
-          <h1 className="max-w-[13ch] text-balance text-[clamp(2.75rem,6.4vw,6.25rem)] font-medium leading-[0.94] tracking-[-0.05em] lg:max-w-[15ch]">
-            {homeHeadline.lead} {homeHeadline.tail}
-          </h1>
-
-          <div className="mt-10 flex flex-col gap-6 border-t border-paper/20 pt-6 sm:flex-row sm:items-center sm:justify-between lg:mt-12">
-            <p className="max-w-md text-base leading-relaxed text-paper/80 sm:text-lg">{homeLede}</p>
-            <Button
-              href={applyLink.href}
-              variant="light"
-              size="lg"
-              className="w-full shrink-0 sm:w-auto sm:px-9"
-            >
+      <Container className="flex flex-1 flex-col pt-32 pb-6 sm:pb-8 lg:pb-10">
+        <div className="flex flex-1 items-center">
+          <div className="max-w-[34rem] lg:ml-[60%] lg:max-w-none">
+            <h1 className="text-balance text-[clamp(1.75rem,2.5vw,2.75rem)] font-medium leading-[1.12] tracking-[-0.03em]">
+              {HEADLINE_WORDS.map((word, i) => (
+                <span
+                  key={i}
+                  className="transition-opacity duration-700 ease-premium motion-reduce:transition-none"
+                  style={{ opacity: lit ? 1 : 0.22, transitionDelay: lit ? `${i * 70}ms` : "0ms" }}
+                >
+                  {word}{" "}
+                </span>
+              ))}
+            </h1>
+            <Button href={applyLink.href} variant="light" size="lg" className="mt-8 w-full sm:w-auto sm:px-9 lg:mt-10">
               Apply to drive
               <span aria-hidden>→</span>
             </Button>
           </div>
         </div>
+
+        <motion.p
+          aria-hidden
+          style={reduceMotion ? undefined : { y: wordY }}
+          className="-mb-[0.1em] select-none font-display text-[20vw] font-bold uppercase leading-[0.8] tracking-[-0.02em] [font-stretch:125%] sm:text-[15vw] lg:text-[8.6vw]"
+        >
+          Drive.
+        </motion.p>
       </Container>
     </section>
   );
