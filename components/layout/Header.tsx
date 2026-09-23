@@ -16,6 +16,17 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 /** Only phones hide the bar on scroll down; bigger screens keep the CTAs in view. Tailwind's `sm` breakpoint. */
 const PHONE_QUERY = "(width < 40rem)";
 
+/** Where the header's logo sits, from the top of the screen — the point checked against dark bands. */
+const HEADER_MID = 36;
+
+/** True while a band marked `data-header-theme="dark"` is under the header, so the logo and CTAs switch to light. */
+function overDarkBand() {
+  return Array.from(document.querySelectorAll('[data-header-theme="dark"]')).some((band) => {
+    const { top, bottom } = band.getBoundingClientRect();
+    return top <= HEADER_MID && bottom >= HEADER_MID;
+  });
+}
+
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
@@ -30,7 +41,7 @@ function glassClass(solid: boolean) {
 
 function navItemClass(active: boolean, small = false) {
   return cx(
-    "relative inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-4 font-medium transition-[background-color,color] duration-300 xl:px-5",
+    "relative inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-medium transition-[background-color,color] duration-300 xl:px-5",
     small ? "text-sm" : "text-[15px]",
     active ? "text-paper" : "text-ink/70 hover:bg-paper/60 hover:text-ink",
   );
@@ -85,6 +96,7 @@ export function Header() {
   const [introDone, setIntroDone] = useState(() => intro.get() >= INTRO.navStart);
   const [solid, setSolid] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [onDark, setOnDark] = useState(false);
   const [careersOpen, setCareersOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -93,6 +105,7 @@ export function Header() {
   useMotionValueEvent(intro, "change", (p) => setIntroDone(p >= INTRO.navStart));
 
   useMotionValueEvent(scrollY, "change", (y) => {
+    setOnDark(overDarkBand());
     const introFinished = intro.get() >= 1;
     setSolid(introFinished && y > 12);
     if (!introFinished || careersOpen || mobileOpen || !window.matchMedia(PHONE_QUERY).matches) {
@@ -103,6 +116,12 @@ export function Header() {
     if (Math.abs(y - previous) < 4) return;
     setHidden(y > previous && y > 160);
   });
+
+  // A new page can open with a dark band already under the header; check once it has painted.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setOnDark(overDarkBand()));
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
 
   useEffect(() => {
     if (!careersOpen && !mobileOpen) return;
@@ -146,7 +165,7 @@ export function Header() {
         transition={{ duration: 0.55, ease: EASE }}
         onMouseLeave={closeCareers}
       >
-          <Container className="flex h-18 items-center gap-6">
+          <Container className="flex h-18 items-center gap-4 xl:gap-6">
             <Link
               href="/"
               aria-label={`${site.name} home`}
@@ -155,8 +174,14 @@ export function Header() {
               className="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
             >
               {/* The intro's flying logo lands exactly on this element. */}
-              <motion.div data-intro-logo-target style={{ opacity: logoOpacity }} className="w-[132px] sm:w-[148px]">
-                <Logo alt="" loading="eager" />
+              <motion.div data-intro-logo-target style={{ opacity: logoOpacity }} className="relative w-[132px] sm:w-[148px]">
+                <Logo alt="" loading="eager" className={cx("transition-opacity duration-300", onDark && "opacity-0")} />
+                {/* White wordmark over dark bands (the homepage story band). */}
+                <Logo
+                  variant="light"
+                  alt=""
+                  className={cx("absolute inset-0 transition-opacity duration-300", !onDark && "opacity-0")}
+                />
               </motion.div>
             </Link>
 
@@ -208,13 +233,28 @@ export function Header() {
             <div className={cx("ml-auto flex items-center gap-3 lg:ml-0", dimClass)} onMouseEnter={closeCareers}>
               {/* Breakpoint visibility lives on wrappers — Button's own inline-flex would override `hidden`. */}
               <div className="hidden lg:block">
-                {/* The two CTAs are one fixed width, so they read as a pair; both match the nav pill's 44px height. */}
-                <Button href={quoteLink.href} variant="outline" onClick={closeAll} className="w-38">
+                {/*
+                  The two CTAs are one fixed width from `xl`, so they read as a pair; both match the nav pill's 44px
+                  height. Between 1024 and 1280 they size to their labels, or the row runs off the right edge.
+                  Over a dark band Get a Quote turns solid white and Apply To Drive gets a light ring, so both keep
+                  their shape.
+                */}
+                <Button
+                  href={quoteLink.href}
+                  variant={onDark ? "light" : "outline"}
+                  onClick={closeAll}
+                  className="xl:w-38"
+                >
                   {quoteLink.label}
                 </Button>
               </div>
               <div className="hidden sm:block">
-                <Button href={applyLink.href} variant="apply" onClick={closeAll} className="w-38">
+                <Button
+                  href={applyLink.href}
+                  variant="apply"
+                  onClick={closeAll}
+                  className={cx("xl:w-38", onDark && "ring-1 ring-inset ring-paper/35")}
+                >
                   {applyLink.label}
                 </Button>
               </div>

@@ -49,6 +49,7 @@ scripts/
 
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
+  logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
   images/                    → photos; home-hero-desert.jpg is a temporary AI-generated image (B-roll video will replace it)
   videos/                    → homepage intro: home-intro-1080.mp4, home-intro-720.mp4 (phones), home-intro-poster.jpg (first frame)
 ```

@@ -1,20 +1,19 @@
 import Image from "next/image";
 import { Button, Container } from "@/components/ui";
-import { applyLink, heroStats, homeHeadline, homeLede, quoteLink } from "@/lib/site";
+import { applyLink, homeHeadline, homeLede } from "@/lib/site";
 
 /**
- * The homepage's opening screen (rebuilt 2026-09-21 from the owner's "4a" design reference): the truck photo
- * fills the whole screen, and a white wash from the left keeps the words readable over it — the headline and buttons up top, the lede and two numbers along the bottom. The header is the site's own and sits over it
- * unchanged; the owner asked for it and the logo not to move.
+ * The homepage's opening screen (rebuilt 2026-09-23 as a cinematic full-bleed hero, after a Mobbin review
+ * against Waabi and Aurora). The truck photo is shown at full strength — no white wash — and a dark scrim
+ * rises from the bottom so the white headline reads over the road. The top of the frame stays clear sky, so
+ * the site header (dark logo, glass pills) sits over it unchanged. One action only: the headline speaks to
+ * drivers, so Apply to drive is the button, and Get a Quote stays in the header. The numbers that used to sit
+ * here moved into the trust bar below (docs/DECISIONS.md → Hero media).
  */
-// Draft copy — swap in approved wording when it's ready. The h1 is the owner's approved line; the lede is not.
+// Draft copy — the h1 is the owner's approved line; the lede is not.
 export function HomeHero() {
   return (
-    <section id="content" className="relative flex min-h-svh flex-col overflow-hidden bg-paper">
-      {/*
-        The rig sits right of centre in the photo, clear of the words. On narrow screens the crop moves right
-        so the cab stays in, and the wash turns top-to-bottom instead, since the words then sit over the photo.
-      */}
+    <section id="content" className="relative isolate flex min-h-svh flex-col overflow-hidden bg-ink text-paper">
       <Image
         src="/images/home-hero-desert.jpg"
         alt="An ITrucking tractor and dry van trailer on a desert highway at dusk"
@@ -22,40 +21,42 @@ export function HomeHero() {
         loading="eager"
         fetchPriority="high"
         sizes="100vw"
-        className="animate-hero-settle object-cover object-[66%_60%] motion-reduce:animate-none lg:object-[62%_58%]"
+        className="-z-10 animate-hero-settle object-cover object-[64%_40%] motion-reduce:animate-none lg:object-[100%_40%]"
+      />
+      {/*
+        Scrims for the words: one rising from the bottom, one from the left where the headline sits. The top
+        right stays clear, so the rig and the header's sky are untouched.
+      */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgb(12_12_12/.9)_0%,rgb(12_12_12/.66)_32%,rgb(12_12_12/.22)_60%,rgb(12_12_12/0)_78%)]"
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-[linear-gradient(170deg,rgb(255_255_255/.95)_0%,rgb(255_255_255/.86)_42%,rgb(255_255_255/.55)_70%,rgb(255_255_255/.2)_100%)] lg:bg-[linear-gradient(100deg,rgb(255_255_255/.95)_0%,rgb(255_255_255/.88)_26%,rgb(255_255_255/.45)_48%,rgb(255_255_255/0)_68%)]"
+        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_right,rgb(12_12_12/.5)_0%,rgb(12_12_12/.25)_40%,rgb(12_12_12/0)_62%)] [mask-image:linear-gradient(to_bottom,transparent_15%,black_55%)] lg:block"
       />
 
-      <Container className="relative flex flex-1 flex-col">
-        <div className="max-w-[700px] animate-hero-rise pt-36 motion-reduce:animate-none lg:pt-[clamp(9rem,24vh,13rem)]">
-          <h1 className="text-pretty text-[clamp(2.3rem,4.8vw,4.25rem)] font-medium leading-[0.96] tracking-[-0.048em]">
-            {homeHeadline.lead} <span className="text-ink/70">{homeHeadline.tail}</span>
+      {/* The scrimmed lower part is dark, so the header switches to its light logo while that passes under it. */}
+      <div aria-hidden data-header-theme="dark" className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]" />
+
+      <Container className="flex flex-1 flex-col justify-end pt-32 pb-10 sm:pb-14 lg:pb-16">
+        <div className="animate-hero-rise motion-reduce:animate-none">
+          <h1 className="max-w-[13ch] text-balance text-[clamp(2.75rem,6.4vw,6.25rem)] font-medium leading-[0.94] tracking-[-0.05em] lg:max-w-[15ch]">
+            {homeHeadline.lead} {homeHeadline.tail}
           </h1>
 
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Button href={applyLink.href} variant="apply" size="lg" className="w-44">
+          <div className="mt-10 flex flex-col gap-6 border-t border-paper/20 pt-6 sm:flex-row sm:items-center sm:justify-between lg:mt-12">
+            <p className="max-w-md text-base leading-relaxed text-paper/80 sm:text-lg">{homeLede}</p>
+            <Button
+              href={applyLink.href}
+              variant="light"
+              size="lg"
+              className="w-full shrink-0 sm:w-auto sm:px-9"
+            >
               Apply to drive
-            </Button>
-            <Button href={quoteLink.href} variant="outline" size="lg" className="w-44 bg-white/80">
-              Get a quote
+              <span aria-hidden>→</span>
             </Button>
           </div>
-        </div>
-
-        <div className="mt-auto flex flex-wrap items-end gap-7 pt-12 pb-12 lg:gap-11 lg:pt-16 lg:pb-13">
-          <p className="max-w-[420px] text-base leading-relaxed text-ink/85">{homeLede}</p>
-
-          <dl className="flex gap-9 lg:border-l lg:border-ink/15 lg:pl-11">
-            {heroStats.map((stat) => (
-              <div key={stat.label} className="flex flex-col-reverse">
-                <dt className="mt-1.5 text-[13px] text-ink/70">{stat.label}</dt>
-                <dd className="text-[28px] leading-none font-medium tracking-[-0.03em]">{stat.value}</dd>
-              </div>
-            ))}
-          </dl>
         </div>
       </Container>
     </section>

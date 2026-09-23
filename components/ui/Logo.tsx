@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 const files = {
   full: { src: "/logo.svg", width: 764, height: 192 }, // star + "itrucking" wordmark
   icon: { src: "/logo-icon.svg", width: 248, height: 248 }, // star only
+  light: { src: "/logo-light.svg", width: 764, height: 192 }, // star + white wordmark, for dark backgrounds
 } as const;
 
 type LogoProps = {

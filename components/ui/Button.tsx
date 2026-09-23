@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cx } from "@/lib/cx";
 
-type Variant = "primary" | "apply" | "outline";
+type Variant = "primary" | "apply" | "outline" | "light";
 type Size = "md" | "lg";
 
 const base =
@@ -18,6 +18,8 @@ const variants: Record<Variant, string> = {
   apply: "bg-ink text-paper hover:bg-brand",
   // A light fill under the ring, so it still reads over the intro scene and photos.
   outline: "bg-paper/70 text-ink ring-[1.5px] ring-inset ring-ink backdrop-blur-xl hover:bg-ink hover:text-paper",
+  // White on dark photos (the homepage hero). Orange on hover, like Apply To Drive; at rest it's ink on white.
+  light: "bg-paper text-ink hover:bg-brand hover:text-paper",
 };
 
 const sizes: Record<Size, string> = {

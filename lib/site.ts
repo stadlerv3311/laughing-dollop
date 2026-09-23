@@ -50,11 +50,14 @@ export type CompanyStat = {
 };
 
 // Company numbers for the homepage trust bar. Only confirmed figures — see docs/DECISIONS.md → Trust badges.
+// Five since 2026-09-23: the hero's two numbers (years in business, on-time delivery) moved back down here when
+// the hero went to one headline and one button. The company was founded in 2008.
 export const companyStats: CompanyStat[] = [
-  // Three since 2026-09-21: "10+ years in business" moved into the hero right above, so the owner dropped it here.
+  { value: 10, suffix: "+", label: "Years in business" },
   { value: 32, suffix: "M+", label: "Miles driven" },
   { value: 125000, suffix: "+", label: "Loads completed" },
   { value: 48, label: "States we serve" },
+  { value: 99, suffix: "%", label: "On-time delivery" },
 ];
 
 export type Slogan = {
@@ -71,13 +74,6 @@ export const homeHeadline: Slogan = { lead: "Where you're known by your name,", 
 // these are promises — answered on the first ring, agreed routes, home on time — and need sign-off before launch.
 export const homeLede = "Dispatch that answers on the first ring. Routes you agreed to. Home when we said.";
 
-// The hero's two numbers (from the owner's "4a" hero reference, 2026-09-21). The owner swapped the reference's
-// "1,200 drivers" for years in business and set on-time delivery at 99%. The company was founded in 2008.
-
-export const heroStats: readonly { value: string; label: string }[] = [
-  { value: "10+", label: "years in business" },
-  { value: "99%", label: "on-time delivery" },
-];
 
 // Draft copy — the smaller rolling line under the hero (moved out of the h1 on 2026-09-18). All three need
 // sign-off before launch: the dispatcher promise, the live bonus and the home-time line are commitments, not

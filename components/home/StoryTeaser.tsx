@@ -10,7 +10,7 @@ import { story } from "@/lib/story";
  */
 export function StoryTeaser() {
   return (
-    <section aria-labelledby="story-teaser-title" className="group relative bg-ink py-20 text-paper sm:py-28 lg:py-36">
+    <section aria-labelledby="story-teaser-title" data-header-theme="dark" className="group relative bg-ink py-20 text-paper sm:py-28 lg:py-36">
       <Container>
         <Reveal>
           <div className="grid gap-12 md:grid-cols-[1.15fr_1fr] md:gap-16">
