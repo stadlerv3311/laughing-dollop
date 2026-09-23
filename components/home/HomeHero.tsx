@@ -86,8 +86,13 @@ export function HomeHero() {
 
       <Container className="flex flex-1 flex-col pt-32 pb-6 sm:pb-8 lg:pb-10">
         <div className="flex flex-1 items-center">
-          <div className="max-w-[34rem] lg:ml-[60%] lg:max-w-none">
-            <h1 className="text-balance text-[clamp(1.75rem,2.5vw,2.75rem)] font-medium leading-[1.12] tracking-[-0.03em]">
+          {/*
+            From lg the block sits in the header's CTA column: its left edge lines up with Get a Quote and its right
+            edge with Apply To Drive (the pair is 2 × 9.5rem + a 0.75rem gap from xl; about 18.1rem below xl, where
+            the buttons size to their labels — see Header.tsx).
+          */}
+          <div className="max-w-[34rem] lg:ml-auto lg:w-[18.1rem] xl:w-[19.75rem]">
+            <h1 className="text-balance text-[clamp(1.75rem,6.5vw,2.5rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:text-[1.75rem] xl:text-[2rem]">
               {HEADLINE_WORDS.map((word, i) => (
                 <span
                   key={i}
@@ -98,7 +103,7 @@ export function HomeHero() {
                 </span>
               ))}
             </h1>
-            <Button href={applyLink.href} variant="light" size="lg" className="mt-8 w-full sm:w-auto sm:px-9 lg:mt-10">
+            <Button href={applyLink.href} variant="light" size="lg" className="mt-8 w-full sm:w-auto sm:px-9 lg:mt-10 lg:w-full">
               Apply to drive
               <span aria-hidden>→</span>
             </Button>
