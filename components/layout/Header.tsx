@@ -83,8 +83,8 @@ function NavItem({ href, active, small, children, ...rest }: NavItemProps) {
  * Get a Quote outlined in black, Apply To Drive solid black (glass firms up once you scroll). It
  * stays in view as you scroll — except on phones, where it slides away on scroll down and drops
  * back on scroll up. Careers opens a glass panel that drops from under the nav pill. During the homepage
- * intro the nav stays dimmed over the scene (full on hover) and the logo stays hidden until the
- * intro lands it.
+ * intro the nav stays dimmed over the scene (full on hover) while the logo fades and settles into place —
+ * see HomeIntro.
  */
 export function Header() {
   const pathname = usePathname();
@@ -93,16 +93,18 @@ export function Header() {
   const intro = useIntroProgress();
   const { scrollY } = useScroll();
 
-  const [introDone, setIntroDone] = useState(() => intro.get() >= INTRO.navStart);
+  const [introDone, setIntroDone] = useState(() => intro.get() >= INTRO.litAt);
   const [solid, setSolid] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [onDark, setOnDark] = useState(false);
   const [careersOpen, setCareersOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const logoOpacity = useTransform(intro, (p) => (p >= INTRO.flyEnd ? 1 : 0));
+  // Fades in over the first half of the moment and keeps settling down to its resting size for the rest of it.
+  const logoOpacity = useTransform(intro, [0, 0.5], [0, 1]);
+  const logoScale = useTransform(intro, [0, 1], [INTRO.appearScale, 1]);
 
-  useMotionValueEvent(intro, "change", (p) => setIntroDone(p >= INTRO.navStart));
+  useMotionValueEvent(intro, "change", (p) => setIntroDone(p >= INTRO.litAt));
 
   useMotionValueEvent(scrollY, "change", (y) => {
     setOnDark(overDarkBand());
@@ -173,8 +175,12 @@ export function Header() {
               onMouseEnter={closeCareers}
               className="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
             >
-              {/* The intro's flying logo lands exactly on this element. */}
-              <motion.div data-intro-logo-target style={{ opacity: logoOpacity }} className="relative w-[132px] sm:w-[148px]">
+              {/* Fades and settles into place as the homepage intro hands over — see HomeIntro. */}
+              <motion.div
+                data-intro-logo-target
+                style={{ opacity: logoOpacity, scale: logoScale }}
+                className="relative w-[132px] sm:w-[148px]"
+              >
                 <Logo alt="" loading="eager" className={cx("transition-opacity duration-300", onDark && "opacity-0")} />
                 {/* White wordmark over dark bands (the homepage story band). */}
                 <Logo
@@ -234,16 +240,18 @@ export function Header() {
               {/* Breakpoint visibility lives on wrappers — Button's own inline-flex would override `hidden`. */}
               <div className="hidden lg:block">
                 {/*
-                  The two CTAs are one fixed width from `xl`, so they read as a pair; both match the nav pill's 44px
-                  height. Between 1024 and 1280 they size to their labels, or the row runs off the right edge.
-                  Over a dark band Get a Quote turns solid white and Apply To Drive gets a light ring, so both keep
-                  their shape.
+                  The two CTAs share one fixed width from `xl` (`--width-header-cta`, app/globals.css), so they
+                  read as a pair — HomeHero's text column matches the pair's total width off the same variable.
+                  Both match the nav pill's 44px height. Between 1024 and 1280 they size to their labels, or the
+                  row runs off the right edge. Both are the same frosted glass as the nav pill (`glass` /
+                  `glassApply` — Button.tsx), so they read as one system over the hero instead of two solid
+                  blocks competing with it; unlike the logo, they don't need a separate look for dark bands.
                 */}
                 <Button
                   href={quoteLink.href}
-                  variant={onDark ? "light" : "outline"}
+                  variant="glass"
                   onClick={closeAll}
-                  className="xl:w-38"
+                  className="xl:w-[var(--width-header-cta)]"
                 >
                   {quoteLink.label}
                 </Button>
@@ -251,9 +259,9 @@ export function Header() {
               <div className="hidden sm:block">
                 <Button
                   href={applyLink.href}
-                  variant="apply"
+                  variant="glassApply"
                   onClick={closeAll}
-                  className={cx("xl:w-38", onDark && "ring-1 ring-inset ring-paper/35")}
+                  className="xl:w-[var(--width-header-cta)]"
                 >
                   {applyLink.label}
                 </Button>

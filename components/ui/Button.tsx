@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cx } from "@/lib/cx";
 
-type Variant = "primary" | "apply" | "outline" | "light";
+type Variant = "primary" | "apply" | "outline" | "light" | "glass" | "glassApply";
 type Size = "md" | "lg";
 
 const base =
@@ -20,6 +20,13 @@ const variants: Record<Variant, string> = {
   outline: "bg-paper/70 text-ink ring-[1.5px] ring-inset ring-ink backdrop-blur-xl hover:bg-ink hover:text-paper",
   // White on dark photos (the homepage hero). Orange on hover, like Apply To Drive; at rest it's ink on white.
   light: "bg-paper text-ink hover:bg-brand hover:text-paper",
+  // The header's frosted-glass pair (2026-09-23): same recipe as the nav pill (Header.tsx → glassClass), so
+  // the two CTAs read as part of the same glass system instead of two solid blocks competing with the hero.
+  glass:
+    "bg-paper/55 text-ink ring-1 ring-inset ring-ink/10 shadow-[0_8px_32px_rgb(37_37_37/0.08)] backdrop-blur-xl backdrop-saturate-150 hover:bg-paper/80",
+  // Same glass, but keeps Apply To Drive's brand-orange hover instead of the neutral one — Header.tsx only.
+  glassApply:
+    "bg-paper/55 text-ink ring-1 ring-inset ring-ink/10 shadow-[0_8px_32px_rgb(37_37_37/0.08)] backdrop-blur-xl backdrop-saturate-150 hover:bg-brand hover:text-paper",
 };
 
 const sizes: Record<Size, string> = {

@@ -2,6 +2,7 @@
 
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
 import { Button, Container } from "@/components/ui";
 import { applyLink, homeHeadline } from "@/lib/site";
@@ -23,14 +24,14 @@ export function HomeHero() {
   const reduceMotion = useReducedMotion();
   const intro = useIntroProgress();
 
-  // The words light up once the intro is almost gone (straight away when there's no intro).
+  // The words light up right after the header logo settles (straight away on every page but the homepage).
   const [lit, setLit] = useState(false);
   useMotionValueEvent(intro, "change", (v) => {
-    if (v >= 0.9) setLit(true);
+    if (v >= INTRO.litAt) setLit(true);
   });
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      if (intro.get() >= 0.9) setLit(true);
+      if (intro.get() >= INTRO.litAt) setLit(true);
     });
     return () => cancelAnimationFrame(frame);
   }, [intro]);
@@ -87,11 +88,12 @@ export function HomeHero() {
       <Container className="flex flex-1 flex-col pt-32 pb-6 sm:pb-8 lg:pb-10">
         <div className="flex flex-1 items-center">
           {/*
-            From lg the block sits in the header's CTA column: its left edge lines up with Get a Quote and its right
-            edge with Apply To Drive (the pair is 2 × 9.5rem + a 0.75rem gap from xl; about 18.1rem below xl, where
-            the buttons size to their labels — see Header.tsx).
+            From lg the block sits in the header's CTA column: its left edge lines up with Get a Quote and its
+            right edge with Apply To Drive. From xl the pair is a fixed width (`--width-header-cta`, set once in
+            app/globals.css and shared with Header.tsx) plus the 0.75rem gap between them; below xl the buttons
+            size to their labels instead, so 18.1rem is a measured stand-in for that width, not a derived one.
           */}
-          <div className="max-w-[34rem] lg:ml-auto lg:w-[18.1rem] xl:w-[19.75rem]">
+          <div className="max-w-[34rem] lg:ml-auto lg:w-[18.1rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]">
             <h1 className="text-balance text-[clamp(1.75rem,6.5vw,2.5rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:text-[1.75rem] xl:text-[2rem]">
               {HEADLINE_WORDS.map((word, i) => (
                 <span
