@@ -4,7 +4,7 @@
 ## Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | Forest drone hero (shows straight away — a short header-logo fade-in is all that plays on load), numbers band, safety band, Ship with us band, rolling slogan line and three apply cards built |
+| `/` | `app/page.tsx` | Forest drone hero (shows straight away — a short header-logo fade-in is all that plays on load), numbers band, safety band, Ship with us band, the dark story band, rolling slogan line and three apply cards built |
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |

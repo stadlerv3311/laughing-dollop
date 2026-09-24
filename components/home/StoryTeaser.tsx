@@ -6,7 +6,9 @@ import { story } from "@/lib/story";
 
 /**
  * Homepage band with the short company story — the page's one dark passage, edge to edge rather than a card
- * floating in white. The whole band links to the About page (docs/DECISIONS.md → Company story).
+ * floating in white. The whole band links to the About page (docs/DECISIONS.md → Company story). It sits
+ * between Ship with us and the driver slogans — the hinge between the shipper and driver halves (moved up from
+ * the end of the page 2026-09-24).
  */
 export function StoryTeaser() {
   return (
