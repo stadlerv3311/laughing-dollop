@@ -1,81 +1,51 @@
-import Image from "next/image";
-import { Button, Container, SlideGroup, SlideItem } from "@/components/ui";
+import { Button, Container, Reveal } from "@/components/ui";
 import { quoteLink } from "@/lib/site";
-import { ArrowPhotoClip } from "./ArrowPhotoClip";
 
 /**
- * The shipper half of the page, on its own (2026-09-18). It replaced the light/dark "Ship with us" /
- * "Drive for us" split: the three apply cards above now carry all the recruiting, so the split's dark half
- * was asking the driver a third time and this band only has one audience left to talk to.
+ * The shipper half's closing ask (rebuilt 2026-09-24). It sits after the safety band — the proof — and before
+ * the dark story band, so it no longer needs its own photo: the page has already shown the trucks. A centred
+ * column on the soft off-white `mist` surface — the one section between white bands that changes background,
+ * so it reads as its own quiet beat between the white safety band and the dark story (docs/DECISIONS.md →
+ * Homepage section look). Label with a small orange mark, the heading, one short paragraph, Get a Quote.
  *
- * Photo left, text right (swapped 2026-09-19 so the page zigzags off the hero, whose photo is on the right),
- * and from `lg` the photo is absolute so it runs to the left screen edge. Its right edge is a rounded arrow
- * pointing at the text (`ArrowPhotoClip`, `point="right"` — rebuilt 2026-09-23, deeper and rounded rather
- * than the earlier sharp 10% notch); it's a clip, not a border, so nothing floats (docs/DECISIONS.md →
- * Homepage section look).
- *
- * On first scroll into view the photo slides in from its screen edge and the text from the other side, on
- * one shared trigger so both land on the same frame (requested 2026-09-18) — see `SlideGroup`.
+ * Until 2026-09-24 this was a photo-and-text band mirroring the safety band (photo left with the rounded arrow
+ * edge, the mountain-road shot); the two identical layouts in a row blurred together.
  */
 // Draft copy — swap in approved wording when it's ready.
 export function ShipWithUs() {
   return (
-    <SlideGroup aria-labelledby="ship-with-us" className="relative bg-paper lg:flex lg:min-h-[calc(33.75vw+4rem)] lg:items-start">
-      {/*
-        The photo is absolute from `lg`, so it can't stretch the section. Its box is 54vw wide at 16:10, so
-        33.75vw tall; on wide screens that outgrew the text column and the photo ran over the numbers band's
-        hairline (46px at 1920). The min-height keeps a 2rem margin above and below it; the text lines its top
-        up with the photo's top (`lg:pt-8` — 2rem, matching that margin — requested 2026-09-23, was centred).
-      */}
-      <Container className="py-16 sm:py-20 lg:pb-8 lg:pt-8">
-        <SlideItem from="right" className="lg:ml-auto lg:w-[46%] lg:pl-8">
-          <p className="text-sm font-semibold text-ink/70">Ship with us</p>
+    <section aria-labelledby="ship-with-us" className="bg-mist py-20 text-center sm:py-24 lg:py-28">
+      <Container>
+        <Reveal className="mx-auto max-w-[42.5rem]">
+          <p className="inline-flex items-center gap-3 text-sm font-semibold text-ink/70">
+            {/* A mark, not text, so it's clear of the small-orange-text rule. */}
+            <span aria-hidden className="h-0.5 w-5 bg-brand" />
+            Ship with us
+          </p>
 
           {/*
             The page's h1 is a driver line, so this is the only heading that says what the business
             actually sells — keep the freight terms in it (docs/DECISIONS.md → Open).
           */}
-          <h2 id="ship-with-us" className="mt-4 text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem] lg:text-[clamp(1.75rem,2.5vw,2.25rem)]">
+          <h2
+            id="ship-with-us"
+            className="mt-4 text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem] lg:text-[clamp(1.75rem,2.5vw,2.25rem)]"
+          >
             Dry van truckload, handled with care.
           </h2>
 
-          <p className="mt-5 max-w-lg text-lg text-ink/70">
+          <p className="mx-auto mt-5 max-w-lg text-pretty text-lg text-ink/70">
             Tell us where it&rsquo;s going and what it weighs, and we&rsquo;ll come back with a quote. Every
             load runs in a dry van, so there&rsquo;s nothing else to choose.
           </p>
 
-          {/* Centred under the text (requested 2026-09-23), unlike the left-set copy above it. */}
-          <div className="mt-9 flex justify-center">
-            <Button href={quoteLink.href} size="lg">
-              {quoteLink.label}
-            </Button>
-          </div>
-        </SlideItem>
+          {/* The one loud thing in the section: a step up from the shared button size, close to the text. */}
+          <Button href={quoteLink.href} size="lg" className="mt-8 px-9 text-lg!">
+            {quoteLink.label}
+            <span aria-hidden>→</span>
+          </Button>
+        </Reveal>
       </Container>
-
-      {/*
-        Below `lg` this is an ordinary full-width band under the text; from `lg` it lifts out of the flow
-        into the left half of the section and runs to the screen edge, so the angled edge has room to read.
-      */}
-      {/*
-        Fixed aspect rather than the section's full height, because `object-cover` crops width to fit the
-        box: tied to the section, the box got taller as the text wrapped at narrower widths and cropped the
-        logo off the trailer — at 1024px it lost a third of the frame. A set ratio crops the same everywhere,
-        so the whole truck stays in it. Centred vertically, which also matches the reference's inset look.
-      */}
-      <div className="relative h-64 sm:h-80 lg:absolute lg:left-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:w-[54%] lg:-translate-y-1/2">
-        <ArrowPhotoClip id="ship-with-us-arrow" point="right" />
-        {/* Starts fully off the left edge, so the photo arrives from outside the screen. */}
-        <SlideItem from="left" distance="100%" className="absolute inset-0">
-          <Image
-            src="/images/home-hero-sierra.jpg"
-            alt="An ITrucking dry van climbing a mountain highway through pine forest at dawn"
-            fill
-            sizes="(width >= 64rem) 54vw, 100vw"
-            className="object-cover lg:[clip-path:url(#ship-with-us-arrow)]"
-          />
-        </SlideItem>
-      </div>
-    </SlideGroup>
+    </section>
   );
 }
