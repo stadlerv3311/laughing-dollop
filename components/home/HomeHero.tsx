@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { easeOut, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
@@ -40,6 +40,11 @@ export function HomeHero() {
     });
     return () => cancelAnimationFrame(frame);
   }, [intro]);
+
+  // On the homepage's first open the text block comes down the screen after the truck and stops in place (see
+  // HomeIntro); everywhere else progress is already 1, so it just sits there.
+  const blockY = useTransform(intro, [...INTRO.blockIn], [INTRO.blockDrop, "0vh"], { ease: easeOut });
+  const blockOpacity = useTransform(intro, [INTRO.blockIn[0], INTRO.blockIn[0] + 0.25], [0, 1]);
 
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
@@ -89,6 +94,7 @@ export function HomeHero() {
       <motion.div aria-hidden className="absolute inset-0 -z-10" style={reduceMotion ? undefined : { scale: videoScale }}>
         <video
           ref={videoRef}
+          data-hero-video
           className="h-full w-full object-cover object-[20%_50%] lg:object-center"
           src="/videos/home-hero-forest.mp4"
           poster="/images/home-hero-forest.jpg"
@@ -129,7 +135,10 @@ export function HomeHero() {
             column's right edge, while the supporting line and buttons stay in the column (owner, 2026-09-24: the
             middle of the screen felt empty with the headline at button width).
           */}
-          <div className="max-w-[34rem] lg:ml-auto lg:flex lg:max-w-none lg:flex-col lg:items-end">
+          <motion.div
+            className="max-w-[34rem] lg:ml-auto lg:flex lg:max-w-none lg:flex-col lg:items-end"
+            style={{ y: blockY, opacity: blockOpacity }}
+          >
             <h1 className="text-balance text-[clamp(1.75rem,6.5vw,2.5rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:w-max lg:text-[3rem] lg:leading-[1.05] lg:tracking-[-0.04em] xl:text-[3.75rem] 2xl:text-[4.25rem]">
               {[LEAD_WORDS, TAIL_WORDS].map((words, line) => (
                 <span key={line} className="block">
@@ -169,7 +178,7 @@ export function HomeHero() {
                 className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-56 lg:ml-0 lg:mt-3 lg:w-full"
               />
             </div>
-          </div>
+          </motion.div>
         </div>
       </Container>
     </section>

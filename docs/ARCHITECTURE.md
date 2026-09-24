@@ -116,14 +116,17 @@ Design references (what we take from each — style and structure only, never th
 | sendsierra.com/drivers-enrollment | Big motion hero on the driver page |
 | dotlogics.com | Overall feel: premium but light and easy |
 
-## Homepage opening (logo moment, plays on load)
+## Homepage opening (in step with the hero's truck, plays on load)
 - The video intro was removed 2026-09-23 (see DECISIONS.md → Hero media). The hero (`HomeHero`, its own looping video) is always rendered and shows straight away — no wait, no white flash.
-- The only thing that still plays on load is `HomeIntro` (`components/intro/HomeIntro.tsx`): it renders nothing itself, it just animates the shared `useIntroProgress` value from 0 to 1 over `INTRO.duration` (1 s, the `ease-premium` curve).
-- `Header` reads that progress to fade (`logoOpacity`, first half of the second) and settle (`logoScale`, `INTRO.appearScale` 1.06 → 1, the whole second) its own logo directly in place — there's no separate flying copy, the header's logo is the one animating — and to bring the nav/CTAs from 60% opacity to full once progress passes `INTRO.litAt`.
-- `HomeHero` reads the same progress to light up the h1's words, one by one, once it passes `INTRO.litAt` too — right after the logo settles.
-- `IntroProgressProvider` shares progress with both: 0 on `/` until the logo lands, 1 on every other page (so their logo/headline just render settled/lit everywhere else).
-- Plays once per visit: a module-level flag in `HomeIntro` marks it played, so later client-side visits to `/` show the logo already settled. A reload resets the flag.
-- Skipped (the logo just appears settled, no animation) for `prefers-reduced-motion` visitors.
+- What plays on load is `HomeIntro` (`components/intro/HomeIntro.tsx`). It renders nothing itself: it sets the shared `useIntroProgress` value from 0 to 1 by following the hero video's `currentTime` from `INTRO.truckIn` (0.85 s, the truck's cab crossing the top of the frame) to `INTRO.landed` (3.4 s), found through `[data-hero-video]`. If the video hasn't started within `INTRO.videoTimeout` (1.5 s), it animates the rest over `INTRO.fallbackDuration` instead (2026-09-24; before that it was a flat one-second animation).
+- `Header` reads that progress to:
+  - slide the whole bar down from above the screen over `INTRO.headerDrop` (`dropY`, on an inner wrapper, so it doesn't fight the header's own hide-on-scroll `y`);
+  - fade in (`logoOpacity`) and settle (`logoScale`, `INTRO.appearScale` 1.06 → 1) its own logo in place — there's no separate flying copy;
+  - bring the nav and CTAs from 60% opacity to full once progress passes `INTRO.litAt`.
+- `HomeHero` reads the same progress to bring its text block down from `INTRO.blockDrop` (−20vh) and fade it in over `INTRO.blockIn`, and to light up the h1's words one by one once progress passes `INTRO.litAt`.
+- `IntroProgressProvider` shares progress with both: 0 on `/` until the text lands, 1 on every other page (so everything just renders in place everywhere else).
+- Plays once per visit: a module-level flag in `HomeIntro` marks it played, and it's also skipped when the visit started on another page (progress is already 1). A reload resets the flag.
+- Skipped (everything just appears in place, no animation) for `prefers-reduced-motion` visitors.
 
 ## Header behavior
 - Fixed. Transparent at the top, frosted white once scrolled. Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the homepage logo moment or while a menu is open).

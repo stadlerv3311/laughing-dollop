@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, easeOut, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
@@ -112,7 +112,9 @@ export function Header() {
   const [careersOpen, setCareersOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Fades in over the first half of the moment and keeps settling down to its resting size for the rest of it.
+  // On the homepage's first open the whole bar slides down from above the screen with the hero's truck, easing to a
+  // stop (see HomeIntro). The logo fades in as it comes and keeps settling to its resting size for the rest.
+  const dropY = useTransform(intro, [...INTRO.headerDrop], ["-100%", "0%"], { ease: easeOut });
   const logoOpacity = useTransform(intro, [0, 0.5], [0, 1]);
   const logoScale = useTransform(intro, [0, 1], [INTRO.appearScale, 1]);
 
@@ -181,6 +183,7 @@ export function Header() {
         transition={{ duration: 0.55, ease: EASE }}
         onMouseLeave={closeCareers}
       >
+        <motion.div className="relative" style={{ y: dropY }}>
           {/*
             No bar over dark bands — the film shows through the whole top edge. Over light sections, once the page
             has scrolled, a white bar with a hairline fades in behind everything so the links stay readable; it also
@@ -298,6 +301,7 @@ export function Header() {
               </div>
             </div>
           </Container>
+        </motion.div>
       </motion.header>
 
       <AnimatePresence>
