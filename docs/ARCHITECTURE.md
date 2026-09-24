@@ -7,7 +7,7 @@
 - Tailwind CSS v4 — brand tokens live in `app/globals.css` → `@theme`
 - motion (`motion/react`) — UI animation and scroll-linked values
 - Lenis — smooth wheel scrolling (turned off for reduced motion)
-- No 3D library — the homepage intro is a `<video>` plus a CSS `matrix3d` transform (three.js and React Three Fiber were removed on 2026-09-11)
+- No 3D library — three.js and React Three Fiber were removed on 2026-09-11; the video intro that replaced them was itself removed on 2026-09-23 (see DECISIONS.md → Hero media)
 - Font: Manrope via `next/font/google` (provisional — see DECISIONS.md → Open). Display: Archivo (variable, `wdth` axis) as `font-display`, used only for the homepage hero's big word
 - Form backend: owned by the backend teammate, not yet decided — see DECISIONS.md
 
@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — TruckIntro(HomeHero) + TrustBar + ShipWithUs + SafetyBand + DriverSlogans + ApplyRoutes + StoryTeaser
+  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + ShipWithUs + SafetyBand + DriverSlogans + ApplyRoutes + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -28,12 +28,12 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder
+  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, SafetyBand, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
   quote/                     → QuoteForm, StateMap
-  intro/                     → TruckIntro, timeline, clock, quad (corners → matrix3d)
+  intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll
 
 lib/
@@ -51,7 +51,7 @@ public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
   images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used
-  videos/                    → homepage intro: home-intro-1080.mp4, home-intro-720.mp4 (phones), home-intro-poster.jpg (first frame); home-hero-forest.mp4 is the hero's seamless loop (AI-generated)
+  videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated); home-intro-1080.mp4, home-intro-720.mp4, home-intro-poster.jpg are the removed video intro's files — unused, safe to delete
 ```
 Full component list: NAVIGATION.md → Component library.
 
@@ -78,10 +78,28 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 - If orange ever carries white text again, it must be large/bold (≥ 18.66px bold or ≥ 24px regular). No button does today
 - Never use orange for small body text or links — use near-black
 
+### Layout grid (2026-09-23)
+A Figma-style margin/column grid for desktop, replacing the old fixed `max-w-7xl` + 32px padding: content caps
+at 1200px and centers from `desktop` (1200px wide) up, so the margin is whatever's left of the viewport —
+exactly 0 at 1200px wide, 360px either side at 1920px, and keeps growing on wider screens rather than the
+content growing past 1200px — with 12 columns / 24px gutters inside that content width.
+- `Container` (`components/ui/Container.tsx`) sets the margin: ordinary phone/tablet padding (`px-5 sm:px-8`)
+  below the `desktop` breakpoint (1200px, `--breakpoint-desktop` in `app/globals.css`), `max-w-[75rem] mx-auto`
+  (1200px, centered) from `desktop` up. Used by every section, header included — the header's nav pill + logo +
+  CTA pair fit comfortably inside 1200px at every width from 1024 up (it was already tuned to fit in less).
+- `Columns` (`components/ui/Columns.tsx`) is the 12-column grid itself (8 / 4 columns at `sm` / phone) — put it
+  inside a `Container` and size children with Tailwind's `col-span-*`. Not yet adopted by any section; it's the
+  primitive for the next pass of "does this text/button sit on the grid" work.
+- `--width-header-cta` (`app/globals.css`) is the single source for the CTA button width Header and HomeHero
+  both need — Header's two buttons are this width from `xl`; HomeHero's headline block matches their combined
+  width (`calc(2 × var + 0.75rem gap)`) so its right edge lines up with Apply To Drive. Since both sit in the
+  same 1200px-capped, centered `Container`, that's the only number they still need to share — the margin itself
+  is identical by construction, not by matching two containers' padding.
+
 ### Logo
 | Source file (`docs/`) | Web copy (`public/`) | What it is | Use |
 |---|---|---|---|
-| `Logo black.svg` | `logo.svg` | Orange star icon + lowercase "itrucking" wordmark (764×192) | Header, footer, the intro's flying logo |
+| `Logo black.svg` | `logo.svg` | Orange star icon + lowercase "itrucking" wordmark (764×192) | Header, footer |
 | `Only logo Solutions.svg` | `logo-icon.svg` (+ `app/icon.svg`) | 8-piece orange star only (248×248) | Favicon |
 
 The `docs/` copies are the source originals. The wordmark reads "itrucking" only — the full name "ITrucking Solutions" appears in page text, titles, and footer.
@@ -98,29 +116,18 @@ Design references (what we take from each — style and structure only, never th
 | sendsierra.com/drivers-enrollment | Big motion hero on the driver page |
 | dotlogics.com | Overall feel: premium but light and easy |
 
-## Homepage intro (plays on load, video)
-- `TruckIntro` lays a full-screen stage over the top of the page (fixed, `z-40`, under the header) and plays it by itself in 6.2 seconds (`INTRO.duration`): a 5-second video, then the logo's handoff to the header. The page itself (`children` — the photo hero — and the content below) is always rendered underneath; at the end the stage fades away and unmounts.
-- The video is a plain `<video>` (muted, `playsInline`, `preload="auto"`, first frame as `poster`) covering the stage. Two `<source>`s: phones (`max-width: 767px`) get `home-intro-720.mp4`, everyone else `home-intro-1080.mp4`. It's started by hand with `play()` rather than `autoPlay`, because React leaves `muted` out of the server HTML and browsers only autoplay muted video.
-- One `requestAnimationFrame` loop drives everything. The clock itself is `advanceClock` in `components/intro/clock.ts` — a pure function, so it can be exercised without a browser. While the video plays the clock follows its `currentTime`, smoothed between frames and never more than `MAX_LEAD` ahead. The loop writes intro progress 0 → 1 and moves the logo, the white overlay, the stage fade and the Skip button's progress line.
-- **Once the video is on its last frame the clock runs on real time — it never waits for the `ended` event.** That event can arrive late or not at all; while it was the only way past the video's length, the clock stayed pinned at `currentTime + MAX_LEAD` (≈5.14 s of a 6 s intro) and the intro hung on a white screen with the logo mid-flight until the visitor clicked (found and fixed 2026-09-11). For the same reason, "has the picture moved?" ignores the media clock wobbling by a fraction of a millisecond — that wobble used to reset the stall check forever.
-- If the picture stops moving mid-video for longer than `STALL_GRACE` — buffering, a backgrounded tab, a phone saving power — the clock carries on by itself and nudges a paused video back into playing, so the intro can never sit frozen on screen waiting for a video that isn't coming.
-- Phases (seconds on that clock, all in `components/intro/timeline.ts`, stored as fractions of the play length):
-  - 0–5.04 the video: the truck on a desert highway
-  - 4.5–5.05 the picture fades to white
-  - 4.85–5.35 our `logo.svg` appears in the middle of the screen: fades in while settling from 108% to its resting size (`centerSpot` — about a third of the screen width, 240–480px)
-  - 5.45–6.1 logo glides into the header's logo slot (`[data-intro-logo-target]`)
-  - 5.6–1 the white fades away and the page shows through
-  - 5.7 header nav goes from dimmed to fully visible
-- The logo is drawn large and placed by its four corners each frame: `quad.ts` turns them into a CSS `matrix3d`, and the glide is those corners interpolated from the centered rectangle to the header's slot. Until 2026-09-18 the logo first appeared over the one painted on the trailer, bent to its angle (corners measured frame by frame in a `logoTrack.ts`), then peeled off it; the owner asked for it to appear in the middle instead, so the intro no longer depends on where the logo sits in the video.
-- While it plays the page doesn't scroll. A wheel or touch scroll, any tap or click (header included), a scroll key, Escape or the Skip intro button jumps to the end: the picture fades to white (`INTRO.skipFade`, 0.2 s), then the logo, already in the middle, glides in while the page shows (`INTRO.skipGlide`, 0.4 s). Wheel and touch events are caught in the capture phase on `window`, so Lenis never sees them. Skipping before the video has started just shows the page.
-- The header sits above the stage, so its links and buttons work during the intro.
-- `IntroProgressProvider` shares progress with `Header`: 0 on `/` until the logo lands, 1 on every other page.
-- Plays once per visit: a module-level flag in `TruckIntro` marks it played, so later client-side visits to `/` skip it. A reload resets the flag. (Works because pages unmount on navigation — if `cacheComponents` is ever turned on, Next keeps pages alive and this needs revisiting.)
-- Skipped entirely (page shown straight away, header visible immediately) for `prefers-reduced-motion` and repeat views in the same visit. If the video hasn't started within `INTRO.loadTimeout` (3 s) — slow network, autoplay turned off — the page shows instead.
+## Homepage opening (logo moment, plays on load)
+- The video intro was removed 2026-09-23 (see DECISIONS.md → Hero media). The hero (`HomeHero`, its own looping video) is always rendered and shows straight away — no wait, no white flash.
+- The only thing that still plays on load is `HomeIntro` (`components/intro/HomeIntro.tsx`): it renders nothing itself, it just animates the shared `useIntroProgress` value from 0 to 1 over `INTRO.duration` (1 s, the `ease-premium` curve).
+- `Header` reads that progress to fade (`logoOpacity`, first half of the second) and settle (`logoScale`, `INTRO.appearScale` 1.06 → 1, the whole second) its own logo directly in place — there's no separate flying copy, the header's logo is the one animating — and to bring the nav/CTAs from 60% opacity to full once progress passes `INTRO.litAt`.
+- `HomeHero` reads the same progress to light up the h1's words, one by one, once it passes `INTRO.litAt` too — right after the logo settles.
+- `IntroProgressProvider` shares progress with both: 0 on `/` until the logo lands, 1 on every other page (so their logo/headline just render settled/lit everywhere else).
+- Plays once per visit: a module-level flag in `HomeIntro` marks it played, so later client-side visits to `/` show the logo already settled. A reload resets the flag.
+- Skipped (the logo just appears settled, no animation) for `prefers-reduced-motion` visitors.
 
 ## Header behavior
-- Fixed. Transparent at the top, frosted white once scrolled. Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the intro or while a menu is open).
-- During the homepage intro: nav and buttons sit at 60% opacity over the scene; hovering or tabbing into the header brings them to full with a frosted bar. The logo stays hidden until the intro lands it.
+- Fixed. Transparent at the top, frosted white once scrolled. Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the homepage logo moment or while a menu is open).
+- During the homepage logo moment: nav and buttons sit at 60% opacity over the scene; hovering or tabbing into the header brings them to full with a frosted bar. The logo fades and settles into place — see Homepage opening above.
 - Careers opens a two-link panel that drops from under the bar (hover or click); Escape or clicking outside closes it.
 - Below `lg`: menu button opens a full-screen menu that drops from the top.
 

@@ -4,7 +4,7 @@
 ## Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | 6-second video truck intro, full-screen photo hero with the fixed h1, numbers band, Ship with us band, safety band, rolling slogan line and three apply cards built |
+| `/` | `app/page.tsx` | Forest drone hero (shows straight away — a short header-logo fade-in is all that plays on load), numbers band, Ship with us band, safety band, rolling slogan line and three apply cards built |
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
@@ -18,13 +18,11 @@
 |---|---|
 | Change a nav link or the company name | `lib/site.ts` — Header, mobile menu and Footer all read from it |
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
+| Change the page margins or the column grid | `components/ui/Container.tsx`, `components/ui/Columns.tsx`, `--breakpoint-desktop` / `--width-header-cta` in `app/globals.css` — see ARCHITECTURE.md → Layout grid |
 | Change the font | `app/layout.tsx` → `Manrope` import (the hero's big word uses `Archivo`, same file) |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
-| Tune intro timing (length, how fast skipping is, when the white fade, the logo appearing and the glide happen) | `components/intro/timeline.ts` |
-| Replace the intro video | `public/videos/home-intro-1080.mp4`, `-720.mp4`, `-poster.jpg` |
-| Change the logo's size or spot in the middle of the screen | `components/intro/TruckIntro.tsx` → `centerSpot`, `APPEAR_SCALE` |
-| Change how the logo flies into the header | `components/intro/TruckIntro.tsx` → `draw` |
-| Fix the intro hanging, or how it keeps time with the video | `components/intro/clock.ts` → `advanceClock` |
+| Tune the homepage logo moment (how long it takes, how big it starts, when the headline lights up) | `components/intro/timeline.ts` |
+| Change how the header logo fades/settles in | `components/layout/Header.tsx` → `logoOpacity`, `logoScale` |
 | Change the Ship with us band (copy, photo, the angled edge) | `components/home/ShipWithUs.tsx`; photo is `public/images/home-hero-sierra.jpg` (swapped with the hero 2026-09-21; the hero's is now `safety-truck-front.jpg`) |
 | Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
@@ -39,7 +37,7 @@
 | Regenerate or re-project the state shapes | `scripts/build-us-states.mjs` → writes `lib/us-states.ts` |
 | Fix a ZIP that lights up the wrong state | `lib/zip.ts` |
 | Change the shared input/select look | `components/ui/Field.tsx` → `controlClass` |
-| Change header behavior (hide on scroll on phones, dimmed state during the intro, Careers drop panel) | `components/layout/Header.tsx`, `components/layout/CareersPanel.tsx` |
+| Change header behavior (hide on scroll on phones, dimmed state during the logo moment, Careers drop panel) | `components/layout/Header.tsx`, `components/layout/CareersPanel.tsx` |
 | Change the phone/tablet menu | `components/layout/MobileMenu.tsx` |
 | Change the footer | `components/layout/Footer.tsx` |
 | Add or change a button style | `components/ui/Button.tsx` |
@@ -60,15 +58,14 @@ flowchart TD
   Providers --> Footer["layout/Footer"]
   Header --> CareersPanel["layout/CareersPanel"]
   Header --> MobileMenu["layout/MobileMenu"]
-  Page --> TruckIntro["intro/TruckIntro"]
+  Page --> HomeIntro["intro/HomeIntro"]
   Page --> HomeHero["home/HomeHero"]
   Page --> DriverSlogans["home/DriverSlogans"]
   Page --> ShipWithUs["home/ShipWithUs"]
   Page --> SafetyBand["home/SafetyBand"]
   Page --> TrustBar["home/TrustBar"]
-  TruckIntro --> Video["public/videos/home-intro-*.mp4"]
-  TruckIntro --> Quad["intro/quad"]
-  TruckIntro -. "intro progress" .-> Header
+  HomeIntro -. "intro progress" .-> Header
+  HomeIntro -. "intro progress" .-> HomeHero
 ```
 
 ## Component library
@@ -77,7 +74,8 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | Folder | Component | What it does | Runs on |
 |---|---|---|---|
 | `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (solid black), `apply` (black, orange on hover — Apply To Drive only), `outline` (black ring on a light frosted fill). Both share one type size so a pair sized alike matches. Sizes: `md`, `lg` | Server |
-| `ui/` | `Container` | Centered max-width wrapper with side padding | Server |
+| `ui/` | `Container` | Full-width side-margin wrapper — phone/tablet padding below `desktop` (1200px), content caps at 1200px and centers above it | Server |
+| `ui/` | `Columns` | The 12-column / 24px-gutter grid that sits inside a `Container` — size children with `col-span-*` | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
 | `ui/` | `SlideGroup`, `SlideItem` | A section that slides its items in from the sides on one shared trigger, so they start and stop together; `distance="100%"` starts an item fully off the screen edge. Clips sideways overflow | Client |
@@ -95,14 +93,13 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `ShipWithUs` | The shipper band: the logo truck left with an angled right edge, running to the screen edge from `lg`, text right (swapped 2026-09-19 to zigzag off the hero). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
 | `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — text and a hairline list left, photo right with an angled left edge; hovering a row swaps the photo for that row's clip, on white; it follows Ship with us directly | Client (hover state) |
+| `home/` | `ArrowPhotoClip` | Renders nothing — defines the rounded-arrow SVG `clipPath` Ship with us and Safety band's photos point with (`point="right"` / `"left"`) | Server |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
 | `quote/` | `StateMap` | Lower-48 map: hover lift + name tag, click pickup then delivery, route line and pins | Client |
-| `intro/` | `TruckIntro` | Plays the intro over the top of the page on load: the video, the logo handoff, white fade, Skip intro button, skip on scroll/tap | Client |
-| `intro/` | `timeline.ts` | `INTRO` play length, skip speed and phases + easing helpers | — |
-| `intro/` | `clock.ts` | Advances the intro clock: follows the video, then real time once the picture has run out | — |
-| `intro/` | `quad.ts` | Four corners → CSS `matrix3d`, and the corner helpers the glide into the header interpolates | — |
-| `providers/` | `IntroProgressProvider`, `useIntroProgress` | Shares intro progress (0–1) between intro and header | Client |
+| `intro/` | `HomeIntro` | Renders nothing; on load animates the shared intro progress 0 → 1 over about a second, which fades/settles the header's logo into place and lights up the hero headline right after | Client |
+| `intro/` | `timeline.ts` | `INTRO` duration, appear scale and the fraction things light up at | — |
+| `providers/` | `IntroProgressProvider`, `useIntroProgress` | Shares intro progress (0–1) between `HomeIntro`, `Header` and `HomeHero` | Client |
 | `providers/` | `SmoothScroll` | Lenis smooth scrolling; off for reduced motion | Client |
 
 ## Directory map
