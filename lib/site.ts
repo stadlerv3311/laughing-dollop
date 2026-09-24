@@ -156,8 +156,12 @@ export const applyRoutes: readonly ApplyRoute[] = [
 export type SafetySystem = {
   name: string;
   body: string;
-  /** Muted clip that replaces the band's photo while this row is hovered, focused or tapped. */
-  video: string;
+  /**
+   * What replaces the band's photo while this row is hovered, focused or tapped: a muted clip, or — for a row
+   * with no footage — a still (`image`) plus its alt text. Give one or the other.
+   */
+  video?: string;
+  image?: { src: string; alt: string };
 };
 
 // The homepage's safety band (requested 2026-09-18). Behind it: Samsara for GPS on trucks and trailers, basic
@@ -186,6 +190,16 @@ export const safetySystems: readonly SafetySystem[] = [
     body: "Every repair and inspection is logged, so each truck’s full service history is on file.",
     // PLACEHOLDER — Pexels stock (6685045, Gustavo Fring), until the owner sends our own shop footage.
     video: "/videos/safety-maintenance-placeholder.mp4",
+  },
+  {
+    name: "New equipment",
+    body: "Nearly the whole fleet is 2025–26 Volvo trucks, pulling brand-new trailers.",
+    // PLACEHOLDER — AI-generated line-up standing in for a photo of our own yard; the fleet itself is real (owner,
+    // 2026-09-24). Tractors only, no trailers — swap for a real shot with trailers when one exists.
+    image: {
+      src: "/images/safety-fleet.jpg",
+      alt: "A row of new white Volvo trucks parked side by side on an open lot",
+    },
   },
 ];
 

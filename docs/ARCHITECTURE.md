@@ -50,7 +50,7 @@ scripts/
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
-  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg and home-hero-sierra.jpg are no longer used
+  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg and home-hero-sierra.jpg are no longer used; safety-fleet.jpg is the safety band's New equipment still
   videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated)
 ```
 Full component list: NAVIGATION.md → Component library.

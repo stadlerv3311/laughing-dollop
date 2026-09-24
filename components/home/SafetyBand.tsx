@@ -19,7 +19,8 @@ import { ArrowPhotoClip } from "./ArrowPhotoClip";
  * Each row swaps the photo for its own clip (requested 2026-09-19): hover or focus a row and its video fades in
  * over the photo and plays from the start; leave the list and the photo comes back. On touch, a tap picks a
  * row. All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and
- * must not go live (docs/DECISIONS.md → Safety band).
+ * must not go live (docs/DECISIONS.md → Safety band). The fourth row, New equipment (2026-09-24), has no footage:
+ * it swaps in a still of the fleet instead (`image` in `safetySystems`), also a placeholder.
  *
  * On first scroll into view the photo slides in from its screen edge and the text from the other side, on
  * one shared trigger so both land on the same frame (requested 2026-09-18) — see `SlideGroup`.
@@ -125,24 +126,42 @@ export function SafetyBand() {
               sizes="(width >= 64rem) 54vw, 100vw"
               className="object-cover"
             />
-            {safetySystems.map((system, i) => (
-              <video
-                key={system.video}
-                ref={(el) => {
-                  videos.current[i] = el;
-                }}
-                src={system.video}
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-hidden
-                className={cx(
-                  "absolute inset-0 size-full object-cover transition-opacity duration-500",
-                  active === i ? "opacity-100" : "opacity-0",
-                )}
-              />
-            ))}
+            {safetySystems.map((system, i) => {
+              const shown = cx(
+                "absolute inset-0 size-full object-cover transition-opacity duration-500",
+                active === i ? "opacity-100" : "opacity-0",
+              );
+              if (system.image) {
+                // A still for rows with no footage (New equipment). Lazy like the clips, and hidden from
+                // screen readers until its row is picked, since only one picture is ever on show.
+                return (
+                  <Image
+                    key={system.image.src}
+                    src={system.image.src}
+                    alt={active === i ? system.image.alt : ""}
+                    aria-hidden={active !== i}
+                    fill
+                    sizes="(width >= 64rem) 54vw, 100vw"
+                    className={shown}
+                  />
+                );
+              }
+              return (
+                <video
+                  key={system.video}
+                  ref={(el) => {
+                    videos.current[i] = el;
+                  }}
+                  src={system.video}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-hidden
+                  className={shown}
+                />
+              );
+            })}
           </div>
         </SlideItem>
       </div>
