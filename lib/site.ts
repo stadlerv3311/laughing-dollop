@@ -17,8 +17,8 @@ export type NavLink = {
 export const aboutLink: NavLink = { label: "About", href: "/about" };
 export const newsLink: NavLink = { label: "News", href: "/news" };
 
+// No Home item (owner, 2026-09-24): the logo is the way home, in the header and the phone menu's bar alike.
 export const primaryNav: NavLink[] = [
-  { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   aboutLink,
   newsLink,
