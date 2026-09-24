@@ -47,17 +47,22 @@ export type CompanyStat = {
   /** Shown after the number, e.g. "+" or "M+". */
   suffix?: string;
   label: string;
+  /**
+   * Which half of the numbers band it sits in: "story" (how long and how far — set large, on the left) or
+   * "proof" (the record — set smaller, on the right). See components/home/TrustBar.tsx.
+   */
+  group: "story" | "proof";
 };
 
 // Company numbers for the homepage trust bar. Only confirmed figures — see docs/DECISIONS.md → Trust badges.
 // Five since 2026-09-23: the hero's two numbers (years in business, on-time delivery) moved back down here when
 // the hero went to one headline and one button. The company was founded in 2008.
 export const companyStats: CompanyStat[] = [
-  { value: 10, suffix: "+", label: "Years in business" },
-  { value: 32, suffix: "M+", label: "Miles driven" },
-  { value: 125000, suffix: "+", label: "Loads completed" },
-  { value: 48, label: "States we serve" },
-  { value: 99, suffix: "%", label: "On-time delivery" },
+  { value: 10, suffix: "+", label: "Years in business", group: "story" },
+  { value: 32, suffix: "M+", label: "Miles driven", group: "story" },
+  { value: 125000, suffix: "+", label: "Loads completed", group: "proof" },
+  { value: 48, label: "States we serve", group: "proof" },
+  { value: 99, suffix: "%", label: "On-time delivery", group: "proof" },
 ];
 
 export type Slogan = {
