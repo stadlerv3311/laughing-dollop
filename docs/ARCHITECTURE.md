@@ -85,7 +85,7 @@ exactly 0 at 1200px wide, 360px either side at 1920px, and keeps growing on wide
 content growing past 1200px — with 12 columns / 24px gutters inside that content width.
 - `Container` (`components/ui/Container.tsx`) sets the margin: ordinary phone/tablet padding (`px-5 sm:px-8`)
   below the `desktop` breakpoint (1200px, `--breakpoint-desktop` in `app/globals.css`), `max-w-[75rem] mx-auto`
-  (1200px, centered) from `desktop` up. Used by every section, header included — the header's nav pill + logo +
+  (1200px, centered) from `desktop` up. Used by every section, header included — the header's nav links + logo +
   CTA pair fit comfortably inside 1200px at every width from 1024 up (it was already tuned to fit in less).
 - `Columns` (`components/ui/Columns.tsx`) is the 12-column grid itself (8 / 4 columns at `sm` / phone) — put it
   inside a `Container` and size children with Tailwind's `col-span-*`. Not yet adopted by any section; it's the

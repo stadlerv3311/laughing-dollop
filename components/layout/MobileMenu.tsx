@@ -95,7 +95,7 @@ export function MobileMenu({ open, pathname, onNavigate }: MobileMenuProps) {
 }
 
 /** Two-line menu icon that morphs into an X. */
-export function MenuToggle({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+export function MenuToggle({ open, onToggle, light = false }: { open: boolean; onToggle: () => void; light?: boolean }) {
   return (
     <button
       type="button"
@@ -106,12 +106,12 @@ export function MenuToggle({ open, onToggle }: { open: boolean; onToggle: () => 
       className="relative grid size-11 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-brand lg:hidden"
     >
       <motion.span
-        className="absolute h-0.5 w-5 rounded-full bg-ink"
+        className={cx("absolute h-0.5 w-5 rounded-full transition-colors duration-300", light && !open ? "bg-paper" : "bg-ink")}
         animate={open ? { rotate: 45, y: 0 } : { rotate: 0, y: -4 }}
         transition={{ duration: 0.4, ease: EASE }}
       />
       <motion.span
-        className="absolute h-0.5 w-5 rounded-full bg-ink"
+        className={cx("absolute h-0.5 w-5 rounded-full transition-colors duration-300", light && !open ? "bg-paper" : "bg-ink")}
         animate={open ? { rotate: -45, y: 0 } : { rotate: 0, y: 4 }}
         transition={{ duration: 0.4, ease: EASE }}
       />
