@@ -97,6 +97,8 @@ Three rules for its copy:
 
 The timer also pauses while the band is off screen, and only the picked clip plays. Reduced-motion visitors keep the old hover behaviour, with no timer. The hold is also the pause that WCAG 2.2.2 asks for when content moves on its own for more than 5 seconds.
 
+**Ship with us slides over the safety band, 2026-09-24** (owner: after the safety band, the quote ask slides in front of you). From `lg`, the safety band pins at the top of the screen (`position: sticky`, in `components/home/SlideOverStack.tsx`) and Ship with us rises over it like a sheet, with a soft shadow on its top edge, then the page scrolls on. It follows the reader's own scrolling, with no timed animation. **Once only, on the way down** (owner: no slide in reverse when scrolling back up): as soon as the sheet has covered the band, the band stops being sticky, hidden behind the sheet so nothing jumps. **The sheet is 70% of the band's height** (`OVER_SHARE`; owner: the full height was too big), with its content centred. Square corners, like every other section. The safety band's timer pauses while the sheet covers more than half of it. Phones and reduced-motion visitors get the two sections in plain order.
+
 ### Wording and type
 Set 2026-09-24 in a site-wide wording pass (owner: "buttons have similar names if they do the same thing").
 - **Sentence case everywhere**: buttons, nav, labels, headings, page titles ("Get a quote", "Fleet map", "Drive for us"). Proper nouns and the company name keep their capitals. This replaced a mix of Title Case and sentence case.

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Container, SlideGroup, SlideItem, labelClass, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { safetySystems } from "@/lib/site";
+import { useCovered } from "./SlideOverStack";
 import { ArrowPhotoClip } from "./ArrowPhotoClip";
 
 /**
@@ -46,6 +47,9 @@ export function SafetyBand() {
   // Bumped on every pick, so each row's bar starts filling from empty.
   const [turn, setTurn] = useState(0);
   const [inView, setInView] = useState(false);
+  // Ship with us slides over this band on the way down (SlideOverStack); the timer waits while it's covered.
+  const covered = useCovered();
+  const running = inView && !covered;
   // Held by a tap: the picked row stays until the same row is tapped again.
   const [held, setHeld] = useState(false);
   // Between passes: no row picked, the photo back, and a hidden REST_MS clock running.
@@ -166,7 +170,7 @@ export function SafetyBand() {
                             "absolute inset-y-5 left-0 w-[3px] origin-top bg-brand",
                             !held && "animate-row-timer",
                           )}
-                          style={held ? undefined : { animationDuration: `${ROW_MS}ms`, animationPlayState: inView ? "running" : "paused" }}
+                          style={held ? undefined : { animationDuration: `${ROW_MS}ms`, animationPlayState: running ? "running" : "paused" }}
                           onAnimationEnd={() => {
                             if (i + 1 < safetySystems.length) {
                               pick(i + 1);
@@ -208,7 +212,7 @@ export function SafetyBand() {
             <span
               aria-hidden
               className="block h-0 animate-row-timer"
-              style={{ animationDuration: `${REST_MS}ms`, animationPlayState: inView ? "running" : "paused" }}
+              style={{ animationDuration: `${REST_MS}ms`, animationPlayState: running ? "running" : "paused" }}
               onAnimationEnd={() => {
                 setResting(false);
                 pick(0);
