@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + SafetyBand + ShipWithUs + DriverSlogans + ApplyRoutes + StoryTeaser
+  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + SafetyBand + FleetBand + ShipWithUs + DriverSlogans + ApplyRoutes + StoryTeaser
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -30,7 +30,7 @@ app/
 components/                  → component library, one folder per area, each with an index.ts
   ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, SafetyBand, TrustBar, StoryTeaser
+  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, SafetyBand, FleetBand, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
   quote/                     → QuoteForm, StateMap
   intro/                     → HomeIntro, timeline
@@ -50,7 +50,7 @@ scripts/
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
-  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used
+  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used; home-fleet.jpg is the fleet band's line-up
   videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated)
 ```
 Full component list: NAVIGATION.md → Component library.

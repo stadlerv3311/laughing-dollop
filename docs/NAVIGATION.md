@@ -4,7 +4,7 @@
 ## Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | Forest drone hero (shows straight away — a short header-logo fade-in is all that plays on load), numbers band, safety band, Ship with us band, rolling slogan line and three apply cards built |
+| `/` | `app/page.tsx` | Forest drone hero (shows straight away — a short header-logo fade-in is all that plays on load), numbers band, safety band, fleet photo band, Ship with us band, rolling slogan line and three apply cards built |
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
@@ -24,6 +24,7 @@
 | Tune the homepage logo moment (how long it takes, how big it starts, when the headline lights up) | `components/intro/timeline.ts` |
 | Change how the header logo fades/settles in | `components/layout/Header.tsx` → `logoOpacity`, `logoScale` |
 | Change the Ship with us band (copy, photo, the angled edge) | `components/home/ShipWithUs.tsx`; photo is `public/images/home-hero-sierra.jpg` (swapped with the hero 2026-09-21; the hero's is now `safety-truck-front.jpg`) |
+| Change the fleet photo band (photo, the one line) | `components/home/FleetBand.tsx`; photo is `public/images/home-fleet.jpg` |
 | Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
 | Change the hero video, its big word or its scrims | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
@@ -62,6 +63,7 @@ flowchart TD
   Page --> HomeHero["home/HomeHero"]
   Page --> DriverSlogans["home/DriverSlogans"]
   Page --> SafetyBand["home/SafetyBand"]
+  Page --> FleetBand["home/FleetBand"]
   Page --> ShipWithUs["home/ShipWithUs"]
   Page --> TrustBar["home/TrustBar"]
   HomeIntro -. "intro progress" .-> Header
@@ -92,7 +94,8 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `ShipWithUs` | The shipper band: the logo truck left with an angled right edge, running to the screen edge from `lg`, text right (swapped 2026-09-19 to zigzag off the hero). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
-| `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — text and a hairline list left, photo right with an angled left edge; hovering a row swaps the photo for that row's clip, on white; it sits straight under the numbers band, before Ship with us (swapped 2026-09-23) | Client (hover state) |
+| `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — text and a hairline list left, photo right with an angled left edge; hovering a row swaps the photo for that row's clip, on white; it sits straight under the numbers band, before the fleet band and Ship with us (swapped 2026-09-23) | Client (hover state) |
+| `home/` | `FleetBand` | Full-bleed line-up of new trucks with one line — in the sky from `lg`, above the photo below it; between the safety band and Ship with us | Server |
 | `home/` | `ArrowPhotoClip` | Renders nothing — defines the rounded-arrow SVG `clipPath` Ship with us and Safety band's photos point with (`point="right"` / `"left"`) | Server |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
