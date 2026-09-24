@@ -10,6 +10,9 @@ import { applyLink, homeHeadline, homeSupport, quoteLink } from "@/lib/site";
 const LEAD_WORDS = homeHeadline.lead.split(" ");
 const TAIL_WORDS = homeHeadline.tail.split(" ");
 
+// How long the loop rests on the empty road between the truck's passes: 8s of clip + 2s = one pass every ~10s.
+const EMPTY_ROAD_MS = 2000;
+
 /**
  * The homepage's opening screen (rebuilt 2026-09-23 after the United Carriers hero on Mobbin). A top-down drone
  * loop fills the screen: a forest highway on the left fifth of the frame, one truck driving up it, and calm forest
@@ -44,16 +47,36 @@ export function HomeHero() {
 
   // Started by hand, not with `autoPlay`: React leaves `muted` out of the server HTML, and browsers only autoplay
   // muted video. Paused while off screen, and never played for reduced-motion visitors (they keep the poster).
+  // Not a native `loop`: each pass ends on the empty road and holds there for EMPTY_ROAD_MS before starting over, so
+  // the truck crosses about once every ten seconds instead of almost constantly (owner, 2026-09-24). The drone is
+  // still and the clip's last frame dissolves into its first, so the hold and the restart don't show.
   useEffect(() => {
     const video = videoRef.current;
     if (!video || reduceMotion) return;
     video.muted = true;
+    let visible = false;
+    let holding = false;
+    let hold: ReturnType<typeof setTimeout> | undefined;
+    const onEnded = () => {
+      holding = true;
+      hold = setTimeout(() => {
+        holding = false;
+        video.currentTime = 0;
+        if (visible) video.play().catch(() => {});
+      }, EMPTY_ROAD_MS);
+    };
+    video.addEventListener("ended", onEnded);
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) video.play().catch(() => {});
-      else video.pause();
+      visible = entry.isIntersecting;
+      if (visible && !holding) video.play().catch(() => {});
+      else if (!visible) video.pause();
     });
     observer.observe(video);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      video.removeEventListener("ended", onEnded);
+      clearTimeout(hold);
+    };
   }, [reduceMotion]);
 
   return (
@@ -70,7 +93,6 @@ export function HomeHero() {
           src="/videos/home-hero-forest.mp4"
           poster="/images/home-hero-forest.jpg"
           muted
-          loop
           playsInline
           preload="auto"
         />
@@ -102,8 +124,13 @@ export function HomeHero() {
             app/globals.css and shared with Header.tsx) plus the 0.75rem gap between them; below xl the buttons
             size to their labels instead, so 18.1rem is a measured stand-in for that width, not a derived one.
           */}
-          <div className="max-w-[34rem] lg:ml-auto lg:w-[18.1rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]">
-            <h1 className="text-balance text-[clamp(1.75rem,6.5vw,2.5rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:text-[1.75rem] xl:text-[2rem]">
+          {/*
+            From lg the headline is set large and runs left of the column into the open forest, its right edge on the
+            column's right edge, while the supporting line and buttons stay in the column (owner, 2026-09-24: the
+            middle of the screen felt empty with the headline at button width).
+          */}
+          <div className="max-w-[34rem] lg:ml-auto lg:flex lg:max-w-none lg:flex-col lg:items-end">
+            <h1 className="text-balance text-[clamp(1.75rem,6.5vw,2.5rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:w-max lg:text-[3rem] lg:leading-[1.05] lg:tracking-[-0.04em] xl:text-[3.75rem] 2xl:text-[4.25rem]">
               {[LEAD_WORDS, TAIL_WORDS].map((words, line) => (
                 <span key={line} className="block">
                   {words.map((word, i) => {
@@ -121,25 +148,27 @@ export function HomeHero() {
                 </span>
               ))}
             </h1>
-            <p className="mt-6 text-pretty leading-relaxed text-paper/80">{homeSupport}</p>
-            {/*
-              Get a Quote solid, Drive with us as a thin white ring under it (side by side from sm to lg, at a fixed 14rem so
-              the dot, 20% in, clears the label) — the solid one leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
-              words above them.
-            */}
-            <InteractiveHoverButton
-              href={quoteLink.href}
-              text={quoteLink.label}
-              size="lg"
-              className="mt-5 w-full sm:w-56 lg:w-full"
-            />
-            <InteractiveHoverButton
-              href={applyLink.href}
-              text="Drive with us"
-              size="lg"
-              variant="ghostLight"
-              className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-56 lg:ml-0 lg:mt-3 lg:w-full"
-            />
+            <div className="lg:w-[18.1rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]">
+              <p className="mt-6 text-pretty leading-relaxed text-paper/80 lg:mt-8">{homeSupport}</p>
+              {/*
+                Get a Quote solid, Drive with us as a thin white ring under it (side by side from sm to lg, at a fixed 14rem so
+                the dot, 20% in, clears the label) — the solid one leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
+                words above them.
+              */}
+              <InteractiveHoverButton
+                href={quoteLink.href}
+                text={quoteLink.label}
+                size="lg"
+                className="mt-5 w-full sm:w-56 lg:w-full"
+              />
+              <InteractiveHoverButton
+                href={applyLink.href}
+                text="Drive with us"
+                size="lg"
+                variant="ghostLight"
+                className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-56 lg:ml-0 lg:mt-3 lg:w-full"
+              />
+            </div>
           </div>
         </div>
       </Container>
