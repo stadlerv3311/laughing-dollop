@@ -6,49 +6,51 @@ import { cx } from "@/lib/cx";
  * A pill whose label slides out on hover while a small ink dot grows to fill it, bringing the same label back in
  * white with an arrow (integrated 2026-09-24 from a shadcn snippet, adapted to this codebase: `cx` instead of
  * `cn`, the ink/paper tokens instead of shadcn's background/primary, and a text arrow instead of lucide-react,
- * matching `Button`). Used for the homepage hero's Get a Quote (2026-09-24). Pass `href` to render a Next.js
- * link, omit it for a <button>; every CTA on the site is a link. Keyboard focus plays the same swap as hover.
+ * matching `Button`). Used for the homepage hero's two buttons and the header's pair (2026-09-24). Pass `href` to
+ * render a Next.js link, omit it for a <button>; every CTA on the site is a link. Keyboard focus plays the same
+ * swap as hover.
  *
- * `size="sm"` is the snippet's original fixed 8rem pill; `size="lg"` matches `Button`'s lg height and padding and
- * leaves the width to `className`, so it can line up with other buttons.
+ * Sizes: `sm` is the snippet's original fixed 8rem pill; `lg` matches `Button`'s lg height and padding and leaves
+ * the width to `className`, so it can line up with other buttons; `md` is the header's 40px pair, with the dot a
+ * fixed 12px in and a little more room left of the label, so the dot never touches "Apply To Drive".
  *
- * `size="md"` is the header's 44px pair: the dot sits a fixed 12px in and the label gets a little more room on the
- * left, so the dot never touches a long label like "Apply To Drive".
+ * Variants: `solid` is white with an ink dot that fills it ink (the hero's Get a Quote). `ghostLight` is a thin
+ * white ring with no fill whose white dot fills it and brings the label back in ink (the hero's Drive with us).
+ * `ghostQuiet` is a fainter, lighter-weight version for the header over dark bands, so it sits back behind the
+ * hero's buttons. `ghostDark` is the ring in ink over light sections, and `ink` is solid black, filling white.
  *
- * `variant="solid"` is white with an ink dot that fills it ink; `variant="glass"` (the hero's Drive with us) is a
- * matte, frosted pill for dark photos and film, with a white dot that fills it white and brings the label back in
- * ink. The header's pair uses the rest: `ghostLight` (a thin white ring, no fill — over dark bands), `ghostDark`
- * (the same in ink, over light sections) and `ink` (solid black, whose white dot fills it white).
+ * The group is named (`group/ihb`) so only the hovered button plays: the header itself is a `group`, and a plain
+ * `group-hover` would fire for every button inside it whenever the pointer is anywhere over the header.
  */
 const shell =
-  "group relative inline-flex cursor-pointer items-center whitespace-nowrap justify-center overflow-hidden rounded-full border text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+  "group/ihb relative inline-flex cursor-pointer items-center whitespace-nowrap justify-center overflow-hidden rounded-full border text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 const sizes = {
   sm: { shell: "w-32 p-2", dot: "left-[20%]" },
-  md: { shell: "h-11 pl-6 pr-5 text-base", dot: "left-3" },
+  md: { shell: "h-10 pl-6 pr-5 text-[15px]", dot: "left-3" },
   lg: { shell: "h-14 px-7 text-base", dot: "left-[20%]" },
 };
 type Size = keyof typeof sizes;
 
 const variants = {
-  solid: { shell: "border-ink/15 bg-paper text-ink", swap: "text-paper", dot: "bg-ink" },
-  glass: { shell: "border-paper/25 bg-paper/10 text-paper backdrop-blur-md", swap: "text-ink", dot: "bg-paper" },
-  ghostLight: { shell: "border-paper/45 bg-transparent text-paper", swap: "text-ink", dot: "bg-paper" },
-  ghostDark: { shell: "border-ink bg-transparent text-ink", swap: "text-paper", dot: "bg-ink" },
-  ink: { shell: "border-ink bg-ink text-paper", swap: "text-ink", dot: "bg-paper" },
+  solid: { shell: "border-ink/15 bg-paper font-semibold text-ink", swap: "text-paper", dot: "bg-ink" },
+  ghostLight: { shell: "border-paper/45 bg-transparent font-semibold text-paper", swap: "text-ink", dot: "bg-paper" },
+  ghostQuiet: { shell: "border-paper/20 bg-transparent font-medium text-paper/80", swap: "text-ink", dot: "bg-paper/80 group-hover/ihb:bg-paper group-focus-visible/ihb:bg-paper" },
+  ghostDark: { shell: "border-ink bg-transparent font-semibold text-ink", swap: "text-paper", dot: "bg-ink" },
+  ink: { shell: "border-ink bg-ink font-semibold text-paper", swap: "text-ink", dot: "bg-paper" },
 };
 type Variant = keyof typeof variants;
 
 function Inner({ text, variant, size }: { text: string; variant: Variant; size: Size }) {
   return (
     <>
-      <span className="inline-block translate-x-1 transition-all duration-300 group-hover:translate-x-12 group-hover:opacity-0 group-focus-visible:translate-x-12 group-focus-visible:opacity-0 motion-reduce:transition-none">
+      <span className="inline-block translate-x-1 transition-all duration-300 group-hover/ihb:translate-x-12 group-hover/ihb:opacity-0 group-focus-visible/ihb:translate-x-12 group-focus-visible/ihb:opacity-0 motion-reduce:transition-none">
         {text}
       </span>
       <span
         aria-hidden
         className={cx(
-          "absolute inset-0 z-10 flex translate-x-12 items-center justify-center gap-2 opacity-0 transition-all duration-300 group-hover:-translate-x-1 group-hover:opacity-100 group-focus-visible:-translate-x-1 group-focus-visible:opacity-100 motion-reduce:transition-none",
+          "absolute inset-0 z-10 flex translate-x-12 items-center justify-center gap-2 opacity-0 transition-all duration-300 group-hover/ihb:-translate-x-1 group-hover/ihb:opacity-100 group-focus-visible/ihb:-translate-x-1 group-focus-visible/ihb:opacity-100 motion-reduce:transition-none",
           variants[variant].swap,
         )}
       >
@@ -58,7 +60,7 @@ function Inner({ text, variant, size }: { text: string; variant: Variant; size: 
       <span
         aria-hidden
         className={cx(
-          "absolute top-[40%] size-2 rounded-lg transition-all duration-300 group-hover:left-0 group-hover:top-0 group-hover:size-full group-hover:scale-[1.8] group-focus-visible:left-0 group-focus-visible:top-0 group-focus-visible:size-full group-focus-visible:scale-[1.8] motion-reduce:transition-none",
+          "absolute top-[40%] size-2 rounded-lg transition-all duration-300 group-hover/ihb:left-0 group-hover/ihb:top-0 group-hover/ihb:size-full group-hover/ihb:scale-[1.8] group-focus-visible/ihb:left-0 group-focus-visible/ihb:top-0 group-focus-visible/ihb:size-full group-focus-visible/ihb:scale-[1.8] motion-reduce:transition-none",
           sizes[size].dot,
           variants[variant].dot,
         )}

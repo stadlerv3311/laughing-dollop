@@ -15,7 +15,7 @@ const TAIL_WORDS = homeHeadline.tail.split(" ");
  * loop fills the screen: a forest highway on the left fifth of the frame, one truck driving up it, and calm forest
  * across the rest, where the text sits (new loop 2026-09-24 — the first one had the road dead centre, which fought
  * the right-hand text column). Shipper-first since 2026-09-24 (trial): the h1 lighting up word by word as the
- * intro hands over, one supporting line, then Get a Quote (solid) over Drive with us (matte glass).
+ * intro hands over, one supporting line, then Get a Quote (solid) over Drive with us (a thin white ring).
  * The oversized DRIVE. word that sat along the bottom left was removed with the driver h1. On scroll the footage
  * zooms in a touch and darkens. The loop is AI-generated (Grok), upscaled to 1080p — see docs/DECISIONS.md →
  * Hero media.
@@ -123,7 +123,7 @@ export function HomeHero() {
             </h1>
             <p className="mt-6 text-pretty leading-relaxed text-paper/80">{homeSupport}</p>
             {/*
-              Get a Quote solid, Drive with us in matte glass under it (side by side from sm to lg) — the solid one
+              Get a Quote solid, Drive with us as a thin white ring under it (side by side from sm to lg) — the solid one
               leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
               words above them.
             */}
@@ -137,7 +137,7 @@ export function HomeHero() {
               href={applyLink.href}
               text="Drive with us"
               size="lg"
-              variant="glass"
+              variant="ghostLight"
               className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-auto sm:px-9 lg:ml-0 lg:mt-3 lg:w-full"
             />
           </div>

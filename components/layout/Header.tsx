@@ -270,15 +270,15 @@ export function Header() {
                 {/*
                   The two CTAs share one fixed width from `xl` (`--width-header-cta`, app/globals.css), so they
                   read as a pair — HomeHero's text column matches the pair's total width off the same variable.
-                  Both are 44px tall. Between 1024 and 1280 they size to their labels, or the row runs off the
-                  right edge. They play the hero buttons' dot-fill hover (InteractiveHoverButton): thin white
-                  rings over dark bands, so the hero's solid Get a Quote stays the only filled button on the film.
+                  Both are 40px tall. Between 1024 and 1280 they size to their labels, or the row runs off the
+                  right edge. They play the hero buttons' dot-fill hover (InteractiveHoverButton): faint white
+                  rings over dark bands (`ghostQuiet`), so they sit back and the hero's buttons lead.
                 */}
                 <InteractiveHoverButton
                   href={quoteLink.href}
                   text={quoteLink.label}
                   size="md"
-                  variant={light ? "ghostLight" : "ghostDark"}
+                  variant={light ? "ghostQuiet" : "ghostDark"}
                   onClick={closeAll}
                   className="transition-colors duration-300 xl:w-[var(--width-header-cta)]"
                 />
@@ -288,7 +288,7 @@ export function Header() {
                   href={applyLink.href}
                   text={applyLink.label}
                   size="md"
-                  variant={light ? "ghostLight" : "ink"}
+                  variant={light ? "ghostQuiet" : "ink"}
                   onClick={closeAll}
                   className="transition-colors duration-300 xl:w-[var(--width-header-cta)]"
                 />
