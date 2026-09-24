@@ -4,9 +4,9 @@ import { quoteLink } from "@/lib/site";
 /**
  * The shipper half's closing ask (rebuilt 2026-09-24). It sits after the safety band — the proof — and before
  * the dark story band, so it no longer needs its own photo: the page has already shown the trucks. A centred
- * column on the soft off-white `mist` surface — the one section between white bands that changes background,
- * so it reads as its own quiet beat between the white safety band and the dark story (docs/DECISIONS.md →
- * Homepage section look). Label with a small orange mark, the heading, one short paragraph, Get a Quote.
+ * column on white, set in the safety band's type — same label, heading and body styles — so the two read as one
+ * shipper block, with padding kept tight so the cluster doesn't float (docs/DECISIONS.md → Homepage section
+ * look). Label, heading, one short paragraph, Get a Quote.
  *
  * Until 2026-09-24 this was a photo-and-text band mirroring the safety band (photo left with the rounded arrow
  * edge, the mountain-road shot); the two identical layouts in a row blurred together.
@@ -14,14 +14,10 @@ import { quoteLink } from "@/lib/site";
 // Draft copy — swap in approved wording when it's ready.
 export function ShipWithUs() {
   return (
-    <section aria-labelledby="ship-with-us" className="bg-mist py-20 text-center sm:py-24 lg:py-28">
+    <section aria-labelledby="ship-with-us" className="bg-paper py-14 text-center sm:py-16 lg:py-18">
       <Container>
         <Reveal className="mx-auto max-w-[42.5rem]">
-          <p className="inline-flex items-center gap-3 text-sm font-semibold text-ink/70">
-            {/* A mark, not text, so it's clear of the small-orange-text rule. */}
-            <span aria-hidden className="h-0.5 w-5 bg-brand" />
-            Ship with us
-          </p>
+          <p className="text-sm font-semibold text-ink/70">Ship with us</p>
 
           {/*
             The page's h1 is a driver line, so this is the only heading that says what the business
@@ -34,7 +30,7 @@ export function ShipWithUs() {
             Dry van truckload, handled with care.
           </h2>
 
-          <p className="mx-auto mt-5 max-w-lg text-pretty text-lg text-ink/70">
+          <p className="mx-auto mt-5 max-w-lg text-pretty leading-relaxed text-ink/70">
             Tell us where it&rsquo;s going and what it weighs, and we&rsquo;ll come back with a quote. Every
             load runs in a dry van, so there&rsquo;s nothing else to choose.
           </p>

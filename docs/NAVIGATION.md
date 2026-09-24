@@ -23,7 +23,7 @@
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
 | Tune the homepage logo moment (how long it takes, how big it starts, when the headline lights up) | `components/intro/timeline.ts` |
 | Change how the header logo fades/settles in | `components/layout/Header.tsx` → `logoOpacity`, `logoScale` |
-| Change the Ship with us band (copy, the button) | `components/home/ShipWithUs.tsx` — a centred closing ask on `mist`, no photo since 2026-09-24 |
+| Change the Ship with us band (copy, the button) | `components/home/ShipWithUs.tsx` — a centred closing ask on white in the safety band's type, no photo since 2026-09-24 |
 | Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
 | Change the hero video, its big word or its scrims | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
@@ -91,7 +91,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `HomeHero` | Full-screen photo hero under a white wash from the left: fixed h1, Apply to drive + Get a quote up top; lede and two numbers along the bottom. The wash runs top-to-bottom below `lg` | Server |
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
-| `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, Get a Quote) on the off-white `mist` surface, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
+| `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, Get a Quote) on white in the safety band's type, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
 | `home/` | `SafetyBand` | GPS, dash cams and maintenance records — text and a hairline list left, photo right with an angled left edge; hovering a row swaps the photo for that row's clip, on white; it sits straight under the numbers band, before Ship with us (swapped 2026-09-23) | Client (hover state) |
 | `home/` | `ArrowPhotoClip` | Renders nothing — defines the rounded-arrow SVG `clipPath` the safety band's photo points with (`point="left"`; `"right"` is unused since Ship with us lost its photo 2026-09-24) | Server |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
