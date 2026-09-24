@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Container, SlideGroup, SlideItem } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { safetySystems } from "@/lib/site";
+import { ArrowPhotoClip } from "./ArrowPhotoClip";
 
 /**
  * How we look after the freight (2026-09-18): GPS, dash cams and maintenance records. It answers the
@@ -112,10 +113,11 @@ export function SafetyBand() {
         — pinned to the right edge instead. Below `lg` it's a full-width band under the text.
       */}
       <div className="relative h-64 sm:h-80 lg:absolute lg:right-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:w-[54%] lg:-translate-y-1/2">
+        <ArrowPhotoClip id="safety-band-arrow" point="left" />
         {/* Starts fully off the right edge, so the photo arrives from outside the screen. */}
         <SlideItem from="right" distance="100%" className="absolute inset-0">
           {/* The angled edge clips the photo and every clip together. */}
-          <div className="absolute inset-0 overflow-hidden bg-ink lg:[clip-path:polygon(10%_0%,100%_0%,100%_100%,10%_100%,0%_50%)]">
+          <div className="absolute inset-0 overflow-hidden bg-ink lg:[clip-path:url(#safety-band-arrow)]">
             <Image
               src="/images/ship-truck-side.jpg"
               alt="An ITrucking dry van on a desert highway at sunset, the logo on its trailer"
