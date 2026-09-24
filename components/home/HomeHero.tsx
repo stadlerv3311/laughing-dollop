@@ -85,6 +85,14 @@ export function HomeHero() {
         aria-hidden
         className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgb(12_12_12/.45)_0%,rgb(12_12_12/0)_22%),linear-gradient(to_top,rgb(12_12_12/.6)_0%,rgb(12_12_12/0)_45%),linear-gradient(rgb(12_12_12/.18),rgb(12_12_12/.18))]"
       />
+      {/*
+        From lg, a soft fade darkens only the right half, under the text column — a surface for the type without a
+        card or blur. The road on the left stays at full strength.
+      */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_left,rgb(12_12_12/.38)_0%,rgb(12_12_12/.28)_32%,rgb(12_12_12/0)_60%)] lg:block"
+      />
       <motion.div aria-hidden className="absolute inset-0 -z-10 bg-[rgb(12_12_12)]" style={{ opacity: shade }} />
 
       <Container className="flex flex-1 flex-col pt-32 pb-6 sm:pb-8 lg:pb-10">
@@ -114,9 +122,12 @@ export function HomeHero() {
                 </span>
               ))}
             </h1>
-            <p className="mt-4 text-pretty leading-relaxed text-paper/80">{homeSupport}</p>
-            {/* One button and one quiet link: the header already carries the Get a Quote / Apply pair. */}
-            <Button href={quoteLink.href} variant="light" size="lg" className="mt-8 w-full sm:w-auto sm:px-9 lg:mt-9 lg:w-full">
+            <p className="mt-6 text-pretty leading-relaxed text-paper/80">{homeSupport}</p>
+            {/*
+              One button and one quiet link: the header already carries the Get a Quote / Apply pair. The gap under
+              the headline is the largest in the stack, so the button reads as attached to the words above it.
+            */}
+            <Button href={quoteLink.href} variant="light" size="lg" className="mt-5 w-full sm:w-auto sm:px-9 lg:w-full">
               {quoteLink.label}
               <span aria-hidden>→</span>
             </Button>

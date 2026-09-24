@@ -77,7 +77,7 @@ export type Slogan = {
 export const homeHeadline: Slogan = { lead: "A fleet you can see.", tail: "A load you can trust." };
 
 // The line under the h1 (2026-09-24). Draft copy — the facts are the safety band's rows.
-export const homeSupport = "GPS on every truck and trailer, cameras on every truck, service on record.";
+export const homeSupport = "GPS and cameras on every truck. Service on record.";
 
 // The line under the h1 (from the owner's "2a" hero reference, 2026-09-18). Draft copy: like the rolling slogans,
 // these are promises — answered on the first ring, agreed routes, home on time — and need sign-off before launch.
