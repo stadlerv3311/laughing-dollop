@@ -51,7 +51,7 @@ public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
   images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used
-  videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated); home-intro-1080.mp4, home-intro-720.mp4, home-intro-poster.jpg are the removed video intro's files — unused, safe to delete
+  videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated)
 ```
 Full component list: NAVIGATION.md → Component library.
 
