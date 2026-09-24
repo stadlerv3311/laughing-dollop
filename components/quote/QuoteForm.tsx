@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
-import { Button, Field, controlClass, errorId } from "@/components/ui";
+import { Button, Field, controlClass, errorId, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { submitQuote, type QuoteRequest } from "@/lib/forms";
 import { usStates, type StateCode } from "@/lib/us-states";
@@ -78,11 +78,11 @@ function validate(values: Values): Errors {
     const label = key === "pickup" ? "pickup" : "delivery";
     if (!values[key].state) errors[`${key}State`] = `Choose the ${label} state — here or on the map.`;
     if (stateForZip(values[key].place) === "outside") errors[`${key}Place`] = OUTSIDE_MESSAGE;
-    else if (!values[key].place.trim()) errors[`${key}Place`] = `Add the ${label} city or ZIP.`;
+    else if (!values[key].place.trim()) errors[`${key}Place`] = `Enter the ${label} city or ZIP.`;
   }
   if (!(parseWeight(values.weight) > 0)) errors.weight = "Enter the weight in pounds.";
-  if (!values.freight.trim()) errors.freight = "Tell us what you're shipping.";
-  if (!values.name.trim()) errors.name = "Add your name.";
+  if (!values.freight.trim()) errors.freight = "Enter what you’re shipping.";
+  if (!values.name.trim()) errors.name = "Enter your name.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) errors.email = "Enter an email we can reply to.";
   if (values.phone.replace(/\D/g, "").length < 10) errors.phone = "Enter a phone number with area code.";
   return errors;
@@ -168,16 +168,13 @@ export function QuoteForm({ className }: { className?: string }) {
     <div className={cx("grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-14", className)}>
       {status.kind === "sent" ? (
         <div className="rounded-[2rem] bg-ink p-8 text-paper sm:p-10">
-          <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-paper/70">
-            <span className="size-1.5 rounded-full bg-brand" aria-hidden />
-            Request received
-          </p>
-          <h2 className="mt-5 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+          <p className={cx(labelClass, "text-paper/70")}>Request received</p>
+          <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             Thanks, {values.name.trim().split(/\s+/)[0]}.
           </h2>
           <p className="mt-4 text-lg text-paper/75">
-            We&apos;ve got your quote request for {values.pickup.place}, {stateName(values.pickup.state)} to{" "}
-            {values.delivery.place}, {stateName(values.delivery.state)}. We&apos;ll get back to you by phone or email.
+            We&rsquo;ve got your quote request for {values.pickup.place}, {stateName(values.pickup.state)} to{" "}
+            {values.delivery.place}, {stateName(values.delivery.state)}. We&rsquo;ll get back to you by phone or email.
           </p>
           <button
             type="button"
@@ -224,7 +221,7 @@ export function QuoteForm({ className }: { className?: string }) {
                     onChange={(event) => setField("weight", event.target.value)}
                     className={cx(controlClass, "pr-12")}
                   />
-                  <span aria-hidden className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink/60">
+                  <span aria-hidden className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink/70">
                     lbs
                   </span>
                 </div>

@@ -23,7 +23,7 @@ export function StoryMilestones({ milestones, tone, className }: StoryMilestones
               dark ? "ring-ink" : "ring-paper",
             )}
           />
-          <p className={cx("text-sm font-semibold", dark ? "text-paper/60" : "text-ink/60")}>{milestone.title}</p>
+          <p className={cx("text-sm font-semibold", dark ? "text-paper/70" : "text-ink/70")}>{milestone.title}</p>
           <p className="mt-2 text-lg leading-snug">{milestone.text}</p>
         </li>
       ))}

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Container, Reveal } from "@/components/ui";
-import { applyRoutes } from "@/lib/site";
+import { Container, Reveal, sectionHeadingClass } from "@/components/ui";
+import { applyLink, applyRoutes } from "@/lib/site";
 
 /**
  * Three ways into the same short application, sitting where the full-width photo band used to be
@@ -18,10 +18,10 @@ export function ApplyRoutes() {
     <section aria-labelledby="apply-routes" className="bg-paper pb-16 sm:pb-20 lg:pb-24">
       <Container>
         <Reveal>
-          <h2 id="apply-routes" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h2 id="apply-routes" className={sectionHeadingClass}>
             Where you&rsquo;d fit.
           </h2>
-          <p className="mt-2 text-ink/70">Five questions for any of them, then HR calls you back.</p>
+          <p className="mt-3 text-ink/70">Five short questions for any of them, then HR calls you back.</p>
         </Reveal>
 
         <Reveal delay={0.1} className="mt-8 sm:mt-10">
@@ -59,7 +59,7 @@ export function ApplyRoutes() {
                   <h3 className="mt-5 text-xl font-semibold tracking-tight">{route.role}</h3>
                   <p className="mt-1.5 text-ink/70">{route.body}</p>
                   <span className="mt-4 inline-block text-sm font-semibold underline decoration-ink/25 underline-offset-4 transition-colors duration-300 group-hover:decoration-brand">
-                    Apply
+                    {applyLink.label}
                   </span>
                 </Link>
               </li>

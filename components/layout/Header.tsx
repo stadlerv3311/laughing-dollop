@@ -39,17 +39,16 @@ function menuButtonClass(light: boolean) {
   );
 }
 
-function navItemClass(active: boolean, light: boolean, small = false) {
+function navItemClass(active: boolean, light: boolean) {
   return cx(
-    "relative inline-flex h-9 items-center gap-1.5 whitespace-nowrap px-3 font-medium transition-colors duration-300 xl:px-4",
-    small ? "text-sm" : "text-[15px]",
+    "relative inline-flex h-9 items-center gap-1.5 whitespace-nowrap px-3 text-[15px] font-medium transition-colors duration-300 xl:px-4",
     light
       ? active
         ? "text-paper"
         : "text-paper/70 hover:text-paper"
       : active
         ? "text-ink"
-        : "text-ink/60 hover:text-ink",
+        : "text-ink/70 hover:text-ink",
   );
 }
 
@@ -72,14 +71,14 @@ function ActiveMark({ light }: { light: boolean }) {
   );
 }
 
-type NavItemProps = { href: string; active: boolean; light: boolean; small?: boolean; children: ReactNode } & Omit<
+type NavItemProps = { href: string; active: boolean; light: boolean; children: ReactNode } & Omit<
   ComponentPropsWithoutRef<typeof Link>,
   "href" | "className" | "children"
 >;
 
-function NavItem({ href, active, light, small, children, ...rest }: NavItemProps) {
+function NavItem({ href, active, light, children, ...rest }: NavItemProps) {
   return (
-    <Link href={href} aria-current={active ? "page" : undefined} className={navItemClass(active, light, small)} {...rest}>
+    <Link href={href} aria-current={active ? "page" : undefined} className={navItemClass(active, light)} {...rest}>
       {active && <ActiveMark light={light} />}
       <span className="relative">{children}</span>
     </Link>
@@ -91,7 +90,7 @@ function NavItem({ href, active, light, small, children, ...rest }: NavItemProps
  * logo top-left, plain text links in the middle with a thin line under the current page, and the two CTAs on the
  * right as a matched pair of interactive hover buttons. Over dark bands (the hero, the story band) everything is
  * white on the film with no bar; over light sections, once the page has scrolled, a white bar with a hairline
- * fades in and everything turns ink — Get a Quote outlined, Apply To Drive solid. It stays in view as you scroll
+ * fades in and everything turns ink — Get a quote outlined, Apply now solid. It stays in view as you scroll
  * — except on phones, where it slides away on scroll down and drops back on scroll up. Careers opens a glass panel that drops from under the nav pill. During the homepage
  * intro the nav stays dimmed over the scene (full on hover) while the logo fades and settles into place —
  * see HomeIntro.
@@ -254,7 +253,6 @@ export function Header() {
                   href={fleetMapLink.href}
                   active={isActive(pathname, fleetMapLink.href)}
                   light={light}
-                  small
                   onMouseEnter={closeCareers}
                   onClick={closeAll}
                 >

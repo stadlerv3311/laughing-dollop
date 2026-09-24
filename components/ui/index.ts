@@ -10,3 +10,4 @@ export { PagePlaceholder } from "./PagePlaceholder";
 export { Reveal } from "./Reveal";
 export { RotatingSlogan } from "./RotatingSlogan";
 export { SlideGroup, SlideItem } from "./SlideIn";
+export { labelClass, sectionHeadingClass } from "./typography";

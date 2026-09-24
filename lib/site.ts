@@ -5,7 +5,7 @@
 export const site = {
   name: "ITrucking Solutions",
   description:
-    "Dry van truckload shipping and driver careers with ITrucking Solutions.",
+    "Dry van truckload shipping and driver jobs with ITrucking Solutions.",
 } as const;
 
 export type NavLink = {
@@ -26,20 +26,23 @@ export const primaryNav: NavLink[] = [
 
 export const careersNav: NavLink[] = [
   {
-    label: "Drive For Us",
+    label: "Drive for us",
     href: "/careers/drivers",
-    description: "CDL driver jobs. Short application, HR calls you back.",
+    description: "Class A driver jobs. Five short questions, then HR calls you back.",
   },
   {
-    label: "Dispatch, Shop & Office",
+    label: "Office and shop",
     href: "/careers/staff",
-    description: "Dispatcher, mechanic, and office roles.",
+    description: "Dispatch, office and shop jobs. The same five short questions.",
   },
 ];
 
-export const fleetMapLink: NavLink = { label: "Fleet Map", href: "/fleet-map" };
-export const quoteLink: NavLink = { label: "Get a Quote", href: "/quote" };
-export const applyLink: NavLink = { label: "Apply To Drive", href: "/careers/drivers" };
+export const fleetMapLink: NavLink = { label: "Fleet map", href: "/fleet-map" };
+export const quoteLink: NavLink = { label: "Get a quote", href: "/quote" };
+// Every driver-application button on the site uses this label — header, hero, phone menu and the apply cards
+// (2026-09-24 wording pass; it replaced "Apply To Drive", "Drive with us" and "Apply"). The page it opens is
+// still called "Drive for us".
+export const applyLink: NavLink = { label: "Apply now", href: "/careers/drivers" };
 
 export type CompanyStat = {
   /** The number the counter fills up to. */
@@ -92,14 +95,17 @@ export const homeLede = "Dispatch that answers on the first ring. Routes you agr
 // shorter slogan would sit above a blank row.
 export const driverSlogans: readonly Slogan[] = [
   // The owner's approved line (the hero's h1 until 2026-09-24).
-  { lead: "Where you're known by your name,", tail: "not your truck number." },
+  { lead: "Where you’re known by your name,", tail: "not your truck number." },
   { lead: "A dispatcher who knows your route,", tail: "and answers the phone." },
   { lead: "Watch your bonus grow live,", tail: "so payday is never a surprise." },
   { lead: "Home time you planned on,", tail: "not home time you hoped for." },
 ];
 
 export type ApplyRoute = {
-  /** The role, used as the card's heading. Keep it a plain job title, not a pitch. */
+  /**
+   * Where the work happens, used as the card's heading: "On the road", "In the office", "In the shop" — all
+   * places, so they read as one set and answer the "Where you'd fit." heading above them. Not a pitch.
+   */
   role: string;
   /** One line on what the job actually is. */
   body: string;
@@ -118,12 +124,12 @@ export type ApplyRoute = {
 // The homepage's three ways in (requested 2026-09-17). Every role goes to the same short form, so these are
 // routes into one process, not three different applications (docs/DECISIONS.md → Applications).
 //
-// Draft copy. Dispatcher and Tire shop both land on `/careers/staff`, which doesn't yet separate the two —
+// Draft copy. The office and shop cards both land on `/careers/staff`, which doesn't yet separate the two —
 // see docs/DECISIONS.md → Open.
 export const applyRoutes: readonly ApplyRoute[] = [
   {
-    role: "Driver",
-    body: "Class A, dry van, and the bonus tracker in your app.",
+    role: "On the road",
+    body: "Class A, dry van and the bonus tracker in your app.",
     href: "/careers/drivers",
     image: {
       // The owner's driver portrait (2026-09-17), down from 5376px — the full-size original took ~20s a
@@ -135,7 +141,7 @@ export const applyRoutes: readonly ApplyRoute[] = [
     },
   },
   {
-    role: "Dispatcher",
+    role: "In the office",
     body: "Plan the loads and keep our drivers moving.",
     href: "/careers/staff",
     image: {
@@ -144,8 +150,8 @@ export const applyRoutes: readonly ApplyRoute[] = [
     },
   },
   {
-    role: "Tire shop",
-    body: "Mount, balance and road service, in our own shop.",
+    role: "In the shop",
+    body: "Tires, repairs and road service, in our own shop.",
     href: "/careers/staff",
     image: {
       // The owner's tire-tech portrait (2026-09-18), replacing an empty shop interior — the row now shows
@@ -181,7 +187,7 @@ export type SafetySystem = {
 export const safetySystems: readonly SafetySystem[] = [
   {
     name: "GPS on every truck and trailer",
-    body: "Every tractor and trailer has its own tracker, so one dropped at a yard is never out of sight.",
+    body: "Every truck and trailer has its own tracker, so one dropped at a yard is never out of sight.",
     // PLACEHOLDER — Samsara's own marketing clip, with their demo data. Must not go live (DECISIONS.md → Safety band).
     video: "/videos/safety-gps-placeholder.mp4",
   },
@@ -213,6 +219,6 @@ export const footerNav: NavLink[] = [
   { label: "Services", href: "/services" },
   aboutLink,
   newsLink,
-  { label: "Careers", href: "/careers/drivers" },
+  careersNav[0],
   fleetMapLink,
 ];

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Container, SlideGroup, SlideItem } from "@/components/ui";
+import { Container, SlideGroup, SlideItem, labelClass, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { safetySystems } from "@/lib/site";
 import { ArrowPhotoClip } from "./ArrowPhotoClip";
@@ -52,9 +52,9 @@ export function SafetyBand() {
       */}
       <Container className="py-16 sm:py-20 lg:py-8">
         <SlideItem from="left" className="lg:w-[46%] lg:pr-8">
-          <p className="text-sm font-semibold text-ink/70">Safety and equipment</p>
+          <p className={cx(labelClass, "text-ink/70")}>Safety and equipment</p>
 
-          <h2 id="safety" className="mt-4 text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem] lg:text-[clamp(1.75rem,2.5vw,2.25rem)]">
+          <h2 id="safety" className={cx("mt-4", sectionHeadingClass)}>
             We know where every truck and trailer is, and when each was last serviced.
           </h2>
 

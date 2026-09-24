@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cx } from "@/lib/cx";
 
-type Variant = "primary" | "apply" | "outline" | "light";
+type Variant = "primary" | "outline";
 type Size = "md" | "lg";
 
 const base =
@@ -13,13 +13,8 @@ const base =
 // them sized alike reads as a matched set.
 const variants: Record<Variant, string> = {
   primary: "bg-ink text-paper hover:bg-black",
-  // Apply To Drive only: black at rest, brand orange on hover (owner, 2026-09-19). White on orange is 3.70:1,
-  // under AA for 16px text, but only while hovered — at rest it's white on black.
-  apply: "bg-ink text-paper hover:bg-brand",
   // A light fill under the ring, so it still reads over the intro scene and photos.
   outline: "bg-paper/70 text-ink ring-[1.5px] ring-inset ring-ink backdrop-blur-xl hover:bg-ink hover:text-paper",
-  // White on dark photos (the homepage hero). Orange on hover, like Apply To Drive; at rest it's ink on white.
-  light: "bg-paper text-ink hover:bg-brand hover:text-paper",
 };
 
 const sizes: Record<Size, string> = {

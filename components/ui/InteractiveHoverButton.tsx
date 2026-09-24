@@ -12,10 +12,10 @@ import { cx } from "@/lib/cx";
  *
  * Sizes: `sm` is the snippet's original fixed 8rem pill; `lg` matches `Button`'s lg height and padding and leaves
  * the width to `className`, so it can line up with other buttons; `md` is the header's 40px pair, with the dot a
- * fixed 12px in and a little more room left of the label, so the dot never touches "Apply To Drive".
+ * fixed 12px in and a little more room left of the label, so the dot never touches the label.
  *
- * Variants: `solid` is white with an ink dot that fills it ink (the hero's Get a Quote). `ghostLight` is a thin
- * white ring with no fill whose white dot fills it and brings the label back in ink (the hero's Drive with us).
+ * Variants: `solid` is white with an ink dot that fills it ink (the hero's Get a quote). `ghostLight` is a thin
+ * white ring with no fill whose white dot fills it and brings the label back in ink (the hero's Apply now).
  * `ghostQuiet` is a fainter, lighter-weight version for the header over dark bands, so it sits back behind the
  * hero's buttons. `ghostDark` is the ring in ink over light sections, and `ink` is solid black, filling white.
  *

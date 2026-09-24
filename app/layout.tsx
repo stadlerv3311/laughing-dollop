@@ -14,7 +14,7 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: `${site.name} | Dry Van Trucking & Driver Jobs`,
+    default: `${site.name} | Dry van truckload and driver jobs`,
     template: `%s | ${site.name}`,
   },
   description: site.description,

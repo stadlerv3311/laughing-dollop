@@ -28,7 +28,8 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder
+  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder,
+                               typography (shared label + section-heading classes)
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, SafetyBand, TrustBar, StoryTeaser
   about/                     → StoryMilestones (also used by the homepage story card)
@@ -77,6 +78,12 @@ Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordi
 Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA minimum for normal text):
 - If orange ever carries white text again, it must be large/bold (≥ 18.66px bold or ≥ 24px regular). No button does today
 - Never use orange for small body text or links — use near-black
+
+### Typography (2026-09-24)
+- One face, Geist. Two shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked) and `sectionHeadingClass` (every homepage band's h2 — medium weight, 28 / 36px). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
+- Page h1s (inner pages) are `text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale.
+- Header nav links are all one size (15px); inactive links `text-ink/70`, the contrast floor.
+- Copy rules (case, "and", apostrophes, commas) are in DECISIONS.md → Wording and type.
 
 ### Layout grid (2026-09-23)
 A Figma-style margin/column grid for desktop, replacing the old fixed `max-w-7xl` + 32px padding: content caps

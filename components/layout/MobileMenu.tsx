@@ -80,11 +80,12 @@ export function MobileMenu({ open, pathname, onNavigate }: MobileMenuProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.45, ease: EASE }}
             >
-              <Button href={applyLink.href} variant="apply" size="lg" onClick={onNavigate}>
-                {applyLink.label}
-              </Button>
+              {/* Same order and pairing as the header: Get a quote outlined, then Apply now solid. */}
               <Button href={quoteLink.href} size="lg" variant="outline" onClick={onNavigate}>
                 {quoteLink.label}
+              </Button>
+              <Button href={applyLink.href} size="lg" onClick={onNavigate}>
+                {applyLink.label}
               </Button>
             </motion.div>
           </Container>

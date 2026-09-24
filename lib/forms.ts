@@ -27,5 +27,5 @@ export async function submitQuote(request: QuoteRequest): Promise<SubmitResult> 
     console.info("[quote stub] would send:", request);
     return { ok: true };
   }
-  return { ok: false, message: "Online quotes aren't switched on yet. Please try again soon." };
+  return { ok: false, message: "Online quotes aren’t switched on yet. Please try again soon." };
 }

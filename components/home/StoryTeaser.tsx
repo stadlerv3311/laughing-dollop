@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { StoryMilestones } from "@/components/about";
-import { Container, Reveal } from "@/components/ui";
+import { Container, Reveal, labelClass, sectionHeadingClass } from "@/components/ui";
+import { cx } from "@/lib/cx";
 import { aboutLink } from "@/lib/site";
 import { story } from "@/lib/story";
 
@@ -17,8 +18,8 @@ export function StoryTeaser() {
         <Reveal>
           <div className="grid gap-12 md:grid-cols-[1.15fr_1fr] md:gap-16">
             <div>
-              <p className="text-sm font-semibold text-paper/60">Our story</p>
-              <h2 id="story-teaser-title" className="mt-5 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+              <p className={cx(labelClass, "text-paper/70")}>Our story</p>
+              <h2 id="story-teaser-title" className={cx("mt-4", sectionHeadingClass)}>
                 {story.headline}
               </h2>
               <p className="mt-4 max-w-lg text-lg text-paper/70">{story.summary}</p>

@@ -18,7 +18,7 @@ const EMPTY_ROAD_MS = 2000;
  * loop fills the screen: a forest highway on the left fifth of the frame, one truck driving up it, and calm forest
  * across the rest, where the text sits (new loop 2026-09-24 — the first one had the road dead centre, which fought
  * the right-hand text column). Shipper-first since 2026-09-24 (trial): the h1 lighting up word by word as the
- * intro hands over, one supporting line, then Get a Quote (solid) over Drive with us (a thin white ring).
+ * intro hands over, one supporting line, then Get a quote (solid) over Apply now (a thin white ring).
  * The oversized DRIVE. word that sat along the bottom left was removed with the driver h1. On scroll the footage
  * zooms in a touch and darkens. The loop is AI-generated (Grok), upscaled to 1080p — see docs/DECISIONS.md →
  * Hero media.
@@ -125,8 +125,8 @@ export function HomeHero() {
       <Container className="flex flex-1 flex-col pt-32 pb-6 sm:pb-8 lg:pb-10">
         <div className="flex flex-1 items-center">
           {/*
-            From lg the block sits in the header's CTA column: its left edge lines up with Get a Quote and its
-            right edge with Apply To Drive. From xl the pair is a fixed width (`--width-header-cta`, set once in
+            From lg the block sits in the header's CTA column: its left edge lines up with Get a quote and its
+            right edge with Apply now. From xl the pair is a fixed width (`--width-header-cta`, set once in
             app/globals.css and shared with Header.tsx) plus the 0.75rem gap between them; below xl the buttons
             size to their labels instead, so 18.1rem is a measured stand-in for that width, not a derived one.
           */}
@@ -160,7 +160,7 @@ export function HomeHero() {
             <div className="lg:w-[18.1rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]">
               <p className="mt-6 text-pretty leading-relaxed text-paper/80 lg:mt-8">{homeSupport}</p>
               {/*
-                Get a Quote solid, Drive with us as a thin white ring under it (side by side from sm to lg, at a fixed 14rem so
+                Get a quote solid, Apply now as a thin white ring under it (side by side from sm to lg, at a fixed 14rem so
                 the dot, 20% in, clears the label) — the solid one leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
                 words above them.
               */}
@@ -172,7 +172,7 @@ export function HomeHero() {
               />
               <InteractiveHoverButton
                 href={applyLink.href}
-                text="Drive with us"
+                text={applyLink.label}
                 size="lg"
                 variant="ghostLight"
                 className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-56 lg:ml-0 lg:mt-3 lg:w-full"

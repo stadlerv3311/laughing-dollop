@@ -1,4 +1,5 @@
-import { Button, Container, Reveal } from "@/components/ui";
+import { Button, Container, Reveal, labelClass, sectionHeadingClass } from "@/components/ui";
+import { cx } from "@/lib/cx";
 import { quoteLink } from "@/lib/site";
 
 /**
@@ -17,12 +18,12 @@ export function ShipWithUs() {
     <section aria-labelledby="ship-with-us" className="bg-paper py-14 text-center sm:py-16 lg:py-18">
       <Container>
         <Reveal className="mx-auto max-w-[42.5rem]">
-          <p className="text-sm font-semibold text-ink/70">Ship with us</p>
+          <p className={cx(labelClass, "text-ink/70")}>Ship with us</p>
 
           {/* The hero already names the freight (2026-09-24), so this heading is just the ask. */}
           <h2
             id="ship-with-us"
-            className="mt-4 text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem] lg:text-[clamp(1.75rem,2.5vw,2.25rem)]"
+            className={cx("mt-4", sectionHeadingClass)}
           >
             Have a load to move?
           </h2>
@@ -35,7 +36,6 @@ export function ShipWithUs() {
           {/* The one loud thing in the section: a step up from the shared button size, close to the text. */}
           <Button href={quoteLink.href} size="lg" className="mt-8 px-9 text-lg!">
             {quoteLink.label}
-            <span aria-hidden>→</span>
           </Button>
         </Reveal>
       </Container>

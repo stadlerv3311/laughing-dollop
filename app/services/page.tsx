@@ -7,7 +7,7 @@ export default function ServicesPage() {
   return (
     <PagePlaceholder
       eyebrow="Services"
-      title="Dry Van & Truckload"
+      title="Dry van truckload"
       description="This page is being built. It will list our dry van truckload service."
     />
   );
