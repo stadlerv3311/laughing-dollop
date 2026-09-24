@@ -19,7 +19,7 @@
 | Change a nav link or the company name | `lib/site.ts` — Header, mobile menu and Footer all read from it |
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
 | Change the page margins or the column grid | `components/ui/Container.tsx`, `components/ui/Columns.tsx`, `--breakpoint-desktop` / `--width-header-cta` in `app/globals.css` — see ARCHITECTURE.md → Layout grid |
-| Change the font | `app/layout.tsx` → `Manrope` import (the hero's big word uses `Archivo`, same file) |
+| Change the font | `app/layout.tsx` → `Geist` import (feeds `--font-sans` in `app/globals.css`) |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
 | Tune the homepage logo moment (how long it takes, how big it starts, when the headline lights up) | `components/intro/timeline.ts` |
 | Change how the header logo fades/settles in | `components/layout/Header.tsx` → `logoOpacity`, `logoScale` |

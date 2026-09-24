@@ -1,22 +1,15 @@
 import type { Metadata } from "next";
-import { Archivo, Manrope } from "next/font/google";
+import { Geist } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { Footer, Header } from "@/components/layout";
 import { IntroProgressProvider, SmoothScroll } from "@/components/providers";
 import { site } from "@/lib/site";
 
-// Provisional font — swap here (and nowhere else) if a brand font is chosen.
-const manrope = Manrope({
-  variable: "--font-manrope",
+// Geist (2026-09-24), replacing the provisional Manrope — swap here (and nowhere else) if a brand font is chosen.
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
-});
-
-// Display face for the homepage hero's one oversized word only (2026-09-23): Archivo at its widest (wdth 125).
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -29,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${manrope.variable} ${archivo.variable}`}>
+    <html lang="en" className={geist.variable}>
       <body className="flex min-h-svh flex-col font-sans">
         <a
           href="#main"

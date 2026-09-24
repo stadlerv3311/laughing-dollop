@@ -7,8 +7,7 @@
   --color-mist: #f7f0f0;
   --color-brand: #ff3000;
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-archivo), var(--font-manrope), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
 
   --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 

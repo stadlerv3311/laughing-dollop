@@ -8,7 +8,7 @@
 - motion (`motion/react`) — UI animation and scroll-linked values
 - Lenis — smooth wheel scrolling (turned off for reduced motion)
 - No 3D library — three.js and React Three Fiber were removed on 2026-09-11; the video intro that replaced them was itself removed on 2026-09-23 (see DECISIONS.md → Hero media)
-- Font: Manrope via `next/font/google` (provisional — see DECISIONS.md → Open). Display: Archivo (variable, `wdth` axis) as `font-display`, used only for the homepage hero's big word
+- Font: Geist via `next/font/google` as `font-sans`, the only face (chosen 2026-09-24 over the provisional Manrope — see DECISIONS.md → Open → Font)
 - Form backend: owned by the backend teammate, not yet decided — see DECISIONS.md
 
 ## Folder structure (App Router)
