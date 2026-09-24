@@ -19,7 +19,8 @@ import { ArrowPhotoClip } from "./ArrowPhotoClip";
  *
  * Each row swaps the photo for its own clip (requested 2026-09-19), and the rows play through on a timer
  * (2026-09-24): once the band is on screen, each row is picked in turn for `ROW_MS` while its orange bar fills
- * from the top down, then hands over to the next, looping. Tapping or clicking a row holds it: the cycle pauses
+ * from the top down, then hands over to the next. After the last row the photo comes back for `REST_MS`, then the
+ * pass starts again from the first row. Tapping or clicking a row holds it: the cycle pauses
  * there with the bar full, and tapping the held row again gives it a fresh ROW_MS and lets the cycle carry on. The timer also pauses while the band is off screen. Reduced-motion visitors get the old behaviour instead:
  * nothing plays on its own, hover or focus a row to see its clip, leave the list and the photo comes back. All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and
  * must not go live (docs/DECISIONS.md → Safety band). The fourth row, New equipment (2026-09-24), has no footage:
@@ -30,6 +31,9 @@ import { ArrowPhotoClip } from "./ArrowPhotoClip";
  */
 // How long each row stays picked before the next one takes over (owner, 2026-09-24: 10 s was too long).
 const ROW_MS = 5_000;
+// After one pass through every row, the band rests on its photo with no row picked for this long, then starts
+// again from the first row (owner, 2026-09-24: once every ten seconds, not a constant loop).
+const REST_MS = 10_000;
 
 // False while hydrating (the server can't know the visitor's motion setting), true after — so the first render in
 // the browser matches the server's HTML, and the timer switches on right after.
@@ -44,6 +48,9 @@ export function SafetyBand() {
   const [inView, setInView] = useState(false);
   // Held by a tap: the picked row stays until the same row is tapped again.
   const [held, setHeld] = useState(false);
+  // Between passes: no row picked, the photo back, and a hidden REST_MS clock running.
+  const [resting, setResting] = useState(false);
+  const started = useRef(false);
   const reduceMotion = useReducedMotion();
   const cycling = useHydrated() && reduceMotion === false;
   const listRef = useRef<HTMLUListElement>(null);
@@ -56,6 +63,7 @@ export function SafetyBand() {
   // A tap on another row jumps there and holds it; a tap on the row already picked holds it, or, if it's held,
   // lets the cycle carry on with a fresh ROW_MS on that row.
   const tap = (i: number) => {
+    setResting(false);
     if (i === active && held) {
       pick(i);
       setHeld(false);
@@ -73,7 +81,10 @@ export function SafetyBand() {
     if (!list || !cycling) return;
     const observer = new IntersectionObserver(([entry]) => {
       setInView(entry.isIntersecting);
-      if (entry.isIntersecting) setActive((a) => a ?? 0);
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        setActive(0);
+      }
     }, { threshold: 0.3 });
     observer.observe(list);
     return () => observer.disconnect();
@@ -156,7 +167,14 @@ export function SafetyBand() {
                             !held && "animate-row-timer",
                           )}
                           style={held ? undefined : { animationDuration: `${ROW_MS}ms`, animationPlayState: inView ? "running" : "paused" }}
-                          onAnimationEnd={() => pick((i + 1) % safetySystems.length)}
+                          onAnimationEnd={() => {
+                            if (i + 1 < safetySystems.length) {
+                              pick(i + 1);
+                            } else {
+                              setActive(null);
+                              setResting(true);
+                            }
+                          }}
                         />
                       )
                     ) : (
@@ -182,6 +200,21 @@ export function SafetyBand() {
               );
             })}
           </ul>
+          {/*
+            The rest between passes, timed the same way as the bars (a CSS animation, so it pauses off screen with
+            them). Nothing to see: it's only a clock.
+          */}
+          {cycling && resting && (
+            <span
+              aria-hidden
+              className="block h-0 animate-row-timer"
+              style={{ animationDuration: `${REST_MS}ms`, animationPlayState: inView ? "running" : "paused" }}
+              onAnimationEnd={() => {
+                setResting(false);
+                pick(0);
+              }}
+            />
+          )}
         </SlideItem>
       </Container>
 
