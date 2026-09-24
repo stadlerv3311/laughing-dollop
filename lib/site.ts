@@ -72,8 +72,12 @@ export type Slogan = {
   tail: string;
 };
 
-// The homepage's h1, fixed over the hero photo (2026-09-18). The owner's approved line.
-export const homeHeadline: Slogan = { lead: "Where you're known by your name,", tail: "not your truck number." };
+// The homepage's h1, over the hero film. Shipper-first since 2026-09-24 (trial): the hero says what the business
+// sells, and the owner's driver line moved to the head of the rolling slogans. Draft copy.
+export const homeHeadline: Slogan = { lead: "A fleet you can see.", tail: "A load you can trust." };
+
+// The line under the h1 (2026-09-24). Draft copy — the facts are the safety band's rows.
+export const homeSupport = "GPS on every truck and trailer, cameras on every truck, service on record.";
 
 // The line under the h1 (from the owner's "2a" hero reference, 2026-09-18). Draft copy: like the rolling slogans,
 // these are promises — answered on the first ring, agreed routes, home on time — and need sign-off before launch.
@@ -87,6 +91,8 @@ export const homeLede = "Dispatch that answers on the first ring. Routes you agr
 // Keep them within a few characters of each other: the line is sized to the tallest one, so a noticeably
 // shorter slogan would sit above a blank row.
 export const driverSlogans: readonly Slogan[] = [
+  // The owner's approved line (the hero's h1 until 2026-09-24).
+  { lead: "Where you're known by your name,", tail: "not your truck number." },
   { lead: "A dispatcher who knows your route,", tail: "and answers the phone." },
   { lead: "Watch your bonus grow live,", tail: "so payday is never a surprise." },
   { lead: "Home time you planned on,", tail: "not home time you hoped for." },

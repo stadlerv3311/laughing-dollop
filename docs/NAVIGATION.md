@@ -26,7 +26,7 @@
 | Change the Ship with us band (copy, the button) | `components/home/ShipWithUs.tsx` — a centred closing ask on white in the safety band's type, no photo since 2026-09-24 |
 | Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (or an `image` still — the New equipment row, `public/images/safety-fleet.jpg`) (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
-| Change the hero video, its big word or its scrims | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
+| Change the hero video, its crop or its scrims | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
 | Change the three homepage apply cards (roles, copy, photos, where they link) | `lib/site.ts` → `applyRoutes`; layout in `components/home/ApplyRoutes.tsx`; photos in `public/images/apply-*.jpg` |
 | Bring back the full-width homepage photo band, or add the B-roll video | `components/ui/HeroMedia.tsx` is still there but unused since 2026-09-17 — the apply cards took its place in `app/page.tsx` |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
@@ -43,7 +43,7 @@
 | Add or change a button style | `components/ui/Button.tsx` |
 | Fade a block in when it scrolls into view | Wrap it in `<Reveal>` from `components/ui` |
 | Slide a photo and its text in from opposite sides, landing together | Make the section a `<SlideGroup>` and wrap each piece in `<SlideItem from="left" \| "right">` (`components/ui/SlideIn.tsx`); used by the safety band |
-| Change or reorder the homepage's rolling slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey), the smaller driver line between Ship with us and the apply cards (`components/home/DriverSlogans.tsx`). The first one is what screen readers get; keep every lead and tail a similar length |
+| Change or reorder the homepage's rolling slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey), the smaller driver line between the story band and the apply cards, led by the owner's line (`components/home/DriverSlogans.tsx`). The first one is what screen readers get; keep every lead and tail a similar length |
 | Start a new page | Copy a placeholder in `app/`, then add its link in `lib/site.ts` (check DECISIONS.md nav rules first) |
 | Check whether something is in scope | `docs/DECISIONS.md` |
 | Find the original logo files | `docs/Logo black.svg` (full logo), `docs/Only logo Solutions.svg` (icon only) |
@@ -88,7 +88,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `layout/` | `CareersPanel` | Glass panel that drops from under the nav pill with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
-| `home/` | `HomeHero` | Full-screen photo hero under a white wash from the left: fixed h1, Apply to drive + Get a quote up top; lede and two numbers along the bottom. The wash runs top-to-bottom below `lg` | Server |
+| `home/` | `HomeHero` | Full-screen forest drone loop (road on the left fifth): shipper h1 lighting up word by word, one supporting line, Get a Quote, and a quiet Drive with us link, in the header's CTA column from `lg` | Client |
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, Get a Quote) on white in the safety band's type, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |

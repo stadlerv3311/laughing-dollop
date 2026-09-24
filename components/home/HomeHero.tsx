@@ -1,21 +1,24 @@
 "use client";
 
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
 import { Button, Container } from "@/components/ui";
-import { applyLink, homeHeadline } from "@/lib/site";
+import { applyLink, homeHeadline, homeSupport, quoteLink } from "@/lib/site";
 
-const HEADLINE_WORDS = `${homeHeadline.lead} ${homeHeadline.tail}`.split(" ");
+const LEAD_WORDS = homeHeadline.lead.split(" ");
+const TAIL_WORDS = homeHeadline.tail.split(" ");
 
 /**
  * The homepage's opening screen (rebuilt 2026-09-23 after the United Carriers hero on Mobbin). A top-down drone
- * loop of our truck on a forest highway fills the screen; the road runs down the middle, so the words sit on the
- * calm forest either side of it. One oversized decorative word, DRIVE., along the bottom left (Archivo at its
- * widest — the only place that face is used), and the approved line as the h1 on the right, its words lighting up
- * one by one as the intro hands over. On scroll the footage zooms in a touch and darkens, and the big word drifts
- * up slower than the page. The loop is AI-generated (Grok) and baked to loop seamlessly — see docs/DECISIONS.md →
+ * loop fills the screen: a forest highway on the left fifth of the frame, one truck driving up it, and calm forest
+ * across the rest, where the text sits (new loop 2026-09-24 — the first one had the road dead centre, which fought
+ * the right-hand text column). Shipper-first since 2026-09-24 (trial): the h1 lighting up word by word as the
+ * intro hands over, one supporting line, Get a Quote, and a quiet "Drive with us" link — one button, one link.
+ * The oversized DRIVE. word that sat along the bottom left was removed with the driver h1. On scroll the footage
+ * zooms in a touch and darkens. The loop is AI-generated (Grok), upscaled to 1080p — see docs/DECISIONS.md →
  * Hero media.
  */
 export function HomeHero() {
@@ -39,7 +42,6 @@ export function HomeHero() {
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
   const shade = useTransform(scrollYProgress, [0, 1], [0, 0.55]);
-  const wordY = useTransform(scrollYProgress, [0, 1], ["0%", "-35%"]);
 
   // Started by hand, not with `autoPlay`: React leaves `muted` out of the server HTML, and browsers only autoplay
   // muted video. Paused while off screen, and never played for reduced-motion visitors (they keep the poster).
@@ -65,7 +67,7 @@ export function HomeHero() {
       <motion.div aria-hidden className="absolute inset-0 -z-10" style={reduceMotion ? undefined : { scale: videoScale }}>
         <video
           ref={videoRef}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-[20%_50%] lg:object-center"
           src="/videos/home-hero-forest.mp4"
           poster="/images/home-hero-forest.jpg"
           muted
@@ -95,30 +97,38 @@ export function HomeHero() {
           */}
           <div className="max-w-[34rem] lg:ml-auto lg:w-[18.1rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]">
             <h1 className="text-balance text-[clamp(1.75rem,6.5vw,2.5rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:text-[1.75rem] xl:text-[2rem]">
-              {HEADLINE_WORDS.map((word, i) => (
-                <span
-                  key={i}
-                  className="transition-opacity duration-700 ease-premium motion-reduce:transition-none"
-                  style={{ opacity: lit ? 1 : 0.22, transitionDelay: lit ? `${i * 70}ms` : "0ms" }}
-                >
-                  {word}{" "}
+              {[LEAD_WORDS, TAIL_WORDS].map((words, line) => (
+                <span key={line} className="block">
+                  {words.map((word, i) => {
+                    const n = line === 0 ? i : LEAD_WORDS.length + i;
+                    return (
+                      <span
+                        key={i}
+                        className="transition-opacity duration-700 ease-premium motion-reduce:transition-none"
+                        style={{ opacity: lit ? 1 : 0.22, transitionDelay: lit ? `${n * 70}ms` : "0ms" }}
+                      >
+                        {word}{" "}
+                      </span>
+                    );
+                  })}
                 </span>
               ))}
             </h1>
-            <Button href={applyLink.href} variant="light" size="lg" className="mt-8 w-full sm:w-auto sm:px-9 lg:mt-10 lg:w-full">
-              Apply to drive
+            <p className="mt-4 text-pretty leading-relaxed text-paper/80">{homeSupport}</p>
+            {/* One button and one quiet link: the header already carries the Get a Quote / Apply pair. */}
+            <Button href={quoteLink.href} variant="light" size="lg" className="mt-8 w-full sm:w-auto sm:px-9 lg:mt-9 lg:w-full">
+              {quoteLink.label}
               <span aria-hidden>→</span>
             </Button>
+            <Link
+              href={applyLink.href}
+              className="mt-4 flex w-fit items-center gap-1.5 font-semibold text-paper/80 underline-offset-4 transition-colors hover:text-paper hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              Drive with us
+              <span aria-hidden>→</span>
+            </Link>
           </div>
         </div>
-
-        <motion.p
-          aria-hidden
-          style={reduceMotion ? undefined : { y: wordY }}
-          className="-mb-[0.1em] select-none font-display text-[20vw] font-bold uppercase leading-[0.8] tracking-[-0.02em] [font-stretch:125%] sm:text-[15vw] lg:text-[8.6vw]"
-        >
-          Drive.
-        </motion.p>
       </Container>
     </section>
   );

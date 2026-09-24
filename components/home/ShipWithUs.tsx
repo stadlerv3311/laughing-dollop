@@ -19,15 +19,12 @@ export function ShipWithUs() {
         <Reveal className="mx-auto max-w-[42.5rem]">
           <p className="text-sm font-semibold text-ink/70">Ship with us</p>
 
-          {/*
-            The page's h1 is a driver line, so this is the only heading that says what the business
-            actually sells — keep the freight terms in it (docs/DECISIONS.md → Open).
-          */}
+          {/* The hero already names the freight (2026-09-24), so this heading is just the ask. */}
           <h2
             id="ship-with-us"
             className="mt-4 text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem] lg:text-[clamp(1.75rem,2.5vw,2.25rem)]"
           >
-            Dry van truckload, handled with care.
+            Have a load to move?
           </h2>
 
           <p className="mx-auto mt-5 max-w-lg text-pretty leading-relaxed text-ink/70">
