@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Container, SlideGroup, SlideItem, labelClass, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { safetySystems } from "@/lib/site";
@@ -18,9 +18,9 @@ import { ArrowPhotoClip } from "./ArrowPhotoClip";
  * white, with no background change between the bands (owner, 2026-09-18).
  *
  * Each row swaps the photo for its own clip (requested 2026-09-19), and the rows play through on a timer
- * (2026-09-24): once the band is on screen, each row is picked in turn for `ROW_MS` while a thin line fills under
- * it, then hands over to the next, looping. Tapping or clicking a row jumps there and the cycle carries on from
- * it. The timer pauses while the band is off screen. Reduced-motion visitors get the old behaviour instead:
+ * (2026-09-24): once the band is on screen, each row is picked in turn for `ROW_MS` while its orange bar fills
+ * from the top down, then hands over to the next, looping. Tapping or clicking a row holds it: the cycle pauses
+ * there with the bar full, and tapping the held row again gives it a fresh ROW_MS and lets the cycle carry on. The timer also pauses while the band is off screen. Reduced-motion visitors get the old behaviour instead:
  * nothing plays on its own, hover or focus a row to see its clip, leave the list and the photo comes back. All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and
  * must not go live (docs/DECISIONS.md → Safety band). The fourth row, New equipment (2026-09-24), has no footage:
  * it swaps in a still of the fleet instead (`image` in `safetySystems`), also a placeholder.
@@ -28,23 +28,43 @@ import { ArrowPhotoClip } from "./ArrowPhotoClip";
  * On first scroll into view the photo slides in from its screen edge and the text from the other side, on
  * one shared trigger so both land on the same frame (requested 2026-09-18) — see `SlideGroup`.
  */
-// How long each row stays picked before the next one takes over (owner, 2026-09-24).
-const ROW_MS = 10_000;
+// How long each row stays picked before the next one takes over (owner, 2026-09-24: 10 s was too long).
+const ROW_MS = 5_000;
+
+// False while hydrating (the server can't know the visitor's motion setting), true after — so the first render in
+// the browser matches the server's HTML, and the timer switches on right after.
+const noSubscribe = () => () => {};
+const useHydrated = () => useSyncExternalStore(noSubscribe, () => true, () => false);
 
 // Draft copy — swap in approved wording when it's ready.
 export function SafetyBand() {
   const [active, setActive] = useState<number | null>(null);
-  // Bumped on every pick, so tapping the row that's already on restarts its timer line.
+  // Bumped on every pick, so each row's bar starts filling from empty.
   const [turn, setTurn] = useState(0);
   const [inView, setInView] = useState(false);
+  // Held by a tap: the picked row stays until the same row is tapped again.
+  const [held, setHeld] = useState(false);
   const reduceMotion = useReducedMotion();
-  const cycling = reduceMotion === false;
+  const cycling = useHydrated() && reduceMotion === false;
   const listRef = useRef<HTMLUListElement>(null);
   const videos = useRef<Array<HTMLVideoElement | null>>([]);
 
   const pick = (i: number) => {
     setActive(i);
     setTurn((t) => t + 1);
+  };
+  // A tap on another row jumps there and holds it; a tap on the row already picked holds it, or, if it's held,
+  // lets the cycle carry on with a fresh ROW_MS on that row.
+  const tap = (i: number) => {
+    if (i === active && held) {
+      pick(i);
+      setHeld(false);
+    } else if (i === active) {
+      setHeld(true);
+    } else {
+      pick(i);
+      setHeld(true);
+    }
   };
 
   // The timer runs only while the list is on screen; the first time it comes into view, the first row is picked.
@@ -114,20 +134,40 @@ export function SafetyBand() {
                     aria-pressed={on}
                     onMouseEnter={cycling ? undefined : () => setActive(i)}
                     onFocus={cycling ? undefined : () => setActive(i)}
-                    onClick={() => pick(i)}
+                    onClick={() => (cycling ? tap(i) : setActive(i))}
                     className={cx(
                       "group relative block w-full cursor-pointer py-5 text-left transition-opacity duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
                       active !== null && !on && "opacity-45",
                     )}
                   >
-                    {/* The orange bar is a mark, not text, so it's clear of the small-orange-text rule. */}
-                    <span
-                      aria-hidden
-                      className={cx(
-                        "absolute inset-y-5 left-0 w-[3px] origin-top bg-brand transition-transform duration-300 ease-out",
-                        on ? "scale-y-100" : "scale-y-0",
-                      )}
-                    />
+                    {/*
+                      The orange bar is a mark, not text, so it's clear of the small-orange-text rule. On the timer it
+                      is the clock: it fills from the top down over ROW_MS, and when it's full the next row takes
+                      over. Pausing its CSS animation (the band off screen) pauses the cycle. A held row shows the bar
+                      full and still, so it reads as picked rather than stopped halfway.
+                    */}
+                    {cycling ? (
+                      on && (
+                        <span
+                          key={turn}
+                          aria-hidden
+                          className={cx(
+                            "absolute inset-y-5 left-0 w-[3px] origin-top bg-brand",
+                            !held && "animate-row-timer",
+                          )}
+                          style={held ? undefined : { animationDuration: `${ROW_MS}ms`, animationPlayState: inView ? "running" : "paused" }}
+                          onAnimationEnd={() => pick((i + 1) % safetySystems.length)}
+                        />
+                      )
+                    ) : (
+                      <span
+                        aria-hidden
+                        className={cx(
+                          "absolute inset-y-5 left-0 w-[3px] origin-top bg-brand transition-transform duration-300 ease-out",
+                          on ? "scale-y-100" : "scale-y-0",
+                        )}
+                      />
+                    )}
                     <span
                       className={cx(
                         "block transition-transform duration-300 ease-out",
@@ -137,19 +177,6 @@ export function SafetyBand() {
                       <span className="block text-lg font-medium tracking-[-0.01em]">{system.name}</span>
                       <span className="mt-1.5 block max-w-lg leading-relaxed text-ink/70">{system.body}</span>
                     </span>
-                    {/*
-                      The timer: a line that fills along the row's bottom hairline over ROW_MS. When it's full, the
-                      next row takes over, so the CSS animation is the clock; pausing it pauses the cycle.
-                    */}
-                    {cycling && on && (
-                      <span
-                        key={turn}
-                        aria-hidden
-                        className="absolute inset-x-0 -bottom-px h-px origin-left animate-row-timer bg-ink"
-                        style={{ animationDuration: `${ROW_MS}ms`, animationPlayState: inView ? "running" : "paused" }}
-                        onAnimationEnd={() => pick((i + 1) % safetySystems.length)}
-                      />
-                    )}
                   </button>
                 </li>
               );
