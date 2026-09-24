@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
-import { Button, Container } from "@/components/ui";
+import { Container, InteractiveHoverButton } from "@/components/ui";
 import { applyLink, homeHeadline, homeSupport, quoteLink } from "@/lib/site";
 
 const LEAD_WORDS = homeHeadline.lead.split(" ");
@@ -127,10 +127,12 @@ export function HomeHero() {
               One button and one quiet link: the header already carries the Get a Quote / Apply pair. The gap under
               the headline is the largest in the stack, so the button reads as attached to the words above it.
             */}
-            <Button href={quoteLink.href} variant="light" size="lg" className="mt-5 w-full sm:w-auto sm:px-9 lg:w-full">
-              {quoteLink.label}
-              <span aria-hidden>→</span>
-            </Button>
+            <InteractiveHoverButton
+              href={quoteLink.href}
+              text={quoteLink.label}
+              size="lg"
+              className="mt-5 w-full sm:w-auto sm:px-9 lg:w-full"
+            />
             <Link
               href={applyLink.href}
               className="mt-4 flex w-fit items-center gap-1.5 font-semibold text-paper/80 underline-offset-4 transition-colors hover:text-paper hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
