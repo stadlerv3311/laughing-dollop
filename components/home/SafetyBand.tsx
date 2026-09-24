@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Container, SlideGroup, SlideItem, labelClass, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
@@ -16,32 +17,61 @@ import { ArrowPhotoClip } from "./ArrowPhotoClip";
  * screen edge with the angled edge on its left. Read together, the two bands zigzag down the page. Both are
  * white, with no background change between the bands (owner, 2026-09-18).
  *
- * Each row swaps the photo for its own clip (requested 2026-09-19): hover or focus a row and its video fades in
- * over the photo and plays from the start; leave the list and the photo comes back. On touch, a tap picks a
- * row. All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and
+ * Each row swaps the photo for its own clip (requested 2026-09-19), and the rows play through on a timer
+ * (2026-09-24): once the band is on screen, each row is picked in turn for `ROW_MS` while a thin line fills under
+ * it, then hands over to the next, looping. Tapping or clicking a row jumps there and the cycle carries on from
+ * it. The timer pauses while the band is off screen. Reduced-motion visitors get the old behaviour instead:
+ * nothing plays on its own, hover or focus a row to see its clip, leave the list and the photo comes back. All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and
  * must not go live (docs/DECISIONS.md → Safety band). The fourth row, New equipment (2026-09-24), has no footage:
  * it swaps in a still of the fleet instead (`image` in `safetySystems`), also a placeholder.
  *
  * On first scroll into view the photo slides in from its screen edge and the text from the other side, on
  * one shared trigger so both land on the same frame (requested 2026-09-18) — see `SlideGroup`.
  */
+// How long each row stays picked before the next one takes over (owner, 2026-09-24).
+const ROW_MS = 10_000;
+
 // Draft copy — swap in approved wording when it's ready.
 export function SafetyBand() {
   const [active, setActive] = useState<number | null>(null);
+  // Bumped on every pick, so tapping the row that's already on restarts its timer line.
+  const [turn, setTurn] = useState(0);
+  const [inView, setInView] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const cycling = reduceMotion === false;
+  const listRef = useRef<HTMLUListElement>(null);
   const videos = useRef<Array<HTMLVideoElement | null>>([]);
 
-  // Only the picked clip runs, from its first frame each time; the others stop so they don't use the CPU.
+  const pick = (i: number) => {
+    setActive(i);
+    setTurn((t) => t + 1);
+  };
+
+  // The timer runs only while the list is on screen; the first time it comes into view, the first row is picked.
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list || !cycling) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setInView(entry.isIntersecting);
+      if (entry.isIntersecting) setActive((a) => a ?? 0);
+    }, { threshold: 0.3 });
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [cycling]);
+
+  // Only the picked clip runs, from its first frame each time; the others stop so they don't use the CPU. Off
+  // screen, nothing plays.
   useEffect(() => {
     videos.current.forEach((video, i) => {
       if (!video) return;
-      if (i === active) {
+      if (i === active && (inView || !cycling)) {
         video.currentTime = 0;
         video.play().catch(() => {});
       } else {
         video.pause();
       }
     });
-  }, [active]);
+  }, [active, turn, inView, cycling]);
 
   return (
     <SlideGroup aria-labelledby="safety" className="relative bg-paper lg:flex lg:min-h-[calc(33.75vw+4rem)] lg:items-center">
@@ -59,15 +89,21 @@ export function SafetyBand() {
           </h2>
 
           {/*
-            Not numbered: these run side by side, not in order. Buttons, so the swap works from the keyboard
-            and by tap as well as by mouse. Leaving the list, or tabbing out of it, puts the photo back.
+            Not numbered: these run side by side, not in order. Buttons, so a pick works from the keyboard and by
+            tap as well as by mouse. Without the timer (reduced motion), hover and focus pick too, and leaving the
+            list, or tabbing out of it, puts the photo back.
           */}
           <ul
+            ref={listRef}
             className="mt-10 divide-y divide-ink/10 border-y border-ink/10"
-            onMouseLeave={() => setActive(null)}
-            onBlur={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) setActive(null);
-            }}
+            onMouseLeave={cycling ? undefined : () => setActive(null)}
+            onBlur={
+              cycling
+                ? undefined
+                : (event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) setActive(null);
+                  }
+            }
           >
             {safetySystems.map((system, i) => {
               const on = active === i;
@@ -76,9 +112,9 @@ export function SafetyBand() {
                   <button
                     type="button"
                     aria-pressed={on}
-                    onMouseEnter={() => setActive(i)}
-                    onFocus={() => setActive(i)}
-                    onClick={() => setActive(i)}
+                    onMouseEnter={cycling ? undefined : () => setActive(i)}
+                    onFocus={cycling ? undefined : () => setActive(i)}
+                    onClick={() => pick(i)}
                     className={cx(
                       "group relative block w-full cursor-pointer py-5 text-left transition-opacity duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
                       active !== null && !on && "opacity-45",
@@ -101,6 +137,19 @@ export function SafetyBand() {
                       <span className="block text-lg font-medium tracking-[-0.01em]">{system.name}</span>
                       <span className="mt-1.5 block max-w-lg leading-relaxed text-ink/70">{system.body}</span>
                     </span>
+                    {/*
+                      The timer: a line that fills along the row's bottom hairline over ROW_MS. When it's full, the
+                      next row takes over, so the CSS animation is the clock; pausing it pauses the cycle.
+                    */}
+                    {cycling && on && (
+                      <span
+                        key={turn}
+                        aria-hidden
+                        className="absolute inset-x-0 -bottom-px h-px origin-left animate-row-timer bg-ink"
+                        style={{ animationDuration: `${ROW_MS}ms`, animationPlayState: inView ? "running" : "paused" }}
+                        onAnimationEnd={() => pick((i + 1) % safetySystems.length)}
+                      />
+                    )}
                   </button>
                 </li>
               );

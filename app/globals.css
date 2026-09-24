@@ -27,6 +27,19 @@
   --animate-hero-settle: hero-settle 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-hero-rise: hero-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 
+  /* Safety band: the line that fills under the active row while it's on its timer (2026-09-24). The duration
+     is set inline from `ROW_MS` in SafetyBand.tsx, so the length lives in one place. */
+  --animate-row-timer: row-timer linear forwards;
+
+  @keyframes row-timer {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
   @keyframes hero-settle {
     from {
       transform: scale(1.05);
