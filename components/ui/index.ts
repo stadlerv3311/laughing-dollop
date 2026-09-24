@@ -1,4 +1,5 @@
 export { Button } from "./Button";
+export { Columns } from "./Columns";
 export { Container } from "./Container";
 export { CountUp } from "./CountUp";
 export { Field, controlClass, errorId } from "./Field";
