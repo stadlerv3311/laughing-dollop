@@ -51,9 +51,9 @@ export function SafetyBand() {
       */}
       <Container className="py-16 sm:py-20 lg:py-8">
         <SlideItem from="left" className="lg:w-[46%] lg:pr-8">
-          <p className="text-sm font-semibold text-ink/60">Safety and equipment</p>
+          <p className="text-sm font-semibold text-ink/70">Safety and equipment</p>
 
-          <h2 id="safety" className="mt-5 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+          <h2 id="safety" className="mt-4 text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem] lg:text-[clamp(1.75rem,2.5vw,2.25rem)]">
             We know where every truck and trailer is, and when each was last serviced.
           </h2>
 
@@ -62,7 +62,7 @@ export function SafetyBand() {
             and by tap as well as by mouse. Leaving the list, or tabbing out of it, puts the photo back.
           */}
           <ul
-            className="mt-9 divide-y divide-ink/10 border-y border-ink/10"
+            className="mt-10 divide-y divide-ink/10 border-y border-ink/10"
             onMouseLeave={() => setActive(null)}
             onBlur={(event) => {
               if (!event.currentTarget.contains(event.relatedTarget)) setActive(null);
@@ -97,8 +97,8 @@ export function SafetyBand() {
                         on ? "translate-x-5" : "translate-x-0",
                       )}
                     >
-                      <span className="block text-lg font-semibold">{system.name}</span>
-                      <span className="mt-1.5 block max-w-lg text-ink/70">{system.body}</span>
+                      <span className="block text-lg font-medium tracking-[-0.01em]">{system.name}</span>
+                      <span className="mt-1.5 block max-w-lg leading-relaxed text-ink/70">{system.body}</span>
                     </span>
                   </button>
                 </li>

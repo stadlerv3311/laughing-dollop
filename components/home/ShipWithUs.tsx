@@ -29,16 +29,13 @@ export function ShipWithUs() {
       */}
       <Container className="py-16 sm:py-20 lg:pb-8 lg:pt-8">
         <SlideItem from="right" className="lg:ml-auto lg:w-[46%] lg:pl-8">
-          <p className="text-sm font-semibold text-ink/60">Ship with us</p>
+          <p className="text-sm font-semibold text-ink/70">Ship with us</p>
 
           {/*
             The page's h1 is a driver line, so this is the only heading that says what the business
             actually sells — keep the freight terms in it (docs/DECISIONS.md → Open).
           */}
-          <h2
-            id="ship-with-us"
-            className="mt-5 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl"
-          >
+          <h2 id="ship-with-us" className="mt-4 text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.25rem] lg:text-[clamp(1.75rem,2.5vw,2.25rem)]">
             Dry van truckload, handled with care.
           </h2>
 
