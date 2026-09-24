@@ -6,10 +6,10 @@ import { companyStats, site } from "@/lib/site";
  * two moved down here): two columns on phones, three on tablets, one row from `lg`. Large, light numbers with small
  * labels, and hairlines above and below — the numbers carry themselves and don't need a box.
  *
- * It sits straight under the hero, above Ship with us (moved 2026-09-21). The hero's photo ends flush on the band,
- * so the top padding keeps it off the hairline. Below `lg` Ship with us opens on its text and its own padding;
- * from `lg` its photo sits higher, so `lg:pb-3` tops that up and the photo
- * below sits about as far from the lower hairline as the hero does from the upper one.
+ * It sits straight under the hero, above the safety band (moved 2026-09-21; the safety band replaced Ship with us
+ * below it 2026-09-23). The hero ends flush on the band, so the top padding keeps it off the hairline. Below `lg`
+ * the safety band opens on its text and its own padding; from `lg` its photo is centred beside the text, and
+ * `lg:pb-8` keeps it clear of the lower hairline.
  */
 export function TrustBar() {
   return (

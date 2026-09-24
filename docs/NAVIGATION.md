@@ -4,7 +4,7 @@
 ## Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | Forest drone hero (shows straight away — a short header-logo fade-in is all that plays on load), numbers band, Ship with us band, safety band, rolling slogan line and three apply cards built |
+| `/` | `app/page.tsx` | Forest drone hero (shows straight away — a short header-logo fade-in is all that plays on load), numbers band, safety band, Ship with us band, rolling slogan line and three apply cards built |
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
@@ -43,7 +43,7 @@
 | Add or change a button style | `components/ui/Button.tsx` |
 | Fade a block in when it scrolls into view | Wrap it in `<Reveal>` from `components/ui` |
 | Slide a photo and its text in from opposite sides, landing together | Make the section a `<SlideGroup>` and wrap each piece in `<SlideItem from="left" \| "right">` (`components/ui/SlideIn.tsx`); used by Ship with us and the safety band |
-| Change or reorder the homepage's rolling slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey), the smaller driver line between the safety band and the apply cards (`components/home/DriverSlogans.tsx`). The first one is what screen readers get; keep every lead and tail a similar length |
+| Change or reorder the homepage's rolling slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey), the smaller driver line between Ship with us and the apply cards (`components/home/DriverSlogans.tsx`). The first one is what screen readers get; keep every lead and tail a similar length |
 | Start a new page | Copy a placeholder in `app/`, then add its link in `lib/site.ts` (check DECISIONS.md nav rules first) |
 | Check whether something is in scope | `docs/DECISIONS.md` |
 | Find the original logo files | `docs/Logo black.svg` (full logo), `docs/Only logo Solutions.svg` (icon only) |
@@ -61,8 +61,8 @@ flowchart TD
   Page --> HomeIntro["intro/HomeIntro"]
   Page --> HomeHero["home/HomeHero"]
   Page --> DriverSlogans["home/DriverSlogans"]
-  Page --> ShipWithUs["home/ShipWithUs"]
   Page --> SafetyBand["home/SafetyBand"]
+  Page --> ShipWithUs["home/ShipWithUs"]
   Page --> TrustBar["home/TrustBar"]
   HomeIntro -. "intro progress" .-> Header
   HomeIntro -. "intro progress" .-> HomeHero
@@ -89,10 +89,10 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
 | `home/` | `HomeHero` | Full-screen photo hero under a white wash from the left: fixed h1, Apply to drive + Get a quote up top; lede and two numbers along the bottom. The wash runs top-to-bottom below `lg` | Server |
-| `home/` | `DriverSlogans` | The rolling slogans as a smaller line under the safety band, above the apply cards | Server |
+| `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `ShipWithUs` | The shipper band: the logo truck left with an angled right edge, running to the screen edge from `lg`, text right (swapped 2026-09-19 to zigzag off the hero). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
-| `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — text and a hairline list left, photo right with an angled left edge; hovering a row swaps the photo for that row's clip, on white; it follows Ship with us directly | Client (hover state) |
+| `home/` | `SafetyBand` | GPS, dash cams and maintenance records: Ship with us mirrored — text and a hairline list left, photo right with an angled left edge; hovering a row swaps the photo for that row's clip, on white; it sits straight under the numbers band, before Ship with us (swapped 2026-09-23) | Client (hover state) |
 | `home/` | `ArrowPhotoClip` | Renders nothing — defines the rounded-arrow SVG `clipPath` Ship with us and Safety band's photos point with (`point="right"` / `"left"`) | Server |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
