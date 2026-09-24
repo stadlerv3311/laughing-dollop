@@ -74,7 +74,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | Folder | Component | What it does | Runs on |
 |---|---|---|---|
 | `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (solid black), `apply` (black, orange on hover — Apply To Drive only), `outline` (black ring on a light frosted fill). Both share one type size so a pair sized alike matches. Sizes: `md`, `lg` | Server |
-| `ui/` | `InteractiveHoverButton` | Pill whose label slides out on hover while an ink dot grows to fill it and brings the label back in white with an arrow; `href` makes it a link; sizes `sm` (fixed 8rem) and `lg` (Button's lg height, width from className). The homepage hero's Get a Quote | Server |
+| `ui/` | `InteractiveHoverButton` | Pill whose label slides out on hover while an ink dot grows to fill it and brings the label back in white with an arrow; `href` makes it a link; sizes `sm` (fixed 8rem) and `lg` (Button's lg height, width from className); variants `solid` (white, fills ink) and `glass` (matte frosted, fills white). The homepage hero's Get a Quote and Drive with us | Server |
 | `ui/` | `Container` | Full-width side-margin wrapper — phone/tablet padding below `desktop` (1200px), content caps at 1200px and centers above it | Server |
 | `ui/` | `Columns` | The 12-column / 24px-gutter grid that sits inside a `Container` — size children with `col-span-*` | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
@@ -89,7 +89,7 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `layout/` | `CareersPanel` | Glass panel that drops from under the nav pill with the two Careers links | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
-| `home/` | `HomeHero` | Full-screen forest drone loop (road on the left fifth): shipper h1 lighting up word by word, one supporting line, Get a Quote, and a quiet Drive with us link, in the header's CTA column from `lg` | Client |
+| `home/` | `HomeHero` | Full-screen forest drone loop (road on the left fifth): shipper h1 lighting up word by word, one supporting line, Get a Quote (solid) and Drive with us (glass), in the header's CTA column from `lg` | Client |
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (Driver / Dispatcher / Tire shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, Get a Quote) on white in the safety band's type, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |

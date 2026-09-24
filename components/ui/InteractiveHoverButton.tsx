@@ -11,13 +11,22 @@ import { cx } from "@/lib/cx";
  *
  * `size="sm"` is the snippet's original fixed 8rem pill; `size="lg"` matches `Button`'s lg height and padding and
  * leaves the width to `className`, so it can line up with other buttons.
+ *
+ * `variant="solid"` is white with an ink dot that fills it ink; `variant="glass"` (the hero's Drive with us) is a
+ * matte, frosted pill for dark photos and film, with a white dot that fills it white and brings the label back in ink.
  */
 const shell =
-  "group relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full border border-ink/15 bg-paper text-center font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+  "group relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full border text-center font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 const sizes = { sm: "w-32 p-2", lg: "h-14 px-7 text-base" };
 
-function Inner({ text }: { text: string }) {
+const variants = {
+  solid: { shell: "border-ink/15 bg-paper text-ink", swap: "text-paper", dot: "bg-ink" },
+  glass: { shell: "border-paper/25 bg-paper/10 text-paper backdrop-blur-md", swap: "text-ink", dot: "bg-paper" },
+};
+type Variant = keyof typeof variants;
+
+function Inner({ text, variant }: { text: string; variant: Variant }) {
   return (
     <>
       <span className="inline-block translate-x-1 transition-all duration-300 group-hover:translate-x-12 group-hover:opacity-0 group-focus-visible:translate-x-12 group-focus-visible:opacity-0 motion-reduce:transition-none">
@@ -25,36 +34,42 @@ function Inner({ text }: { text: string }) {
       </span>
       <span
         aria-hidden
-        className="absolute inset-0 z-10 flex translate-x-12 items-center justify-center gap-2 text-paper opacity-0 transition-all duration-300 group-hover:-translate-x-1 group-hover:opacity-100 group-focus-visible:-translate-x-1 group-focus-visible:opacity-100 motion-reduce:transition-none"
+        className={cx(
+          "absolute inset-0 z-10 flex translate-x-12 items-center justify-center gap-2 opacity-0 transition-all duration-300 group-hover:-translate-x-1 group-hover:opacity-100 group-focus-visible:-translate-x-1 group-focus-visible:opacity-100 motion-reduce:transition-none",
+          variants[variant].swap,
+        )}
       >
         <span>{text}</span>
         <span>→</span>
       </span>
       <span
         aria-hidden
-        className="absolute left-[20%] top-[40%] size-2 rounded-lg bg-ink transition-all duration-300 group-hover:left-0 group-hover:top-0 group-hover:size-full group-hover:scale-[1.8] group-focus-visible:left-0 group-focus-visible:top-0 group-focus-visible:size-full group-focus-visible:scale-[1.8] motion-reduce:transition-none"
+        className={cx(
+          "absolute left-[20%] top-[40%] size-2 rounded-lg transition-all duration-300 group-hover:left-0 group-hover:top-0 group-hover:size-full group-hover:scale-[1.8] group-focus-visible:left-0 group-focus-visible:top-0 group-focus-visible:size-full group-focus-visible:scale-[1.8] motion-reduce:transition-none",
+          variants[variant].dot,
+        )}
       />
     </>
   );
 }
 
-type Common = { text?: string; size?: keyof typeof sizes; className?: string };
+type Common = { text?: string; size?: keyof typeof sizes; variant?: Variant; className?: string };
 type AsLink = Common & { href: string } & Omit<ComponentPropsWithoutRef<typeof Link>, "href" | "className" | "children">;
 type AsButton = Common & { href?: undefined } & Omit<ComponentPropsWithoutRef<"button">, "className" | "children">;
 
 export function InteractiveHoverButton(props: AsLink | AsButton) {
   if (props.href !== undefined) {
-    const { text = "Button", size = "sm", className, ...linkProps } = props;
+    const { text = "Button", size = "sm", variant = "solid", className, ...linkProps } = props;
     return (
-      <Link className={cx(shell, sizes[size], className)} {...linkProps}>
-        <Inner text={text} />
+      <Link className={cx(shell, variants[variant].shell, sizes[size], className)} {...linkProps}>
+        <Inner text={text} variant={variant} />
       </Link>
     );
   }
-  const { text = "Button", size = "sm", className, type = "button", ...buttonProps } = props;
+  const { text = "Button", size = "sm", variant = "solid", className, type = "button", ...buttonProps } = props;
   return (
-    <button type={type} className={cx(shell, sizes[size], className)} {...buttonProps}>
-      <Inner text={text} />
+    <button type={type} className={cx(shell, variants[variant].shell, sizes[size], className)} {...buttonProps}>
+      <Inner text={text} variant={variant} />
     </button>
   );
 }

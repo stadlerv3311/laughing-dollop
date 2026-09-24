@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
@@ -16,7 +15,7 @@ const TAIL_WORDS = homeHeadline.tail.split(" ");
  * loop fills the screen: a forest highway on the left fifth of the frame, one truck driving up it, and calm forest
  * across the rest, where the text sits (new loop 2026-09-24 — the first one had the road dead centre, which fought
  * the right-hand text column). Shipper-first since 2026-09-24 (trial): the h1 lighting up word by word as the
- * intro hands over, one supporting line, Get a Quote, and a quiet "Drive with us" link — one button, one link.
+ * intro hands over, one supporting line, then Get a Quote (solid) over Drive with us (matte glass).
  * The oversized DRIVE. word that sat along the bottom left was removed with the driver h1. On scroll the footage
  * zooms in a touch and darkens. The loop is AI-generated (Grok), upscaled to 1080p — see docs/DECISIONS.md →
  * Hero media.
@@ -124,8 +123,9 @@ export function HomeHero() {
             </h1>
             <p className="mt-6 text-pretty leading-relaxed text-paper/80">{homeSupport}</p>
             {/*
-              One button and one quiet link: the header already carries the Get a Quote / Apply pair. The gap under
-              the headline is the largest in the stack, so the button reads as attached to the words above it.
+              Get a Quote solid, Drive with us in matte glass under it (side by side from sm to lg) — the solid one
+              leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
+              words above them.
             */}
             <InteractiveHoverButton
               href={quoteLink.href}
@@ -133,13 +133,13 @@ export function HomeHero() {
               size="lg"
               className="mt-5 w-full sm:w-auto sm:px-9 lg:w-full"
             />
-            <Link
+            <InteractiveHoverButton
               href={applyLink.href}
-              className="mt-4 flex w-fit items-center gap-1.5 font-semibold text-paper/80 underline-offset-4 transition-colors hover:text-paper hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-            >
-              Drive with us
-              <span aria-hidden>→</span>
-            </Link>
+              text="Drive with us"
+              size="lg"
+              variant="glass"
+              className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-auto sm:px-9 lg:ml-0 lg:mt-3 lg:w-full"
+            />
           </div>
         </div>
       </Container>
