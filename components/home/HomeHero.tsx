@@ -123,22 +123,22 @@ export function HomeHero() {
             </h1>
             <p className="mt-6 text-pretty leading-relaxed text-paper/80">{homeSupport}</p>
             {/*
-              Get a Quote solid, Drive with us as a thin white ring under it (side by side from sm to lg) — the solid one
-              leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
+              Get a Quote solid, Drive with us as a thin white ring under it (side by side from sm to lg, at a fixed 14rem so
+              the dot, 20% in, clears the label) — the solid one leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
               words above them.
             */}
             <InteractiveHoverButton
               href={quoteLink.href}
               text={quoteLink.label}
               size="lg"
-              className="mt-5 w-full sm:w-auto sm:px-9 lg:w-full"
+              className="mt-5 w-full sm:w-56 lg:w-full"
             />
             <InteractiveHoverButton
               href={applyLink.href}
               text="Drive with us"
               size="lg"
               variant="ghostLight"
-              className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-auto sm:px-9 lg:ml-0 lg:mt-3 lg:w-full"
+              className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-56 lg:ml-0 lg:mt-3 lg:w-full"
             />
           </div>
         </div>
