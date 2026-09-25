@@ -21,7 +21,7 @@ export function ApplyRoutes() {
           <h2 id="apply-routes" className={sectionHeadingClass}>
             Where you&rsquo;d fit.
           </h2>
-          <p className="mt-3 text-ink/70">Five short questions for any of them, then HR calls you back.</p>
+          <p className="mt-3 text-ink/70">A few short questions for any of them, then HR calls you back.</p>
         </Reveal>
 
         <Reveal delay={0.1} className="mt-8 sm:mt-10">

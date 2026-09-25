@@ -28,12 +28,12 @@ export const careersNav: NavLink[] = [
   {
     label: "Drive for us",
     href: "/careers/drivers",
-    description: "Class A driver jobs. Five short questions, then HR calls you back.",
+    description: "Class A driver jobs. A few short questions, then HR calls you back.",
   },
   {
     label: "Office and shop",
     href: "/careers/staff",
-    description: "Dispatch, office and shop jobs. The same five short questions.",
+    description: "Dispatch, office and shop jobs. A few short questions, then HR calls you back.",
   },
 ];
 

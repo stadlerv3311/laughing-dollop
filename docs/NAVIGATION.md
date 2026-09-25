@@ -9,7 +9,7 @@
 | `/quote` | `app/quote/page.tsx` | State map + quote form built; sends to a stub until the backend exists |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
 | `/news` | `app/news/page.tsx` | Placeholder |
-| `/careers/drivers` | `app/careers/drivers/page.tsx` | Placeholder |
+| `/careers/drivers` | `app/careers/drivers/page.tsx` | Drive for us: portrait + eight-question form; sends to a stub until the backend exists |
 | `/careers/staff` | `app/careers/staff/page.tsx` | Placeholder |
 | `/about` | `app/about/page.tsx` | Headline and lede on a dark band, facts row, story, timeline (hidden until two milestones have years), closing line with both CTAs (draft copy, facts and years in `lib/story.ts`); photo, team, fleet and safety still to come |
 
@@ -37,6 +37,8 @@
 | Change quote form fields, error messages or the thank-you screen | `components/quote/QuoteForm.tsx` |
 | Change the quote map's colors, hover lift, route line or pins | `components/quote/StateMap.tsx` |
 | Connect the quote form to the backend | `lib/forms.ts` → `submitQuote` (keep `QuoteRequest` in sync) |
+| Change the driver application's questions, answers, copy or thank-you screen | `components/careers/DriverApplication.tsx` (photo and line on it come from `applyRoutes[0]` and `driverSlogans[0]` in `lib/site.ts`) |
+| Connect the driver application to the backend | `lib/forms.ts` → `submitDriverApplication` (keep `DriverApplication` in sync) |
 | Regenerate or re-project the state shapes | `scripts/build-us-states.mjs` → writes `lib/us-states.ts` |
 | Fix a ZIP that lights up the wrong state | `lib/zip.ts` |
 | Change the shared input/select look | `components/ui/Field.tsx` → `controlClass` |
@@ -98,10 +100,10 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three flat apply cards (On the road / In the office / In the shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
 | `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, Get a Quote) on white in the safety band's type, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
-| `home/` | `SafetyBand` | GPS, dash cams and maintenance records — text and a hairline list left, photo right with an angled left edge; the rows play through once on a 5 s timer, then rest 10 s on the photo (the picked row's orange bar fills top-down; tap to hold, tap again to carry on) and each swaps the photo for its clip, on white; it sits straight under the numbers band, before Ship with us (swapped 2026-09-23) | Client (hover state) |
+| `home/` | `SafetyBand` | GPS, dash cams and maintenance records — text and a hairline list left, photo right running off the right edge, its two corners facing the text rounded; the rows play through once on a 5 s timer, then rest 10 s on the photo (the picked row's orange bar fills top-down; tap to hold, tap again to carry on) and each swaps the photo for its clip, on white; it sits straight under the numbers band, before Ship with us (swapped 2026-09-23) | Client (hover state) |
 | `home/` | `SlideOverStack` | Pins the safety band from `lg` while Ship with us slides up over it as a sheet (70% of the band's height), once, on the way down; `useCovered()` tells the band when it's covered so its timer pauses (2026-09-24) | Client (scroll) |
-| `home/` | `ArrowPhotoClip` | Renders nothing — defines the rounded-arrow SVG `clipPath` the safety band's photo points with (`point="left"`; `"right"` is unused since Ship with us lost its photo 2026-09-24) | Server |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
+| `careers/` | `DriverApplication` | Drive for us: from `md` the page is split in half — driver portrait sticky on the left, all eight questions on one form on the right; on phones the portrait opens the page, then shrinks to a strip while the questions come one at a time (tap answers move on by themselves). One `<form>` both ways — CSS hides the other steps on phones | Client |
 | `quote/` | `QuoteForm` | Get a Quote: map + form kept in sync, browser-side checks, thank-you screen | Client |
 | `quote/` | `StateMap` | Lower-48 map: hover lift + name tag, click pickup then delivery, route line and pins | Client |
 | `intro/` | `HomeIntro` | Renders nothing; on load drives the shared intro progress 0 → 1 off the hero video's clock, which slides the header down with the truck, brings the hero text down after it and lights up the headline | Client |

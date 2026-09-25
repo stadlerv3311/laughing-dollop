@@ -9,7 +9,7 @@ export default function StaffPage() {
     <PagePlaceholder
       eyebrow="Careers"
       title={careersNav[1].label}
-      description="This page is being built. Dispatch, office and shop jobs use the same five short questions, then HR calls you back."
+      description="This page is being built. Dispatch, office and shop jobs use a few short questions, then HR calls you back."
     />
   );
 }

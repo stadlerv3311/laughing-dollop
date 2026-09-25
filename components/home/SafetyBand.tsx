@@ -7,16 +7,15 @@ import { Container, SlideGroup, SlideItem, labelClass, sectionHeadingClass } fro
 import { cx } from "@/lib/cx";
 import { safetySystems } from "@/lib/site";
 import { useCovered } from "./SlideOverStack";
-import { ArrowPhotoClip } from "./ArrowPhotoClip";
 
 /**
  * How we look after the freight (2026-09-18): GPS, dash cams and maintenance records. It answers the
  * shipper's question "is my load safe with you?" — so it sits straight under the numbers band, as proof before
  * the ask: Ship with us and its Get a Quote follow it (swapped 2026-09-23; it used to come after Ship with us).
  *
- * The same build as Ship with us, mirrored: text left, photo right, and from `lg` the photo runs to the right
- * screen edge with the angled edge on its left. Read together, the two bands zigzag down the page. Both are
- * white, with no background change between the bands (owner, 2026-09-18).
+ * Text left, photo right, and from `lg` the photo runs off the right screen edge, its two corners facing the text
+ * rounded (2026-09-25; it was a rounded arrow pointing at the text, which cut into every clip that wasn't a side-on
+ * truck — the GPS map most of all). White, with no background change from the bands around it (owner, 2026-09-18).
  *
  * Each row swaps the photo for its own clip (requested 2026-09-19), and the rows play through on a timer
  * (2026-09-24): once the band is on screen, each row is picked in turn for `ROW_MS` while its orange bar fills
@@ -227,11 +226,10 @@ export function SafetyBand() {
         — pinned to the right edge instead. Below `lg` it's a full-width band under the text.
       */}
       <div className="relative h-64 sm:h-80 lg:absolute lg:right-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:w-[54%] lg:-translate-y-1/2">
-        <ArrowPhotoClip id="safety-band-arrow" point="left" />
         {/* Starts fully off the right edge, so the photo arrives from outside the screen. */}
         <SlideItem from="right" distance="100%" className="absolute inset-0">
-          {/* The angled edge clips the photo and every clip together. */}
-          <div className="absolute inset-0 overflow-hidden bg-ink lg:[clip-path:url(#safety-band-arrow)]">
+          {/* The rounded corners clip the photo and every clip together; the edge on the screen's side stays square. */}
+          <div className="absolute inset-0 overflow-hidden bg-ink lg:rounded-l-3xl">
             <Image
               src="/images/ship-truck-side.jpg"
               alt="An ITrucking dry van on a desert highway at sunset, the logo on its trailer"
