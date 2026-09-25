@@ -39,6 +39,13 @@ export const careersNav: NavLink[] = [
 
 export const fleetMapLink: NavLink = { label: "Fleet map", href: "/fleet-map" };
 export const quoteLink: NavLink = { label: "Get a quote", href: "/quote" };
+/**
+ * View transition name shared by the homepage's Ship with us card and the Quote page, and the transition type
+ * the card's Get a quote button sets, so only that navigation grows the card into the page (2026-09-24). CSS:
+ * `.quote-open` in app/globals.css. The story band does the same into About (lib/story.ts → STORY_BAND).
+ */
+export const QUOTE_CARD = "quote-card";
+export const QUOTE_OPEN = "quote-open";
 // Every driver-application button on the site uses this label — header, hero, phone menu and the apply cards
 // (2026-09-24 wording pass; it replaced "Apply To Drive", "Drive with us" and "Apply"). The page it opens is
 // still called "Drive for us".

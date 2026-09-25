@@ -87,3 +87,56 @@
     transform: translateY(200%);
   }
 }
+
+/* Card-into-page transitions (2026-09-24; names and types in lib/story.ts and lib/site.ts):
+   "Read our full story" — the homepage story band grows and rises into the About page's dark opening;
+   Ship with us's Get a quote — the white card grows into the Quote page.
+   The box morphs; the old words fade out fast and the new page's fade in, pinned to the top-left so they don't
+   stretch with the box. The rest of the page crossfades. */
+::view-transition-group(.story-open),
+::view-transition-group(.quote-open) {
+  animation-duration: 650ms;
+  animation-timing-function: var(--ease-premium);
+  overflow: clip;
+}
+/* A backing in the box's own colour, so it never goes see-through between the old words leaving and the new
+   ones arriving. */
+::view-transition-group(.story-open) {
+  background: var(--color-ink);
+}
+::view-transition-group(.quote-open) {
+  background: var(--color-paper);
+}
+::view-transition-old(.story-open),
+::view-transition-new(.story-open),
+::view-transition-old(.quote-open),
+::view-transition-new(.quote-open) {
+  height: 100%;
+  object-fit: none;
+  object-position: left top;
+}
+::view-transition-old(.story-open),
+::view-transition-old(.quote-open) {
+  animation: 200ms ease-out both card-open-fade reverse;
+}
+::view-transition-new(.story-open),
+::view-transition-new(.quote-open) {
+  animation: 300ms ease-in 250ms both card-open-fade;
+}
+@keyframes card-open-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* Every other navigation stays instant, as before: React starts a view transition for any navigation once a page
+   has <ViewTransition>s, and the browser's default is a whole-page crossfade. */
+:root:not(:active-view-transition-type(story-open, quote-open))::view-transition-old(root),
+:root:not(:active-view-transition-type(story-open, quote-open))::view-transition-new(root) {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

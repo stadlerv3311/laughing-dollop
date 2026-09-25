@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { QuoteForm } from "@/components/quote";
 import { Container, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { quoteLink } from "@/lib/site";
+import { QUOTE_CARD, QUOTE_OPEN, quoteLink } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: quoteLink.label,
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 
 export default function QuotePage() {
   return (
+    // The homepage's Ship with us card grows into this page when you come from its Get a quote button.
+    <ViewTransition name={QUOTE_CARD} share={{ [QUOTE_OPEN]: "quote-open", default: "none" }} default="none">
     <section className="pb-24 pt-32 sm:pb-32 sm:pt-40">
       <Container>
         <div className="max-w-2xl">
@@ -24,5 +27,6 @@ export default function QuotePage() {
         <QuoteForm className="mt-12 sm:mt-16" />
       </Container>
     </section>
+    </ViewTransition>
   );
 }

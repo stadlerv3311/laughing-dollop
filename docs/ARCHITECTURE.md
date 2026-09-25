@@ -32,7 +32,7 @@ components/                  → component library, one folder per area, each wi
                                typography (shared label + section-heading classes)
   layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, SafetyBand, SlideOverStack, TrustBar, StoryTeaser
-  about/                     → StoryMilestones (also used by the homepage story card)
+  about/                     → StoryMilestones (the homepage story band's dot timeline; the About page draws its own dated timeline in the same style)
   quote/                     → QuoteForm, StateMap
   intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll

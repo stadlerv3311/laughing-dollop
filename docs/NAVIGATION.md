@@ -11,7 +11,7 @@
 | `/news` | `app/news/page.tsx` | Placeholder |
 | `/careers/drivers` | `app/careers/drivers/page.tsx` | Placeholder |
 | `/careers/staff` | `app/careers/staff/page.tsx` | Placeholder |
-| `/about` | `app/about/page.tsx` | Story section built (draft copy); team, fleet and safety still to come |
+| `/about` | `app/about/page.tsx` | Headline and lede on a dark band, facts row, story, timeline (hidden until two milestones have years), closing line with both CTAs (draft copy, facts and years in `lib/story.ts`); photo, team, fleet and safety still to come |
 
 ## Common tasks
 | I need to... | Go to |
@@ -24,6 +24,8 @@
 | Tune the homepage opening (when it starts on the truck, how far the header and hero text drop, when the headline lights up) | `components/intro/timeline.ts` |
 | Change how the header logo fades/settles in | `components/layout/Header.tsx` → `logoOpacity`, `logoScale` |
 | Change how Ship with us slides over the safety band (sheet height, pin, shadow) | `components/home/SlideOverStack.tsx` — `OVER_SHARE`; wired in `app/page.tsx` |
+| Change the story band → About opening animation | Names: `lib/story.ts` → `STORY_BAND` / `STORY_OPEN`; the two `<ViewTransition>`s in `components/home/StoryTeaser.tsx` and `app/about/page.tsx`; timing in `app/globals.css` → `.story-open` |
+| Change the Ship with us card → Quote page animation | Names: `lib/site.ts` → `QUOTE_CARD` / `QUOTE_OPEN`; the two `<ViewTransition>`s in `components/home/ShipWithUs.tsx` and `app/quote/page.tsx`; timing in `app/globals.css` → `.quote-open` |
 | Change the Ship with us band (copy, the button) | `components/home/ShipWithUs.tsx` — a centred closing ask on white in the safety band's type, no photo since 2026-09-24 |
 | Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (or an `image` still — the New equipment row, `public/images/safety-fleet.jpg`) (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
