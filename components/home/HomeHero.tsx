@@ -85,10 +85,12 @@ export function HomeHero() {
   }, [reduceMotion]);
 
   return (
+    // `data-header-media`: a full-screen picture, so the header's Careers bar and panel go clear frosted glass here.
     <section
       ref={sectionRef}
       id="content"
       data-header-theme="dark"
+      data-header-media
       className="relative isolate flex min-h-svh flex-col overflow-hidden bg-ink text-paper"
     >
       <motion.div aria-hidden className="absolute inset-0 -z-10" style={reduceMotion ? undefined : { scale: videoScale }}>

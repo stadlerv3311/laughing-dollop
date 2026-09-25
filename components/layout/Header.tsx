@@ -19,12 +19,24 @@ const PHONE_QUERY = "(width < 40rem)";
 /** Where the header's logo sits, from the top of the screen — the point checked against dark bands. */
 const HEADER_MID = 36;
 
-/** True while a band marked `data-header-theme="dark"` is under the header, so the logo and CTAs switch to light. */
-function overDarkBand() {
-  return Array.from(document.querySelectorAll('[data-header-theme="dark"]')).some((band) => {
+/** The band marked `data-header-theme="dark"` under the header, if any, so the logo and CTAs switch to light. */
+function darkBandUnder() {
+  return Array.from(document.querySelectorAll<HTMLElement>('[data-header-theme="dark"]')).find((band) => {
     const { top, bottom } = band.getBoundingClientRect();
     return top <= HEADER_MID && bottom >= HEADER_MID;
   });
+}
+
+/**
+ * What the header sits over: a light section, a plain dark band, or a full-screen picture — a dark band also
+ * marked `data-header-media` (the homepage hero). Over a picture the Careers bar and panel are clear frosted
+ * glass rather than dark glass (2026-09-24).
+ */
+type Surface = "light" | "dark" | "media";
+function surfaceUnder(): Surface {
+  const band = darkBandUnder();
+  if (!band) return "light";
+  return band.hasAttribute("data-header-media") ? "media" : "dark";
 }
 
 function isActive(pathname: string, href: string) {
@@ -91,7 +103,7 @@ function NavItem({ href, active, light, children, ...rest }: NavItemProps) {
  * right as a matched pair of interactive hover buttons. Over dark bands (the hero, the story band) everything is
  * white on the film with no bar; over light sections, once the page has scrolled, a white bar with a hairline
  * fades in and everything turns ink — Get a quote outlined, Apply now solid. It stays in view as you scroll
- * — except on phones, where it slides away on scroll down and drops back on scroll up. Careers opens a glass panel that drops from under the nav pill. During the homepage
+ * — except on phones, where it slides away on scroll down and drops back on scroll up. Careers opens a glass panel that drops from under the nav pill — dark over dark bands, light elsewhere. During the homepage
  * intro the nav stays dimmed over the scene (full on hover) while the logo fades and settles into place —
  * see HomeIntro.
  */
@@ -107,7 +119,8 @@ export function Header() {
   const [hidden, setHidden] = useState(false);
   // The homepage opens on the dark hero, so start light there — otherwise the CTAs flash solid black on load
   // until the first check below runs.
-  const [onDark, setOnDark] = useState(isHome);
+  const [surface, setSurface] = useState<Surface>(isHome ? "media" : "light");
+  const onDark = surface !== "light";
   const [careersOpen, setCareersOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -120,7 +133,7 @@ export function Header() {
   useMotionValueEvent(intro, "change", (p) => setIntroDone(p >= INTRO.litAt));
 
   useMotionValueEvent(scrollY, "change", (y) => {
-    setOnDark(overDarkBand());
+    setSurface(surfaceUnder());
     const introFinished = intro.get() >= 1;
     setSolid(introFinished && y > 12);
     if (!introFinished || careersOpen || mobileOpen || !window.matchMedia(PHONE_QUERY).matches) {
@@ -134,7 +147,7 @@ export function Header() {
 
   // A new page can open with a dark band already under the header; check once it has painted.
   useEffect(() => {
-    const frame = requestAnimationFrame(() => setOnDark(overDarkBand()));
+    const frame = requestAnimationFrame(() => setSurface(surfaceUnder()));
     return () => cancelAnimationFrame(frame);
   }, [pathname]);
 
@@ -161,8 +174,9 @@ export function Header() {
     setMobileOpen(false);
   };
   const closeCareers = () => setCareersOpen(false);
-  // White type and rings over dark bands, unless a menu is open (its panel is light).
-  const light = onDark && !careersOpen && !mobileOpen;
+  // White type and rings over dark bands, unless the phone menu is open (its sheet is light). The Careers panel
+  // follows the band instead (2026-09-24): over a dark band it opens dark and the header stays white.
+  const light = onDark && !mobileOpen;
   const careersActive = careersNav.some((link) => isActive(pathname, link.href));
 
   // Over the intro scene the bar is dimmed; hovering or tabbing into it (or opening a menu) brings it to full.
@@ -192,7 +206,25 @@ export function Header() {
             aria-hidden
             className={cx(
               "absolute inset-0 -z-10 border-b border-ink/10 bg-paper/85 backdrop-blur-xl transition-opacity duration-500",
-              (solid && !onDark) || careersOpen || mobileOpen ? "opacity-100" : "opacity-0",
+              (solid && !onDark) || (careersOpen && !light) || mobileOpen ? "opacity-100" : "opacity-0",
+            )}
+          />
+          {/*
+            While Careers is open over a dark band, the bar matches what's under it: dark glass over a plain dark
+            band, clear frosted glass over a full-screen picture.
+          */}
+          <div
+            aria-hidden
+            className={cx(
+              "absolute inset-0 -z-10 border-b border-paper/10 bg-ink/75 backdrop-blur-xl transition-opacity duration-500",
+              careersOpen && light && surface === "dark" ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <div
+            aria-hidden
+            className={cx(
+              "absolute inset-0 -z-10 border-b border-paper/15 bg-ink/20 backdrop-blur-2xl backdrop-saturate-150 transition-opacity duration-500",
+              careersOpen && light && surface === "media" ? "opacity-100" : "opacity-0",
             )}
           />
           <Container className="flex h-18 items-center gap-4 xl:gap-6">
@@ -261,7 +293,9 @@ export function Header() {
               </nav>
 
               <AnimatePresence>
-                {careersOpen && <CareersPanel links={careersNav} pathname={pathname} onNavigate={closeAll} />}
+                {careersOpen && (
+                  <CareersPanel links={careersNav} pathname={pathname} onNavigate={closeAll} tone={!light ? "light" : surface === "media" ? "glass" : "dark"} />
+                )}
               </AnimatePresence>
             </div>
 
