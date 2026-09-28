@@ -196,7 +196,8 @@ export function SafetyBand() {
                       )}
                     >
                       <span className="block text-lg font-medium tracking-[-0.01em]">{system.name}</span>
-                      <span className="mt-1.5 block max-w-lg leading-relaxed text-ink/70">{system.body}</span>
+                      {/* Wraps where the heading's first line ends ("…every truck", about 27.5rem), not at the hairline's end (owner, 2026-09-25). */}
+                      <span className="mt-1.5 block max-w-[27.5rem] leading-relaxed text-ink/70">{system.body}</span>
                     </span>
                   </button>
                 </li>
@@ -222,10 +223,12 @@ export function SafetyBand() {
       </Container>
 
       {/*
-        Same box as Ship with us — a fixed 16:10 so the crop is identical at every width (see the note there)
-        — pinned to the right edge instead. Below `lg` it's a full-width band under the text.
+        A fixed 16:10 box, pinned to the right edge. Below `lg` it's a full-width band under the text.
+        From `lg` its left edge lines up with Loads completed in the numbers band above (owner, 2026-09-25), so
+        `left` repeats TrustBar's sums: the Container's left edge, 40% of its width for the big two, then the
+        three's left padding (2.5rem, 6rem from xl, 10.5rem from 2xl). Change one, change the other.
       */}
-      <div className="relative h-64 sm:h-80 lg:absolute lg:right-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:w-[54%] lg:-translate-y-1/2">
+      <div className="relative h-64 sm:h-80 lg:absolute lg:left-[calc(2rem+0.4*(100%-4rem)+2.5rem)] lg:right-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:-translate-y-1/2 desktop:left-[calc((100%-75rem)/2+32.5rem)] xl:left-[calc((100%-75rem)/2+36rem)] 2xl:left-[calc((100%-75rem)/2+40.5rem)]">
         {/* Starts fully off the right edge, so the photo arrives from outside the screen. */}
         <SlideItem from="right" distance="100%" className="absolute inset-0">
           {/* The rounded corners clip the photo and every clip together; the edge on the screen's side stays square. */}
@@ -234,7 +237,7 @@ export function SafetyBand() {
               src="/images/ship-truck-side.jpg"
               alt="An ITrucking dry van on a desert highway at sunset, the logo on its trailer"
               fill
-              sizes="(width >= 64rem) 54vw, 100vw"
+              sizes="(width >= 64rem) 50vw, 100vw"
               className="object-cover"
             />
             {safetySystems.map((system, i) => {
@@ -252,7 +255,7 @@ export function SafetyBand() {
                     alt={active === i ? system.image.alt : ""}
                     aria-hidden={active !== i}
                     fill
-                    sizes="(width >= 64rem) 54vw, 100vw"
+                    sizes="(width >= 64rem) 50vw, 100vw"
                     className={shown}
                   />
                 );

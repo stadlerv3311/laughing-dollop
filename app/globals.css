@@ -31,6 +31,19 @@
      duration is set inline from `ROW_MS` in SafetyBand.tsx, so the length lives in one place. */
   --animate-row-timer: row-timer linear forwards;
 
+  /* Numbers band on phones: the three smaller numbers run past in an endless loop (2026-09-25). Two copies side by
+     side, moved by half the strip, so the second copy lands exactly where the first began. */
+  --animate-stat-wheel: stat-wheel 16s linear infinite;
+
+  @keyframes stat-wheel {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
   @keyframes row-timer {
     from {
       transform: scaleY(0);

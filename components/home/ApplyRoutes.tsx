@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container, Reveal, sectionHeadingClass } from "@/components/ui";
-import { applyLink, applyRoutes } from "@/lib/site";
+import { applyLink, applyRoutes, careersLink } from "@/lib/site";
 
 /**
  * Three ways into the same short application, sitting where the full-width photo band used to be
@@ -30,10 +30,11 @@ export function ApplyRoutes() {
               <li key={route.role}>
                 {/*
                   The whole card is the link — a card-sized target, unlike the story band's full-width one.
-                  Everything inside is presentational, so there's one tab stop per role.
+                  Everything inside is presentational, so there's one tab stop per role. It opens that job's section
+                  of the careers page, not the application (2026-09-25).
                 */}
                 <Link
-                  href={route.href}
+                  href={`${careersLink.href}#${route.job}`}
                   className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
                 >
                   {/*

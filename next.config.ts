@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
+  // Lets another computer on the same Wi-Fi open the dev server by this Mac's address (dev only; no effect on a build).
+  allowedDevOrigins: ["192.168.1.141"],
 };
 
 export default nextConfig;

@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/ui";
-import { careersNav } from "@/lib/site";
+import { JobApplication } from "@/components/careers";
 
-export const metadata: Metadata = { title: `${careersNav[1].label} jobs` };
+export const metadata: Metadata = {
+  title: "Office and shop",
+  description: "Office and shop jobs at ITrucking Solutions. A few short questions, then HR calls you back.",
+};
 
-export default function StaffPage() {
+/**
+ * Office and shop: the same job application as Drive for us, opened on the office job — or the shop job when the
+ * homepage's In the shop card sends `?job=shop`.
+ */
+export default async function StaffPage({ searchParams }: { searchParams: Promise<{ job?: string | string[] }> }) {
+  const { job } = await searchParams;
   return (
-    <PagePlaceholder
-      eyebrow="Careers"
-      title={careersNav[1].label}
-      description="This page is being built. Dispatch, office and shop jobs use a few short questions, then HR calls you back."
-    />
+    <JobApplication initialJob={job === "shop" ? "shop" : "office"} />
   );
 }

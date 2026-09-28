@@ -1,2 +1,2 @@
-export { QuoteForm } from "./QuoteForm";
+export { QuoteForm, type QuotePrefill } from "./QuoteForm";
 export { StateMap } from "./StateMap";

@@ -1,6 +1,7 @@
 "use client";
 
 import { easeOut, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useLenis } from "lenis/react";
 import { useEffect, useRef, useState } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
@@ -49,6 +50,15 @@ export function HomeHero() {
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
   const shade = useTransform(scrollYProgress, [0, 1], [0, 0.55]);
+  // The scroll cue comes in with the text block and is gone after the first bit of scrolling.
+  const cueFade = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  const cueOpacity = useTransform(() => Math.min(blockOpacity.get(), cueFade.get()));
+  const lenis = useLenis();
+  const scrollOn = () => {
+    const next = sectionRef.current?.offsetHeight ?? window.innerHeight;
+    if (lenis) lenis.scrollTo(next);
+    else window.scrollTo({ top: next, behavior: reduceMotion ? "auto" : "smooth" });
+  };
 
   // Started by hand, not with `autoPlay`: React leaves `muted` out of the server HTML, and browsers only autoplay
   // muted video. Paused while off screen, and never played for reduced-motion visitors (they keep the poster).
@@ -85,12 +95,10 @@ export function HomeHero() {
   }, [reduceMotion]);
 
   return (
-    // `data-header-media`: a full-screen picture, so the header's Careers bar and panel go clear frosted glass here.
     <section
       ref={sectionRef}
       id="content"
       data-header-theme="dark"
-      data-header-media
       className="relative isolate flex min-h-svh flex-col overflow-hidden bg-ink text-paper"
     >
       <motion.div aria-hidden className="absolute inset-0 -z-10" style={reduceMotion ? undefined : { scale: videoScale }}>
@@ -182,6 +190,30 @@ export function HomeHero() {
             </div>
           </motion.div>
         </div>
+
+        {/*
+          Scroll cue (owner, 2026-09-25: make it clear the page goes on, so people scroll instead of leaving). A
+          thin line with a dot running down it; tapping it scrolls to the next section. Still for reduced motion.
+        */}
+        <motion.button
+          type="button"
+          onClick={scrollOn}
+          style={{ opacity: cueOpacity }}
+          className="group mx-auto mt-10 flex flex-col items-center gap-2.5 text-sm font-medium text-paper/70 transition-colors hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand lg:mt-6"
+        >
+          Scroll
+          <span aria-hidden className="relative block h-10 w-px overflow-hidden bg-paper/25">
+            {reduceMotion ? (
+              <span className="absolute inset-x-0 top-0 h-3 bg-paper" />
+            ) : (
+              <motion.span
+                className="absolute inset-x-0 top-0 h-3 bg-paper"
+                animate={{ y: ["-100%", "340%"] }}
+                transition={{ duration: 1.6, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.4 }}
+              />
+            )}
+          </span>
+        </motion.button>
       </Container>
     </section>
   );

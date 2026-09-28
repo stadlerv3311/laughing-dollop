@@ -23,18 +23,19 @@ app/
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
   news/page.tsx              → News (/news)
   careers/
+    page.tsx                 → Careers (/careers) — the three jobs and why to take each; where Careers and Apply now go
     drivers/page.tsx         → Drive For Us (/careers/drivers)
-    staff/page.tsx           → Dispatcher / mechanic / office applications (/careers/staff)
+    staff/page.tsx           → The same application, opened on the office or shop job (/careers/staff)
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
   ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder,
                                typography (shared label + section-heading classes)
-  layout/                    → Header, CareersPanel, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, SafetyBand, SlideOverStack, TrustBar, StoryTeaser
-  about/                     → StoryMilestones (the homepage story band's dot timeline; the About page draws its own dated timeline in the same style)
+  layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
+  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, SlideOverStack, TrustBar, StoryTeaser
+  about/                     → StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
   quote/                     → QuoteForm, StateMap
-  careers/                   → DriverApplication (the Drive for us form)
+  careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll
 
@@ -139,7 +140,7 @@ Design references (what we take from each — style and structure only, never th
 ## Header behavior
 - Fixed. Transparent at the top, frosted white once scrolled. Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the homepage logo moment or while a menu is open).
 - During the homepage logo moment: nav and buttons sit at 60% opacity over the scene; hovering or tabbing into the header brings them to full with a frosted bar. The logo fades and settles into place — see Homepage opening above.
-- Careers opens a two-link panel that drops from under the bar (hover or click); Escape or clicking outside closes it.
+- Careers is a plain link to `/careers` (the dropdown panel was removed 2026-09-25).
 - Below `lg`: menu button opens a full-screen menu that drops from the top.
 
 ## Data model

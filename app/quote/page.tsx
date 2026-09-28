@@ -10,7 +10,18 @@ export const metadata: Metadata = {
   description: "Request a dry van quote: pick the pickup and delivery states on the map, add a few load details and we’ll get back to you.",
 };
 
-export default function QuotePage() {
+// One value per key, trimmed and capped: these come from the address bar, so they're only ever used as the text
+// they started as.
+const param = (value: string | string[] | undefined) =>
+  (Array.isArray(value) ? value[0] : value)?.trim().slice(0, 60) || undefined;
+
+export default async function QuotePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ pickup?: string | string[]; delivery?: string | string[]; weight?: string | string[] }>;
+}) {
+  const { pickup, delivery, weight } = await searchParams;
+
   return (
     // The homepage's Ship with us card grows into this page when you come from its Get a quote button.
     <ViewTransition name={QUOTE_CARD} share={{ [QUOTE_OPEN]: "quote-open", default: "none" }} default="none">
@@ -24,7 +35,11 @@ export default function QuotePage() {
             we&rsquo;ll get back to you with a price.
           </p>
         </div>
-        <QuoteForm className="mt-12 sm:mt-16" />
+        {/* Anything typed into the homepage's quote bar comes along (2026-09-25). */}
+        <QuoteForm
+          className="mt-12 sm:mt-16"
+          prefill={{ pickup: param(pickup), delivery: param(delivery), weight: param(weight) }}
+        />
       </Container>
     </section>
     </ViewTransition>

@@ -1,17 +1,18 @@
-import Link from "next/link";
 import { ViewTransition } from "react";
-import { StoryMilestones } from "@/components/about";
-import { Container, Reveal, labelClass, sectionHeadingClass } from "@/components/ui";
+import { Container, InteractiveHoverButton, Reveal, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { aboutLink } from "@/lib/site";
 import { STORY_BAND, STORY_OPEN, story } from "@/lib/story";
 
 /**
  * Homepage band with the short company story — the page's one dark passage, edge to edge rather than a card
- * floating in white. Only "Read our full story" links to About (2026-09-24; the whole band used to be one big
- * invisible link — docs/DECISIONS.md → Company story). It sits
- * between Ship with us and the driver slogans — the hinge between the shipper and driver halves (moved up from
- * the end of the page 2026-09-24).
+ * floating in white. It sits between Ship with us and the driver slogans — the hinge between the shipper and
+ * driver halves (moved up from the end of the page 2026-09-24).
+ *
+ * Layout "2c" (owner's pick from three mock-ups, 2026-09-25): the headline and summary on the left with Read our
+ * full story on the right, then a hairline and the three milestones as big marks — 1, DOT, 48 — set like the
+ * numbers band near the top of the page. Orange only on the marks (the logo's `brand`), never on the button: it's
+ * the site's thin white ring (DECISIONS.md → Brand orange). Only Read our full story links to About.
  */
 export function StoryTeaser() {
   return (
@@ -21,29 +22,50 @@ export function StoryTeaser() {
     <section aria-labelledby="story-teaser-title" data-header-theme="dark" className="bg-ink py-20 text-paper sm:py-28 lg:py-32">
       <Container>
         <Reveal>
-          <div className="grid gap-12 md:grid-cols-[1.15fr_1fr] md:items-center md:gap-16 lg:gap-24">
+          <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-16">
             <div>
               <p className={cx(labelClass, "text-paper/70")}>Our story</p>
-              <h2 id="story-teaser-title" className={cx("mt-4", sectionHeadingClass)}>
-                {story.headline}
-              </h2>
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-paper/70">{story.summary}</p>
-
-              <Link
-                href={aboutLink.href}
-                transitionTypes={[STORY_OPEN]}
-                className="group mt-10 inline-flex items-center gap-2 rounded-sm text-lg font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+              <h2
+                id="story-teaser-title"
+                className="mt-4 text-[2.5rem] font-medium leading-[1.04] tracking-[-0.045em] sm:text-5xl lg:text-[3.5rem]"
               >
-                Read our full story
-                <svg viewBox="0 0 16 16" aria-hidden className="size-4 transition-transform duration-500 ease-premium group-hover:translate-x-1">
-                  <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
+                {story.headline.map((line) => (
+                  <span key={line} className="block text-balance">
+                    {line}
+                  </span>
+                ))}
+              </h2>
+              <p className="mt-6 max-w-[38rem] text-pretty text-lg leading-relaxed text-paper/70">{story.summary}</p>
             </div>
-
-            {/* Hidden on phones to keep the band short — the About page always shows the timeline. */}
-            <StoryMilestones milestones={story.milestones} tone="dark" className="hidden md:block" />
+            <InteractiveHoverButton
+              href={aboutLink.href}
+              transitionTypes={[STORY_OPEN]}
+              text="Read our full story"
+              size="lg"
+              variant="ghostLight"
+              className="w-full sm:w-72"
+            />
           </div>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <ol className="mt-14 grid gap-12 border-t border-paper/15 pt-12 sm:mt-20 sm:grid-cols-3 sm:gap-10 sm:pt-14">
+            {story.milestones.map((milestone) => (
+              <li key={milestone.title}>
+                <p
+                  aria-hidden
+                  className={cx(
+                    "text-[4.5rem] font-medium leading-[0.9] tracking-[-0.06em] sm:text-[clamp(4rem,8vw,7.5rem)]",
+                    milestone.accent ? "text-brand" : "text-paper",
+                  )}
+                >
+                  {milestone.mark}
+                </p>
+                <h3 className="mt-6 text-sm text-paper/60">{milestone.title}</h3>
+                <p className="mt-2 max-w-[20rem] text-pretty leading-relaxed">{milestone.text}</p>
+              </li>
+            ))}
+          </ol>
         </Reveal>
       </Container>
     </section>

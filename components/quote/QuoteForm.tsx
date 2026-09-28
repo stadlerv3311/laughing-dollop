@@ -103,15 +103,33 @@ function toRequest(values: Values): QuoteRequest {
   };
 }
 
+/** What the homepage's quote bar carries over (`/quote?pickup=…&delivery=…&weight=…`). */
+export type QuotePrefill = { pickup?: string; delivery?: string; weight?: string };
+
+/** A place typed into the quote bar: a ZIP also picks its state (and lights the map); a city waits for one. */
+function prefillStop(place = ""): Stop {
+  const zipState = stateForZip(place);
+  return { state: zipState && zipState !== "outside" ? zipState : "", place };
+}
+
 /**
  * Get a Quote: the form on the left, the state map on the right, kept in sync — clicking a state fills the dropdown,
  * choosing a state or typing a ZIP lights up the map. Validates in the browser, then hands off to `submitQuote`.
  */
-export function QuoteForm({ className }: { className?: string }) {
+export function QuoteForm({ className, prefill }: { className?: string; prefill?: QuotePrefill }) {
   const baseId = useId();
   const id = (field: FieldName) => `${baseId}-${field}`;
 
-  const [values, setValues] = useState<Values>(emptyValues);
+  const [values, setValues] = useState<Values>(() =>
+    prefill
+      ? {
+          ...emptyValues,
+          pickup: prefillStop(prefill.pickup),
+          delivery: prefillStop(prefill.delivery),
+          weight: prefill.weight ?? "",
+        }
+      : emptyValues,
+  );
   const [showErrors, setShowErrors] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 

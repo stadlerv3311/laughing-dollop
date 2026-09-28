@@ -24,18 +24,9 @@ export const primaryNav: NavLink[] = [
   newsLink,
 ];
 
-export const careersNav: NavLink[] = [
-  {
-    label: "Drive for us",
-    href: "/careers/drivers",
-    description: "Class A driver jobs. A few short questions, then HR calls you back.",
-  },
-  {
-    label: "Office and shop",
-    href: "/careers/staff",
-    description: "Dispatch, office and shop jobs. A few short questions, then HR calls you back.",
-  },
-];
+// A plain link since 2026-09-25 (owner: remove the Careers dropdown). It opens the careers page — the three jobs,
+// what each one is and why to take it here — whose Apply now buttons open the application on that job.
+export const careersLink: NavLink = { label: "Careers", href: "/careers" };
 
 export const fleetMapLink: NavLink = { label: "Fleet map", href: "/fleet-map" };
 export const quoteLink: NavLink = { label: "Get a quote", href: "/quote" };
@@ -48,8 +39,9 @@ export const QUOTE_CARD = "quote-card";
 export const QUOTE_OPEN = "quote-open";
 // Every driver-application button on the site uses this label — header, hero, phone menu and the apply cards
 // (2026-09-24 wording pass; it replaced "Apply To Drive", "Drive with us" and "Apply"). The page it opens is
-// still called "Drive for us".
-export const applyLink: NavLink = { label: "Apply now", href: "/careers/drivers" };
+// still called "Drive for us". Since 2026-09-25 it opens the careers page first (owner: see the jobs before the
+// application); only the careers page's own Apply now buttons go straight into the questions.
+export const applyLink: NavLink = { label: "Apply now", href: "/careers" };
 
 export type CompanyStat = {
   /** The number the counter fills up to. */
@@ -108,7 +100,12 @@ export const driverSlogans: readonly Slogan[] = [
   { lead: "Home time you planned on,", tail: "not home time you hoped for." },
 ];
 
+/** The three jobs the application covers (2026-09-25). */
+export type Job = "driver" | "office" | "shop";
+
 export type ApplyRoute = {
+  /** Which job this card opens the application on. */
+  job: Job;
   /**
    * Where the work happens, used as the card's heading: "On the road", "In the office", "In the shop" — all
    * places, so they read as one set and answer the "Where you'd fit." heading above them. Not a pitch.
@@ -116,7 +113,14 @@ export type ApplyRoute = {
   role: string;
   /** One line on what the job actually is. */
   body: string;
+  /** The application, opened on this job. The homepage card links to this job's section on /careers instead. */
   href: string;
+  /** The job's name on the careers page ("Class A driver"). */
+  title: string;
+  /** The careers page's paragraph on what the work is. */
+  summary: string;
+  /** Why take this job here — facts already on record only, no pay figures (DECISIONS.md → Pay transparency). */
+  reasons: readonly { title: string; body: string }[];
   image: {
     src: string;
     alt: string;
@@ -131,13 +135,23 @@ export type ApplyRoute = {
 // The homepage's three ways in (requested 2026-09-17). Every role goes to the same short form, so these are
 // routes into one process, not three different applications (docs/DECISIONS.md → Applications).
 //
-// Draft copy. The office and shop cards both land on `/careers/staff`, which doesn't yet separate the two —
-// see docs/DECISIONS.md → Open.
+// Draft copy. The office and shop cards land on `/careers/staff` with their job already picked (`?job=`); the
+// application itself lets you switch between all three (components/careers/JobApplication.tsx).
 export const applyRoutes: readonly ApplyRoute[] = [
   {
+    job: "driver",
     role: "On the road",
     body: "Class A, dry van and the bonus tracker in your app.",
     href: "/careers/drivers",
+    title: "Class A driver",
+    summary:
+      "You haul Class A dry van truckload freight. One kind of freight, one kind of trailer, and dispatch always knows where your truck is.",
+    reasons: [
+      { title: "Dry van only", body: "No reefer, no flatbed. One kind of trailer, every load." },
+      { title: "2025–26 Volvos", body: "Nearly the whole fleet, pulling brand-new trailers." },
+      { title: "Your bonus, live", body: "The tracker in your app shows it grow, load by load." },
+      { title: "Cameras on the road", body: "Our dash cameras face the road, so there’s footage of what really happened." },
+    ],
     image: {
       // The owner's driver portrait (2026-09-17), down from 5376px — the full-size original took ~20s a
       // width to resize in dev. The truck photo it replaced is still `home-hero-desert.jpg`.
@@ -148,18 +162,34 @@ export const applyRoutes: readonly ApplyRoute[] = [
     },
   },
   {
+    job: "office",
     role: "In the office",
     body: "Plan the loads and keep our drivers moving.",
-    href: "/careers/staff",
+    href: "/careers/staff?job=office",
+    title: "Dispatcher",
+    summary: "You plan the loads and keep our drivers moving, from the first pickup to the last delivery.",
+    reasons: [
+      { title: "A fleet you can see", body: "GPS on every truck and trailer, so you’re never guessing where one is." },
+      { title: "One kind of freight", body: "Dry van truckload only, so every load plays by the same rules." },
+      { title: "New equipment", body: "Nearly the whole fleet is 2025–26 Volvos, pulling brand-new trailers." },
+    ],
     image: {
       src: "/images/apply-dispatcher.jpg",
       alt: "A dispatcher in a headset working at a desk of route screens",
     },
   },
   {
+    job: "shop",
     role: "In the shop",
     body: "Tires, repairs and road service, in our own shop.",
-    href: "/careers/staff",
+    href: "/careers/staff?job=shop",
+    title: "Tire and shop technician",
+    summary: "You handle tires, repairs and road service for our own trucks, in our own shop.",
+    reasons: [
+      { title: "Our own shop", body: "You work on our fleet, not a line of strangers’ trucks." },
+      { title: "New equipment", body: "2025–26 Volvos and brand-new trailers." },
+      { title: "Maintenance on record", body: "Every repair and inspection is logged, so each truck’s history is on file." },
+    ],
     image: {
       // The owner's tire-tech portrait (2026-09-18), replacing an empty shop interior — the row now shows
       // three people instead of two people and a room.
@@ -226,6 +256,6 @@ export const footerNav: NavLink[] = [
   { label: "Services", href: "/services" },
   aboutLink,
   newsLink,
-  careersNav[0],
+  careersLink,
   fleetMapLink,
 ];
