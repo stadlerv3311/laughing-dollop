@@ -11,8 +11,16 @@ export const useCovered = () => useContext(CoveredContext);
 const WIDE = "(width >= 64rem)";
 /** How tall the sliding section is, as a share of the one it slides over. */
 const OVER_SHARE = 0.7;
-/** …but never taller than this share of the screen. */
-const OVER_MAX = 0.75;
+/**
+ * …but never taller than this share of the screen. 0.6 since 2026-09-29 (owner: on the way back up the ask sat in too
+ * much white) — it matches the band's `1 - LEAD`, so the sheet still slides over at the page's own pace.
+ */
+const OVER_MAX = 0.6;
+/**
+ * How far, as a share of the screen, the band and the sheet scroll up together before the band pins and the sheet
+ * overtakes it — so the logo row closing the band clears the bottom of the screen first (owner, 2026-09-29).
+ */
+const LEAD = 0.4;
 const subscribeWide = (onChange: () => void) => {
   const query = window.matchMedia(WIDE);
   query.addEventListener("change", onChange);
@@ -26,7 +34,8 @@ const useWide = () =>
  * top of the screen while Ship with us rises over it like a sheet, then the page scrolls on. The movement is plain
  * scrolling, with `position: sticky` on the first section, so it follows the reader's own pace.
  *
- * The sheet rises a little faster than the page scrolls, so it reaches the top of the screen (under the header) while
+ * The band and the top of the sheet first scroll up together like the rest of the page, so the logo row at the end of
+ * the band gets clear of the screen's bottom edge (2026-09-29); then the band pins and the sheet rises a little faster than the page scrolls, so it reaches the top of the screen (under the header) while
  * the band is still pinned, instead of leaving a strip of the band above it (owner, 2026-09-28: no fade, the sheet
  * just takes its place). It then holds there while the band scrolls away behind it, and settles back into its own
  * place by the time the band is gone. The gap the lift opens under the sheet is filled with its own white, so the
@@ -52,12 +61,13 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
   const [done, setDone] = useState(false);
   const active = wide && reduceMotion === false && !done;
 
-  // Pinned at the top of the screen, or, if it's taller than the screen, at the point its bottom edge shows.
+  // Pinned at the top of the screen, or, if it's taller than the screen, once its bottom edge is LEAD above the
+  // screen's bottom.
   useEffect(() => {
     const el = underRef.current;
     if (!el) return;
     const measure = () => {
-      setPinTop(Math.min(0, window.innerHeight - el.offsetHeight));
+      setPinTop(Math.min(0, window.innerHeight * (1 - LEAD) - el.offsetHeight));
       setUnderHeight(el.offsetHeight);
       setScreenHeight(window.innerHeight);
     };
@@ -78,18 +88,22 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
     if (!active || !wrap || !under || !over) return;
     // Where the sheet's top would be without the lift: the wrapper isn't sticky, so its box is the real layout.
     const natural = wrap.getBoundingClientRect().top + under.offsetHeight;
-    // Where the band lets go (the wrapper's end carries both up from here), and where the sheet enters the screen.
+    // Where the band lets go (the wrapper's end carries both up from here).
     const release = pinTop + under.offsetHeight - over.offsetHeight;
-    const enter = window.innerHeight;
+    // Up to here the sheet scrolls with the page; the band pins at this point and the sheet starts to overtake it.
+    const enter = Math.min(window.innerHeight, pinTop + under.offsetHeight);
     // Where the sheet stops: the top of the screen, or the pinned band's top if that's lower. A band taller than
     // the screen pins above it (pinTop < 0), and stopping there would carry the sheet off the top.
     const stop = Math.max(pinTop, 0);
-    // Enter → release maps onto enter → stop, then it holds at stop until the natural top gets there too.
+    // Enter → release maps onto enter → stop, then it holds at stop until the natural top gets there too. With a
+    // long LEAD the band can pin so late that the sheet reaches the stop in its own place before the band lets go;
+    // then there's nothing to catch up, and the sheet just scrolls over the pinned band at the page's pace.
+    const from = Math.max(release, stop);
     const shown =
       natural >= enter
         ? natural
-        : natural > release
-          ? stop + ((natural - release) * (enter - stop)) / (enter - release)
+        : natural > from
+          ? stop + ((natural - from) * (enter - stop)) / (enter - from)
           : Math.min(natural, stop);
     const lift = Math.max(0, natural - shown);
     over.style.transform = lift ? `translateY(${-lift}px)` : "";

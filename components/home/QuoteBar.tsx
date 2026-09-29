@@ -42,9 +42,7 @@ export function QuoteBar() {
       method="get"
       onSubmit={handleSubmit}
       aria-label="Start a quote"
-      // The header's small quote bar stands down while this one is on screen (components/layout/HeaderQuote.tsx).
-      data-quote-bar
-      className="mx-auto mt-9 flex max-w-[52rem] flex-col gap-2 rounded-3xl border border-ink/10 bg-ink/[0.03] p-2 text-left sm:flex-row sm:items-center sm:rounded-full"
+      className="mx-auto mt-10 flex max-w-[56rem] flex-col gap-2 rounded-3xl border border-ink/10 bg-ink/[0.03] p-2 text-left sm:flex-row sm:items-center sm:rounded-full"
     >
       <div className="flex flex-1 flex-col sm:flex-row sm:items-center">
         {FIELDS.map((field, i) => (
@@ -54,9 +52,9 @@ export function QuoteBar() {
           <label
             htmlFor={`${baseId}-${field.name}`}
             // The whole cell is the target; its shade is the focus mark, since the input itself has no outline.
-            className="flex flex-1 cursor-text flex-col rounded-2xl px-4 py-2.5 transition-colors focus-within:bg-ink/[0.05] sm:rounded-full sm:px-6"
+            className="flex flex-1 cursor-text flex-col rounded-2xl px-4 py-3 transition-colors focus-within:bg-ink/[0.05] sm:rounded-full sm:px-7"
           >
-            <span className="text-xs font-medium text-ink/70">{field.label}</span>
+            <span className="text-[13px] font-medium text-ink/70">{field.label}</span>
             <input
               id={`${baseId}-${field.name}`}
               name={field.name}
@@ -72,7 +70,7 @@ export function QuoteBar() {
               placeholder={"placeholder" in field ? field.placeholder : undefined}
               autoComplete="off"
               maxLength={60}
-              className="mt-0.5 w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink/40 data-[empty=true]:text-ink/40"
+              className="mt-0.5 w-full min-w-0 bg-transparent text-base text-ink sm:text-[17px] outline-none placeholder:text-ink/40 data-[empty=true]:text-ink/40"
             />
           </label>
           </Fragment>

@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Fragment, useRef, useState, type RefObject } from "react";
-import { Container, Reveal, labelClass, sectionHeadingClass } from "@/components/ui";
+import { Container, Reveal, ScrollFillText, labelClass, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { safetyGroups, safetyPitch, safetySystems, type SafetyGroup } from "@/lib/site";
+import { safetyGroups, safetyPitch, safetySystems, type SafetyGroup, type SafetySystem } from "@/lib/site";
 
 /**
  * How we look after the freight (2026-09-18): GPS, dash cams, maintenance records and new equipment. It answers
@@ -13,7 +13,7 @@ import { safetyGroups, safetyPitch, safetySystems, type SafetyGroup } from "@/li
  * the ask: Ship with us and its Get a Quote follow it, sliding up over it from `lg` (SlideOverStack).
  *
  * A zigzag (owner's sketch, 2026-09-28): the heading with a one-line pitch beside it, then two pictures stepping
- * down the page — On the road top left with its words to the right, In the shop bottom right with its words to the
+ * down the page — the road pair top left with its words to the right, the shop pair bottom right with its words to the
  * left. Each picture is a pair of cards that open up like the apply cards: hovering one widens it, shows its line and
  * plays its clip; the clips stand paused on a frame until then and pause again when the pointer leaves, and leaving
  * the pair puts it back as it started (the first pair open on its left card, the second on its right). Cards are
@@ -36,18 +36,27 @@ export function SafetyBand() {
       else video.pause();
     });
   const pause = (i: number) => videos.current[i]?.pause();
+  // Which card of each pair is open, and whether the pair is being hovered, focused or tapped — kept here so the
+  // words beside a pair can follow it (its readout).
+  const [open, setOpen] = useState<number[]>(() => safetyGroups.map((group) => group.open));
+  const openCard = (g: number, i: number) => setOpen((all) => (all[g] === i ? all : all.map((v, k) => (k === g ? i : v))));
+  const [active, setActive] = useState<boolean[]>(() => safetyGroups.map(() => false));
+  const activate = (g: number, on: boolean) =>
+    setActive((all) => (all[g] === on ? all : all.map((v, k) => (k === g ? on : v))));
 
   return (
     <section aria-labelledby="safety" className="bg-paper py-16 sm:py-20 lg:py-24">
       <Container>
-        <Reveal className="grid gap-6 lg:grid-cols-[1.1fr_1fr] lg:items-end lg:gap-16">
-          <div>
+        {/* The same 12 columns as the pictures below, so the pitch starts on the first block of words' left edge. */}
+        <Reveal className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-x-6">
+          <div className="lg:col-span-7">
             <p className={cx(labelClass, "text-ink/70")}>Safety and equipment</p>
             <h2 id="safety" className={cx("mt-4 max-w-[20ch]", sectionHeadingClass)}>
-              We know where every truck and trailer is, and when each was last serviced.
+              {/* Fills in word by word as it scrolls up (2026-09-29) — the band's one moving heading. */}
+              <ScrollFillText text="We know where every truck and trailer is, and when each was last serviced." />
             </h2>
           </div>
-          <p className="max-w-[34rem] text-pretty text-lg leading-relaxed text-ink/70">
+          <p className="max-w-[34rem] text-pretty text-lg leading-relaxed text-ink/70 lg:col-span-5 lg:pl-10">
             {safetyPitch.lead} <span className="font-medium text-ink">{safetyPitch.strong}</span>
           </p>
         </Reveal>
@@ -55,37 +64,41 @@ export function SafetyBand() {
         {/* 12 columns from lg: each picture takes 7, its words the other 5, the second pair mirrored. */}
         <div className="mt-12 grid gap-y-10 sm:mt-14 lg:grid-cols-12 lg:gap-x-6 lg:gap-y-3">
           {safetyGroups.map((group, g) => (
-            <Fragment key={group.kicker}>
+            <Fragment key={group.title}>
               <Reveal
                 className={
                   g === 0 ? "lg:col-start-1 lg:col-end-8 lg:row-start-1" : "lg:col-start-6 lg:col-end-13 lg:row-start-2"
                 }
               >
-                <Pair group={group} reduceMotion={reduceMotion === true} videos={videos} play={play} pause={pause} />
+                <Pair
+                  group={group}
+                  open={open[g]}
+                  onOpen={(i) => openCard(g, i)}
+                  onActive={(on) => activate(g, on)}
+                  reduceMotion={reduceMotion === true}
+                  videos={videos}
+                  play={play}
+                  pause={pause}
+                />
               </Reveal>
+              {/* Centred on its picture from lg (owner, 2026-09-28), so neither end of the column sits empty. */}
               <Reveal
                 delay={0.1}
                 className={cx(
                   "lg:self-center",
                   g === 0
                     ? "lg:col-start-8 lg:col-end-13 lg:row-start-1 lg:pl-10"
-                    : "lg:col-start-1 lg:col-end-6 lg:row-start-2 lg:justify-self-end lg:pr-10",
+                    : "lg:col-start-1 lg:col-end-6 lg:row-start-2 lg:pr-10",
                 )}
               >
-                <div className="max-w-[30rem]">
-                  <p className={cx(labelClass, "text-ink/70")}>{group.kicker}</p>
-                  <h3 className="mt-3 text-balance text-[1.625rem] font-medium leading-[1.12] tracking-[-0.035em] sm:text-[2rem]">
+                <div className="max-w-[28rem]">
+                  <h3 className="text-balance text-[1.5rem] font-medium leading-[1.12] tracking-[-0.03em] sm:text-[1.75rem]">
                     {group.title}
                   </h3>
-                  <p className="mt-4 text-pretty leading-relaxed text-ink/70">{group.body}</p>
-                  <dl className="mt-6 border-t border-ink/10">
-                    {group.facts.map((fact) => (
-                      <div key={fact.label} className="flex justify-between gap-4 border-b border-ink/10 py-3 text-[15px]">
-                        <dt>{fact.label}</dt>
-                        <dd className="text-ink/70">{fact.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                  <p className="mt-5 text-pretty text-[17px] leading-relaxed text-ink/65">{group.body}</p>
+                  {group.systems.some((index) => safetySystems[index].readout) && (
+                    <Readout system={safetySystems[group.systems[open[g]]]} visible={active[g]} />
+                  )}
                 </div>
               </Reveal>
             </Fragment>
@@ -99,22 +112,33 @@ export function SafetyBand() {
 /** Two cards side by side that open up; `group.open` is the one that starts (and settles back) wide. */
 function Pair({
   group,
+  open,
+  onOpen,
+  onActive,
   reduceMotion,
   videos,
   play,
   pause,
 }: {
   group: SafetyGroup;
+  open: number;
+  onOpen: (i: number) => void;
+  onActive: (on: boolean) => void;
   reduceMotion: boolean;
   videos: RefObject<Array<HTMLVideoElement | null>>;
   play: (i: number) => void;
   pause: (i: number) => void;
 }) {
-  const [open, setOpen] = useState<number>(group.open);
-
   return (
     <ul
-      onMouseLeave={() => setOpen(group.open)}
+      onMouseEnter={() => onActive(true)}
+      onMouseLeave={() => {
+        onOpen(group.open);
+        onActive(false);
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) onActive(false);
+      }}
       // The tighter 0.625rem gap inside a pair (owner, 2026-09-28); the open card takes up the difference, so the
       // closed one keeps its place on the column lines.
       className="flex flex-col gap-2.5 sm:aspect-[1/0.92] sm:flex-row"
@@ -126,7 +150,7 @@ function Pair({
           <li
             key={system.name}
             onMouseEnter={() => {
-              setOpen(i);
+              onOpen(i);
               if (!reduceMotion) play(index);
             }}
             onMouseLeave={() => pause(index)}
@@ -144,14 +168,20 @@ function Pair({
             <button
               type="button"
               aria-pressed={isOpen}
-              onFocus={() => setOpen(i)}
+              onFocus={() => {
+                onOpen(i);
+                onActive(true);
+              }}
               onClick={() => {
-                setOpen(i);
+                onOpen(i);
+                onActive(true);
                 const video = videos.current[index];
                 if (!video) return;
                 if (video.paused) play(index);
                 else video.pause();
               }}
+              // A size container, so a cropped clip can be sized against the card (cq units, see cropStyle).
+              style={system.crop ? { containerType: "size" } : undefined}
               className="group absolute inset-0 block cursor-pointer overflow-hidden bg-ink text-left text-paper focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
             >
               {system.image ? (
@@ -174,7 +204,11 @@ function Pair({
                   playsInline
                   preload="metadata"
                   aria-hidden
-                  className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-premium group-hover:scale-[1.03]"
+                  style={system.crop ? cropStyle(system.crop) : undefined}
+                  className={cx(
+                    "absolute transition-transform duration-700 ease-premium group-hover:scale-[1.03]",
+                    !system.crop && "inset-0 size-full object-cover",
+                  )}
                 />
               )}
               <span aria-hidden className="absolute inset-0 bg-linear-to-t from-black/80 via-black/25 to-transparent" />
@@ -199,4 +233,74 @@ function Pair({
       })}
     </ul>
   );
+}
+
+/**
+ * What the open card's system records, under the pair's words (owner, 2026-09-28, "L1" after a round of mock-ups;
+ * the scale after T1 Energy on Mobbin): a small label, one figure in a thin weight at about the heading's size — so it
+ * reads as data and doesn't outshout the heading — and a short list of details. At rest only the heading and
+ * paragraph show, centred on the pictures; while the pair is hovered, focused or tapped, the readout's row opens and
+ * the centred group glides up to make room, then settles back when the pointer leaves. It follows the open card, so
+ * moving from GPS to Dash cameras swaps it. Sample values, marked Example; hidden from screen readers while closed.
+ */
+function Readout({ system, visible }: { system: SafetySystem; visible: boolean }) {
+  const readout = system.readout;
+  return (
+    <div
+      aria-hidden={!visible}
+      inert={!visible}
+      className={cx(
+        "grid transition-[grid-template-rows,opacity] duration-600 ease-premium motion-reduce:transition-none",
+        visible ? "grid-rows-[1fr] opacity-100 delay-100" : "grid-rows-[0fr] opacity-0",
+      )}
+    >
+      <div className="min-h-0 overflow-hidden">
+        {readout && (
+          <motion.div
+            key={system.name}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="pt-10"
+          >
+            <p className="flex justify-between text-[13px] text-ink/55">
+              <span>{readout.label}</span>
+              <span>Example</span>
+            </p>
+            <p className="mt-1.5 text-[2.5rem] font-light leading-none tracking-[-0.035em] tabular-nums">
+              {readout.figure}
+              {readout.unit && (
+                <span className="ml-1.5 text-[17px] font-normal tracking-normal text-ink/55">{readout.unit}</span>
+              )}
+            </p>
+            <dl className="mt-4 grid grid-cols-[7.5rem_1fr] gap-y-1.5 text-[15px] leading-normal">
+              {readout.rows.map((row) => (
+                <Fragment key={row.label}>
+                  <dt className="text-ink/55">{row.label}</dt>
+                  <dd>{row.value}</dd>
+                </Fragment>
+              ))}
+            </dl>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Places a clip so only its `crop` box can show, centred in the card: the clip is scaled until the box covers the
+ * card on both axes (whichever needs more), then shifted so the box's centre sits on the card's centre. Sized in
+ * container units against the card, so it holds as the card opens and closes.
+ */
+function cropStyle({ x, y, w, h, aspect }: { x: number; y: number; w: number; h: number; aspect: number }) {
+  const width = `max(calc(100cqw / ${w}), calc(100cqh / ${h} * ${aspect}))`;
+  return {
+    width,
+    maxWidth: "none",
+    height: "auto",
+    aspectRatio: aspect,
+    left: `calc(50cqw - ${width} * ${x + w / 2})`,
+    top: `calc(50cqh - ${width} / ${aspect} * ${y + h / 2})`,
+  };
 }

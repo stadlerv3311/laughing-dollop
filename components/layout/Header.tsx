@@ -9,7 +9,6 @@ import { useIntroProgress } from "@/components/providers";
 import { Container, InteractiveHoverButton, Logo } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { applyLink, careersLink, primaryNav, quoteLink, site, fleetMapLink } from "@/lib/site";
-import { HeaderQuote } from "./HeaderQuote";
 import { MenuToggle, MobileMenu } from "./MobileMenu";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -95,11 +94,6 @@ function NavItem({ href, active, light, children, ...rest }: NavItemProps) {
  * since 2026-09-25 (owner: remove the dropdown); it opens the job application, which covers all three jobs. During the homepage
  * intro the nav stays dimmed over the scene (full on hover) while the logo fades and settles into place —
  * see HomeIntro.
- *
- * On the homepage, once the hero has scrolled away (2026-09-28, from the Samsara review), a small quote bar —
- * Pickup, Delivery, Get a quote — takes the nav links' place, and the header's own Get a quote steps aside so the
- * label shows once. The links come back over dark bands (the bar is drawn for white), while Ship with us's own
- * quote bar is on screen, and back up at the hero. Desktop only, like the nav. See HeaderQuote.
  */
 export function Header() {
   const pathname = usePathname();
@@ -114,11 +108,6 @@ export function Header() {
   // until the first check below runs.
   const [onDark, setOnDark] = useState(isHome);
   const [mobileOpen, setMobileOpen] = useState(false);
-  // The homepage's small quote bar: past the hero, and not while the page's own quote bar is in view. It stays
-  // while someone is typing in it, whatever the scroll does.
-  const [pastHero, setPastHero] = useState(false);
-  const [pageBarInView, setPageBarInView] = useState(false);
-  const [quoteFocused, setQuoteFocused] = useState(false);
 
   // On the homepage's first open the whole bar slides down from above the screen with the hero's truck, easing to a
   // stop (see HomeIntro). The logo fades in as it comes and keeps settling to its resting size for the rest.
@@ -130,7 +119,6 @@ export function Header() {
 
   useMotionValueEvent(scrollY, "change", (y) => {
     setOnDark(Boolean(darkBandUnder()));
-    setPastHero(y > window.innerHeight * 0.9);
     const introFinished = intro.get() >= 1;
     setSolid(introFinished && y > 12);
     if (!introFinished || mobileOpen || !window.matchMedia(PHONE_QUERY).matches) {
@@ -149,17 +137,6 @@ export function Header() {
   }, [pathname]);
 
   useEffect(() => {
-    const bar = document.querySelector("[data-quote-bar]");
-    if (!bar) return;
-    const observer = new IntersectionObserver(([entry]) => setPageBarInView(entry.isIntersecting));
-    observer.observe(bar);
-    return () => {
-      observer.disconnect();
-      setPageBarInView(false);
-    };
-  }, [pathname]);
-
-  useEffect(() => {
     if (!mobileOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMobileOpen(false);
@@ -171,7 +148,6 @@ export function Header() {
   const closeAll = () => setMobileOpen(false);
   // White type and rings over dark bands, unless the phone menu is open (its sheet is light).
   const light = onDark && !mobileOpen;
-  const quoteBar = quoteFocused || (isHome && introDone && pastHero && !onDark && !pageBarInView);
 
   // Over the intro scene the bar is dimmed; hovering or tabbing into it (or opening a menu) brings it to full.
   const dimmed = !introDone && !mobileOpen;
@@ -224,13 +200,8 @@ export function Header() {
               </motion.div>
             </Link>
 
-            <div className={cx("relative hidden flex-1 justify-center lg:flex", dimClass)}>
-              {/* The links and the small quote bar share this spot and cross-fade; the hidden one is inert. */}
-              <nav
-                aria-label="Main"
-                inert={quoteBar}
-                className={cx("flex items-center transition-opacity duration-300", quoteBar && "opacity-0")}
-              >
+            <div className={cx("hidden flex-1 justify-center lg:flex", dimClass)}>
+              <nav aria-label="Main" className="flex items-center">
                 {[...primaryNav, careersLink, fleetMapLink].map((link) => (
                   <NavItem
                     key={link.href}
@@ -243,21 +214,11 @@ export function Header() {
                   </NavItem>
                 ))}
               </nav>
-              {isHome && (
-                <HeaderQuote
-                  inert={!quoteBar}
-                  onFocusChange={setQuoteFocused}
-                  className={cx(
-                    "absolute top-1/2 left-1/2 -translate-x-1/2 transition-[opacity,translate] duration-300",
-                    quoteBar ? "-translate-y-1/2 opacity-100" : "pointer-events-none -translate-y-[40%] opacity-0",
-                  )}
-                />
-              )}
             </div>
 
             <div className={cx("ml-auto flex items-center gap-3 lg:ml-0", dimClass)}>
               {/* Breakpoint visibility lives on wrappers — Button's own inline-flex would override `hidden`. */}
-              <div className={cx("hidden", !quoteBar && "lg:block")}>
+              <div className="hidden lg:block">
                 {/*
                   The two CTAs share one fixed width from `xl` (`--width-header-cta`, app/globals.css), so they
                   read as a pair — HomeHero's text column matches the pair's total width off the same variable.

@@ -69,7 +69,7 @@ export const story: Story = {
     },
     {
       title: "Company trucks",
-      text: "The next step was company equipment. We began buying trucks for company drivers, not to replace the owner-operators, but to add capacity we could plan and equipment we could maintain. The first company trucks were a bet. If the freight stayed, they would pay for themselves. If it did not, we would be stuck with iron. The freight stayed. Most of what is on the road now came out of that shift, and nearly all of it was bought new.",
+      text: "The next step was company equipment. We began buying trucks for company drivers, not to replace the owner-operators, but to add capacity we could plan and equipment we could maintain. The first company trucks were a bet. If the freight stayed, they would pay for themselves. If it did not, we would be stuck with iron. The freight stayed. Most of what is on the road now came out of that shift, and it was bought new.",
     },
     {
       title: "The office",

@@ -29,7 +29,8 @@
 | Change the Ship with us card → Quote page animation | Names: `lib/site.ts` → `QUOTE_CARD` / `QUOTE_OPEN`; the two `<ViewTransition>`s in `components/home/ShipWithUs.tsx` and `app/quote/page.tsx`; timing in `app/globals.css` → `.quote-open` |
 | Change the Ship with us band (copy, the quote bar) | `components/home/ShipWithUs.tsx` — a centred closing ask on white in the safety band's type, no photo since 2026-09-24; the bar's fields in `components/home/QuoteBar.tsx`, what the quote page does with them in `app/quote/page.tsx` → `prefill` and `QuoteForm`'s `QuotePrefill` |
 | Change the safety band (GPS, dash cams, maintenance, new equipment) | Copy: `lib/site.ts` → `safetySystems` (the four cards), `safetyGroups` (the two blocks of words and which cards pair up), `safetyPitch` (the line beside the heading); layout: `components/home/SafetyBand.tsx`; each card's clip is its `video` in `safetySystems` (or an `image` still — New equipment, `public/images/safety-fleet.jpg`) (placeholders in `public/videos/safety-*-placeholder.mp4`) |
-| Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
+| Change the logo row under the safety band (Samsara, Fleetio, Volvo, Datatruck, OnRamp) | List, line and each logo's display height: `lib/site.ts` → `tools`, `toolsLine`; logo files: `public/logos/*.svg`; layout: `components/home/ToolsBand.tsx` |
+| Edit the homepage headline (h1) — its rolling pairs (keep each line's nouns close in width) | `lib/site.ts` → `heroPairs`; timing and animation in `components/home/HeroHeadline.tsx`; placement in `components/home/HomeHero.tsx` |
 | Change the hero video, its crop, its scrims or the pause between truck passes (`EMPTY_ROAD_MS`) | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
 | Change the three homepage apply cards (roles, copy, photos, where they link) | `lib/site.ts` → `applyRoutes`; layout in `components/home/ApplyRoutes.tsx`; photos in `public/images/apply-*.jpg` |
 | Bring back the full-width homepage photo band, or add the B-roll video | `components/ui/HeroMedia.tsx` is still there but unused since 2026-09-17 — the apply cards took its place in `app/page.tsx` |
@@ -45,7 +46,6 @@
 | Fix a ZIP that lights up the wrong state | `lib/zip.ts` |
 | Change the shared input/select look | `components/ui/Field.tsx` → `controlClass` |
 | Change header behavior (hide on scroll on phones, dimmed state during the logo moment) | `components/layout/Header.tsx` |
-| Change the header's small quote bar (homepage, past the hero) | `components/layout/HeaderQuote.tsx`; when it shows is in `Header.tsx` (`quoteBar`) |
 | Change the phone/tablet menu | `components/layout/MobileMenu.tsx` |
 | Change the footer | `components/layout/Footer.tsx` |
 | Add or change a button style | `components/ui/Button.tsx` |
@@ -65,7 +65,6 @@ flowchart TD
   Providers --> Header["layout/Header"]
   Providers --> Page["app/page.tsx"]
   Providers --> Footer["layout/Footer"]
-  Header --> HeaderQuote["layout/HeaderQuote"]
   Header --> MobileMenu["layout/MobileMenu"]
   Page --> HomeIntro["intro/HomeIntro"]
   Page --> HomeHero["home/HomeHero"]
@@ -73,6 +72,7 @@ flowchart TD
   Page --> DriverSlogans["home/DriverSlogans"]
   Page --> SlideOverStack["home/SlideOverStack"]
   SlideOverStack --> SafetyBand["home/SafetyBand"]
+  SlideOverStack --> ToolsBand["home/ToolsBand"]
   SlideOverStack --> ShipWithUs["home/ShipWithUs"]
   Page --> TrustBar["home/TrustBar"]
   HomeIntro -. "intro progress" .-> Header
@@ -94,20 +94,22 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `HeroMedia` | Full-width photo or looping video band, 500px tall; shown straight with no overlay; `image` now, optional `video` later. **Not currently used** — the homepage apply cards replaced it on 2026-09-17; kept for other pages' heroes | Server |
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
 | `ui/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag (the homepage uses the default `p`); pauses on hover/focus and in a background tab; static under reduced motion | Client |
+| `ui/` | `ScrollFillText` | A heading's words fill from 25% to full strength as it scrolls up the screen (scroll-linked; finished text for reduced motion). Put it inside the heading; one per screen at most — used on the safety band's h2 | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `NextSteps` | "What happens next": three numbered steps on a hairline, under the quote form and on Careers. Copy in `lib/site.ts` → `quoteSteps` / `applySteps` | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
 | `layout/` | `Header` | Fixed, type-only header: logo top-left, plain text links with a thin gliding line under the current page, Get a quote / Apply now as a same-width pair of interactive hover buttons. White with no bar over dark bands; a white bar with ink type fades in over light sections once scrolled. Careers is a plain link; hide-on-scroll on phones | Client |
-| `layout/` | `HeaderQuote` | Pickup, Delivery and Get a quote in the header, in the nav links' place on the homepage once the hero has scrolled away | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
-| `home/` | `HomeHero` | Full-screen forest drone loop (road on the left fifth): shipper h1 lighting up word by word, one supporting line, Get a Quote (solid) and Drive with us (thin white ring), in the header's CTA column from `lg` | Client |
+| `home/` | `HeroHeadline` | The homepage h1: "A … you can …" fixed, each line's noun and verb in full white rolling through `heroPairs` (verbs cross lines on a swap); sized to its widest pair; pauses on hover / hidden tab; first pair only for reduced motion and screen readers | Client |
+| `home/` | `HomeHero` | Full-screen forest drone loop (road on the left fifth): shipper h1 (`HeroHeadline`) lighting up word by word, one supporting line, Get a Quote (solid) and Drive with us (thin white ring), in the header's CTA column from `lg` | Client |
 | `home/` | `WhyDriveForUs` | Why drive for us: headline and the four driver reasons (from `applyRoutes`), after the story band | Server |
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three apply cards (On the road / In the office / In the shop) from `applyRoutes`: from `md` one row where the hovered or focused card opens wide (role, job, line, Apply now over the photo) and the others narrow; stacked and all open on phones. Each card is one link to its job on `/careers` | Client |
 | `home/` | `QuoteBar` | Ship with us's Pickup / Delivery / Pickup date bar; Get a quote opens `/quote` with them filled in | Client |
 | `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, the quote bar) on white in the safety band's type, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
 | `home/` | `SafetyBand` | GPS, dash cams, maintenance and new equipment as a zigzag: two pictures stepping down the page, each a pair of sliding cards (hover opens one and plays its clip, paused otherwise) beside a block of words | Client |
+| `home/` | `ToolsBand` | One quiet line and the five tool companies' logos, centred, closing the safety band inside the same pinned section | Server |
 | `home/` | `SlideOverStack` | Pins the safety band from `lg` while Ship with us slides up over it as a sheet (70% of the band's height), once, on the way down; `useCovered()` tells the band when it's covered so its timer pauses (2026-09-24) | Client (scroll) |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `careers/` | `JobApplication` | One application for all three jobs, as a dark split: the picked job's photo on the left half (a band on phones), one question at a time on ink on the right, opening on Which job? (photo tiles); Back from there goes to `/careers`. Tap answers move on, Enter goes on, number keys pick | Client |

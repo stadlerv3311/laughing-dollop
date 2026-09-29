@@ -10,5 +10,6 @@ export { NextSteps, type Step } from "./NextSteps";
 export { PagePlaceholder } from "./PagePlaceholder";
 export { Reveal } from "./Reveal";
 export { RotatingSlogan } from "./RotatingSlogan";
+export { ScrollFillText } from "./ScrollFillText";
 export { SlideGroup, SlideItem } from "./SlideIn";
 export { labelClass, sectionHeadingClass } from "./typography";

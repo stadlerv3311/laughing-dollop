@@ -6,10 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
 import { Container, InteractiveHoverButton } from "@/components/ui";
-import { applyLink, homeHeadline, homeSupport, quoteLink } from "@/lib/site";
-
-const LEAD_WORDS = homeHeadline.lead.split(" ");
-const TAIL_WORDS = homeHeadline.tail.split(" ");
+import { applyLink, homeSupport, quoteLink } from "@/lib/site";
+import { HeroHeadline } from "./HeroHeadline";
 
 // How long the loop rests on the empty road between the truck's passes: 8s of clip + 2s = one pass every ~10s.
 const EMPTY_ROAD_MS = 2000;
@@ -19,7 +17,8 @@ const EMPTY_ROAD_MS = 2000;
  * loop fills the screen: a forest highway on the left fifth of the frame, one truck driving up it, and calm forest
  * across the rest, where the text sits (new loop 2026-09-24 — the first one had the road dead centre, which fought
  * the right-hand text column). Shipper-first since 2026-09-24 (trial): the h1 lighting up word by word as the
- * intro hands over, one supporting line, then Get a quote (solid) over Apply now (a thin white ring).
+ * intro hands over, then rolling through its line pairs (HeroHeadline, 2026-09-29), one supporting line, then
+ * Get a quote (solid) over Apply now (a thin white ring).
  * The oversized DRIVE. word that sat along the bottom left was removed with the driver h1. On scroll the footage
  * zooms in a touch and darkens. The loop is AI-generated (Grok), upscaled to 1080p — see docs/DECISIONS.md →
  * Hero media.
@@ -143,30 +142,17 @@ export function HomeHero() {
           {/*
             From lg the headline is set large and runs left of the column into the open forest, its right edge on the
             column's right edge, while the supporting line and buttons stay in the column (owner, 2026-09-24: the
-            middle of the screen felt empty with the headline at button width).
+            middle of the screen felt empty with the headline at button width). 72px at xl (owner, 2026-09-29: up from 60,
+            so the hero clearly outranks the 56px chapter headings further down).
           */}
           <motion.div
             className="max-w-[34rem] lg:ml-auto lg:flex lg:max-w-none lg:flex-col lg:items-end"
             style={{ y: blockY, opacity: blockOpacity }}
           >
-            <h1 className="text-balance text-[clamp(1.75rem,6.5vw,2.5rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:w-max lg:text-[3rem] lg:leading-[1.05] lg:tracking-[-0.04em] xl:text-[3.75rem] 2xl:text-[4.25rem]">
-              {[LEAD_WORDS, TAIL_WORDS].map((words, line) => (
-                <span key={line} className="block">
-                  {words.map((word, i) => {
-                    const n = line === 0 ? i : LEAD_WORDS.length + i;
-                    return (
-                      <span
-                        key={i}
-                        className="transition-opacity duration-700 ease-premium motion-reduce:transition-none"
-                        style={{ opacity: lit ? 1 : 0.22, transitionDelay: lit ? `${n * 70}ms` : "0ms" }}
-                      >
-                        {word}{" "}
-                      </span>
-                    );
-                  })}
-                </span>
-              ))}
-            </h1>
+            <HeroHeadline
+              lit={lit}
+              className="text-balance text-[clamp(1.75rem,6.5vw,2.75rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:w-max lg:text-[3.5rem] lg:leading-[1.05] lg:tracking-[-0.04em] xl:text-[4.5rem] 2xl:text-[5rem]"
+            />
             <div className="lg:w-[18.1rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]">
               <p className="mt-6 text-pretty leading-relaxed text-paper/80 lg:mt-8">{homeSupport}</p>
               {/*

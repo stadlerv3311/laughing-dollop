@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + SlideOverStack(SafetyBand, ShipWithUs) + StoryTeaser + WhyDriveForUs + DriverSlogans + ApplyRoutes
+  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + SlideOverStack(SafetyBand + ToolsBand, ShipWithUs) + StoryTeaser + WhyDriveForUs + DriverSlogans + ApplyRoutes
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -29,10 +29,10 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, NextSteps, PagePlaceholder,
+  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, NextSteps, PagePlaceholder,
                                typography (shared label + section-heading classes)
-  layout/                    → Header, HeaderQuote, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, SlideOverStack, TrustBar, StoryTeaser, WhyDriveForUs
+  layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
+  home/                      → HomeHero, HeroHeadline, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, SlideOverStack, TrustBar, StoryTeaser, WhyDriveForUs
   about/                     → Timeline (the About page's sideways timeline), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
   quote/                     → QuoteForm, StateMap
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
@@ -82,8 +82,8 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 - Never use orange for small body text or links — use near-black
 
 ### Typography (2026-09-24)
-- One face, Geist. Two shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked) and `sectionHeadingClass` (every homepage band's h2 — medium weight, 28 / 36px). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
-- Page h1s (inner pages) are `text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale.
+- One face, Geist. Two shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked) and `sectionHeadingClass` (the safety band, apply cards and About timeline h2 — medium weight, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
+- Page h1s (inner pages) are `text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale, with its fixed words at `text-paper/60` (large text, so it clears the contrast floor for its size).
 - Header nav links are all one size (15px); inactive links `text-ink/70`, the contrast floor.
 - Copy rules (case, "and", apostrophes, commas) are in DECISIONS.md → Wording and type.
 

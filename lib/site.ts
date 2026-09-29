@@ -85,9 +85,26 @@ export type Slogan = {
   tail: string;
 };
 
-// The homepage's h1, over the hero film. Shipper-first since 2026-09-24 (trial): the hero says what the business
-// sells, and the owner's driver line moved to the head of the rolling slogans. Draft copy.
-export const homeHeadline: Slogan = { lead: "A fleet you can see.", tail: "A load you can trust." };
+/** One line of the homepage h1: "A {noun} you can {verb}." */
+export type HeroLine = { noun: string; verb: string };
+
+export type HeroPair = { lines: readonly [HeroLine, HeroLine] };
+
+// The homepage's h1, over the hero film. Shipper-first since 2026-09-24 (trial). Since 2026-09-29 it rolls through
+// these pairs: "A … you can …" stays put and only the noun and verb change (HeroHeadline). The first pair is what
+// search engines and screen readers get. When the next pair has the same nouns with the verbs traded, the verbs cross
+// between the lines instead of rolling — the owner's see / trust swap. Draft copy. "A load you can see." is the one
+// exception to the no-watching-your-load rule, kept by the owner (DECISIONS.md → Wording and type).
+//
+// Keep the widths even (owner, 2026-09-29): each line's noun is a short word within a few pixels of the others on
+// its line (fleet, team, crew; load, plan, lane), so "you can" barely moves when they change. The verbs end the
+// line, so they only move the full stop — still keep them short.
+export const heroPairs: readonly HeroPair[] = [
+  { lines: [{ noun: "fleet", verb: "see" }, { noun: "load", verb: "trust" }] },
+  { lines: [{ noun: "fleet", verb: "trust" }, { noun: "load", verb: "see" }] },
+  { lines: [{ noun: "team", verb: "reach" }, { noun: "plan", verb: "keep" }] },
+  { lines: [{ noun: "crew", verb: "call" }, { noun: "lane", verb: "book" }] },
+];
 
 // The line under the h1 (2026-09-24). Draft copy — the facts are the safety band's rows.
 export const homeSupport = "GPS and cameras on every truck. Service on record.";
@@ -159,7 +176,7 @@ export const applyRoutes: readonly ApplyRoute[] = [
       "You haul Class A dry van truckload freight. One kind of freight, one kind of trailer, and dispatch always knows where your truck is.",
     reasons: [
       { title: "Dry van only", body: "No reefer, no flatbed. One kind of trailer, every load." },
-      { title: "2025–26 Volvos", body: "Nearly the whole fleet, pulling brand-new trailers." },
+      { title: "2025–26 Volvos", body: "New trucks, pulling brand-new trailers." },
       { title: "Your bonus, live", body: "The tracker in your app shows it grow, load by load." },
       { title: "Cameras on the road", body: "Our dash cameras face the road, so there’s footage of what really happened." },
     ],
@@ -182,7 +199,7 @@ export const applyRoutes: readonly ApplyRoute[] = [
     reasons: [
       { title: "A fleet you can see", body: "GPS on every truck and trailer, so you’re never guessing where one is." },
       { title: "One kind of freight", body: "Dry van truckload only, so every load plays by the same rules." },
-      { title: "New equipment", body: "Nearly the whole fleet is 2025–26 Volvos, pulling brand-new trailers." },
+      { title: "New equipment", body: "New 2025–26 Volvos, pulling brand-new trailers." },
     ],
     image: {
       src: "/images/apply-dispatcher.jpg",
@@ -221,7 +238,19 @@ export type SafetySystem = {
    * with no footage — a still (`image`) plus its alt text. Give one or the other.
    */
   video?: string;
+  /**
+   * Show only part of the clip (owner, 2026-09-28: the GPS clip on its map, without the app's side panel and map
+   * buttons). Fractions of the frame; the card always stays inside this box whatever its shape, centred on it.
+   * `aspect` is the clip's width / height.
+   */
+  crop?: { x: number; y: number; w: number; h: number; aspect: number };
   image?: { src: string; alt: string };
+  /**
+   * What the system records, shown under the pair's words while the pair is hovered and this card is open (owner,
+   * 2026-09-28): a label, one figure with its unit, and a short list. Sample values, marked "Example" on the page —
+   * never a real unit, position or event.
+   */
+  readout?: { label: string; figure: string; unit?: string; rows: readonly { label: string; value: string }[] };
 };
 
 // The homepage's safety band (requested 2026-09-18). Behind it: Samsara for GPS on trucks and trailers, basic
@@ -235,30 +264,75 @@ export type SafetySystem = {
 export const safetySystems: readonly SafetySystem[] = [
   {
     name: "GPS on every truck and trailer",
-    body: "Every truck and trailer has its own tracker, so one dropped at a yard is never out of sight.",
+    body: "Its own tracker on every truck and every trailer, even one dropped at a yard.",
     // PLACEHOLDER — Samsara's own marketing clip, with their demo data. Must not go live (DECISIONS.md → Safety band).
     video: "/videos/safety-gps-placeholder.mp4",
+    // The map only (46–92% across, 10–98% down, centred on the truck): clear of the vehicle panel on the left and
+    // the map buttons on both edges. 2286 × 1714.
+    crop: { x: 0.46, y: 0.1, w: 0.46, h: 0.88, aspect: 2286 / 1714 },
+    readout: {
+      label: "Speed",
+      figure: "62",
+      unit: "mph",
+      rows: [
+        { label: "Unit", value: "Truck 0417" },
+        { label: "Location", value: "I-65 N, Bowling Green, KY" },
+        { label: "From", value: "Nashville, TN" },
+      ],
+    },
   },
   {
     name: "Dash cameras",
-    body: "Our cameras face the road, so when something happens there’s footage of what really did.",
+    body: "Pointed at the road ahead, not at the driver.",
     // PLACEHOLDER — Pexels stock (5382495, real dash cam footage on a US interstate), until the owner sends our own.
     video: "/videos/safety-dashcam-placeholder.mp4",
+    readout: {
+      label: "Harsh brake",
+      figure: "2:14",
+      unit: "PM",
+      rows: [
+        { label: "Camera", value: "Road-facing" },
+        { label: "Clip", value: "20 s saved" },
+        { label: "Earlier", value: "Over speed, 71 in a 65" },
+      ],
+    },
   },
   {
     name: "Maintenance on record",
-    body: "Every repair and inspection is logged, so each truck’s full service history is on file.",
+    body: "Every repair and inspection, logged.",
     // PLACEHOLDER — Pexels stock (6685045, Gustavo Fring), until the owner sends our own shop footage.
     video: "/videos/safety-maintenance-placeholder.mp4",
+    // The work, not the man (owner, 2026-09-28): the wheel he's checking and the clipboard in his hands, 40–76%
+    // across — clear of the headlight on the left, most of his back on the right. 1280 × 720.
+    crop: { x: 0.4, y: 0.05, w: 0.36, h: 0.9, aspect: 1280 / 720 },
+    readout: {
+      label: "Since last service",
+      figure: "14",
+      unit: "days",
+      rows: [
+        { label: "Unit", value: "Truck 0417" },
+        { label: "Checked", value: "Tires, brakes" },
+        { label: "Next inspection", value: "In 6 weeks" },
+      ],
+    },
   },
   {
     name: "New equipment",
-    body: "Nearly the whole fleet is 2025–26 Volvo trucks, pulling brand-new trailers.",
+    body: "2025–26 Volvo trucks, pulling brand-new trailers.",
     // PLACEHOLDER — AI-generated line-up standing in for a photo of our own yard; the fleet itself is real (owner,
     // 2026-09-24). Tractors only, no trailers — swap for a real shot with trailers when one exists.
     image: {
       src: "/images/safety-fleet.jpg",
       alt: "A row of new white Volvo trucks parked side by side on an open lot",
+    },
+    readout: {
+      label: "Model year",
+      figure: "2026",
+      rows: [
+        { label: "Trucks", value: "Volvo" },
+        { label: "Trailers", value: "Brand-new, 2025" },
+        { label: "Service history", value: "On file" },
+      ],
     },
   },
 ];
@@ -269,38 +343,39 @@ export const safetySystems: readonly SafetySystem[] = [
 export const safetyPitch = { lead: "Plenty of carriers ask you to take their word for it.", strong: "We’d rather show you." };
 
 export type SafetyGroup = {
-  kicker: string;
   title: string;
   body: string;
-  facts: readonly { label: string; value: string }[];
   systems: readonly [number, number];
   open: 0 | 1;
 };
 
 export const safetyGroups: readonly SafetyGroup[] = [
   {
-    kicker: "On the road",
     title: "Your load is never out of sight.",
-    body: "A tracker on every truck and every trailer, so we know where each one is, even one dropped at a yard. And cameras facing the road, so if something happens, there’s footage of what really did.",
-    facts: [
-      { label: "GPS", value: "Trucks and trailers" },
-      { label: "Dash cameras", value: "Facing the road" },
-    ],
+    body: "We know where each truck and trailer is at any hour, and if something happens on the road, there’s footage of what really did.",
     systems: [0, 1],
     open: 0,
   },
   {
-    kicker: "In the shop",
     title: "Equipment you don’t have to worry about.",
-    body: "Nearly the whole fleet is 2025–26 Volvos pulling brand-new trailers, and every repair and inspection goes on record, so each truck’s service history is on file.",
-    facts: [
-      { label: "Fleet", value: "2025–26 Volvos" },
-      { label: "Maintenance", value: "Every repair logged" },
-    ],
+    body: "New trucks, new trailers, and each truck’s full service history on file.",
     systems: [2, 3],
     open: 1,
   },
 ];
+
+// The tools we run on (owner, 2026-09-29): the logo row at the foot of the safety band. All five are in use today.
+// Each logo is the company's own, from its website, in its own colours and unaltered. `height` is set per logo (px)
+// so they read the same size — wide marks shorter. Showing them still needs each company's OK (docs/DECISIONS.md).
+export const toolsLine = "The tools we run on, every day";
+
+export const tools = [
+  { name: "Samsara", src: "/logos/samsara.svg", width: 596, height: 97, display: 22 },
+  { name: "Fleetio", src: "/logos/fleetio.svg", width: 220, height: 53, display: 30 },
+  { name: "Volvo", src: "/logos/volvo.svg", width: 226, height: 19, display: 13 },
+  { name: "Datatruck", src: "/logos/datatruck.svg", width: 166, height: 24, display: 22 },
+  { name: "OnRamp", src: "/logos/onramp.svg", width: 324, height: 59, display: 20 },
+] as const;
 
 export const footerNav: NavLink[] = [
   { label: "Services", href: "/services" },

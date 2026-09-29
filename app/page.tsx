@@ -1,4 +1,4 @@
-import { ApplyRoutes, DriverSlogans, HomeHero, SafetyBand, ShipWithUs, SlideOverStack, StoryTeaser, TrustBar, WhyDriveForUs } from "@/components/home";
+import { ApplyRoutes, DriverSlogans, HomeHero, SafetyBand, ShipWithUs, SlideOverStack, StoryTeaser, ToolsBand, TrustBar, WhyDriveForUs } from "@/components/home";
 import { HomeIntro } from "@/components/intro";
 
 export default function HomePage() {
@@ -12,8 +12,17 @@ export default function HomePage() {
           between the shipper and driver halves (moved up 2026-09-24 — it spoke to both and gave the white
           middle a dark break), and the page ends on the apply cards. */}
       <TrustBar />
-      {/* Ship with us slides up over the safety band on the way down (from lg) — see SlideOverStack. */}
-      <SlideOverStack under={<SafetyBand />} over={<ShipWithUs />} />
+      {/* Ship with us slides up over the safety band on the way down (from lg) — see SlideOverStack. The logo row
+          closes the safety band, so it's pinned with it (2026-09-29). */}
+      <SlideOverStack
+        under={
+          <>
+            <SafetyBand />
+            <ToolsBand />
+          </>
+        }
+        over={<ShipWithUs />}
+      />
       <StoryTeaser />
       {/* Opens the driver half: why drive for us, then the slogans and the apply cards (2026-09-28). */}
       <WhyDriveForUs />
