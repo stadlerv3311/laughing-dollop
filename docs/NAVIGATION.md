@@ -12,7 +12,7 @@
 | `/careers` | `app/careers/page.tsx` | The careers page: the three jobs, what each is and why to take it, each with its own Apply now. Where Careers and every other Apply now go |
 | `/careers/drivers` | `app/careers/drivers/page.tsx` | The job application, opened on the driver job (the careers page's driver Apply now); sends to a stub until the backend exists |
 | `/careers/staff` | `app/careers/staff/page.tsx` | The same application, opened on the office job, or the shop job with `?job=shop` |
-| `/about` | `app/about/page.tsx` | Headline and lede on a dark band, facts row, story, timeline (hidden until two milestones have years), closing line with both CTAs (draft copy, facts and years in `lib/story.ts`); photo, team, fleet and safety still to come |
+| `/about` | `app/about/page.tsx` | Headline left and lede right on a dark band that ends in the facts row, story (six titled blocks, two across), the sideways timeline (`components/about/Timeline.tsx` — pinned and scroll-driven from `lg`, a swipe row below), closing line with both CTAs (draft copy in `lib/story.ts`) |
 
 ## Common tasks
 | I need to... | Go to |
@@ -28,7 +28,7 @@
 | Change the story band → About opening animation | Names: `lib/story.ts` → `STORY_BAND` / `STORY_OPEN`; the two `<ViewTransition>`s in `components/home/StoryTeaser.tsx` and `app/about/page.tsx`; timing in `app/globals.css` → `.story-open` |
 | Change the Ship with us card → Quote page animation | Names: `lib/site.ts` → `QUOTE_CARD` / `QUOTE_OPEN`; the two `<ViewTransition>`s in `components/home/ShipWithUs.tsx` and `app/quote/page.tsx`; timing in `app/globals.css` → `.quote-open` |
 | Change the Ship with us band (copy, the quote bar) | `components/home/ShipWithUs.tsx` — a centred closing ask on white in the safety band's type, no photo since 2026-09-24; the bar's fields in `components/home/QuoteBar.tsx`, what the quote page does with them in `app/quote/page.tsx` → `prefill` and `QuoteForm`'s `QuotePrefill` |
-| Change the safety band (GPS, dash cams, maintenance) | Copy: `lib/site.ts` → `safetySystems`; layout: `components/home/SafetyBand.tsx`; photo is `public/images/ship-truck-side.jpg`; each row's hover clip is its `video` in `safetySystems` (or an `image` still — the New equipment row, `public/images/safety-fleet.jpg`) (placeholders in `public/videos/safety-*-placeholder.mp4`) |
+| Change the safety band (GPS, dash cams, maintenance, new equipment) | Copy: `lib/site.ts` → `safetySystems` (the four cards), `safetyGroups` (the two blocks of words and which cards pair up), `safetyPitch` (the line beside the heading); layout: `components/home/SafetyBand.tsx`; each card's clip is its `video` in `safetySystems` (or an `image` still — New equipment, `public/images/safety-fleet.jpg`) (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Edit the homepage headline (h1) | `lib/site.ts` → `homeHeadline`; layout in `components/home/HomeHero.tsx` |
 | Change the hero video, its crop, its scrims or the pause between truck passes (`EMPTY_ROAD_MS`) | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
 | Change the three homepage apply cards (roles, copy, photos, where they link) | `lib/site.ts` → `applyRoutes`; layout in `components/home/ApplyRoutes.tsx`; photos in `public/images/apply-*.jpg` |
@@ -45,6 +45,7 @@
 | Fix a ZIP that lights up the wrong state | `lib/zip.ts` |
 | Change the shared input/select look | `components/ui/Field.tsx` → `controlClass` |
 | Change header behavior (hide on scroll on phones, dimmed state during the logo moment) | `components/layout/Header.tsx` |
+| Change the header's small quote bar (homepage, past the hero) | `components/layout/HeaderQuote.tsx`; when it shows is in `Header.tsx` (`quoteBar`) |
 | Change the phone/tablet menu | `components/layout/MobileMenu.tsx` |
 | Change the footer | `components/layout/Footer.tsx` |
 | Add or change a button style | `components/ui/Button.tsx` |
@@ -64,9 +65,11 @@ flowchart TD
   Providers --> Header["layout/Header"]
   Providers --> Page["app/page.tsx"]
   Providers --> Footer["layout/Footer"]
+  Header --> HeaderQuote["layout/HeaderQuote"]
   Header --> MobileMenu["layout/MobileMenu"]
   Page --> HomeIntro["intro/HomeIntro"]
   Page --> HomeHero["home/HomeHero"]
+  Page --> WhyDriveForUs["home/WhyDriveForUs"]
   Page --> DriverSlogans["home/DriverSlogans"]
   Page --> SlideOverStack["home/SlideOverStack"]
   SlideOverStack --> SafetyBand["home/SafetyBand"]
@@ -92,16 +95,19 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
 | `ui/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag (the homepage uses the default `p`); pauses on hover/focus and in a background tab; static under reduced motion | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
+| `ui/` | `NextSteps` | "What happens next": three numbered steps on a hairline, under the quote form and on Careers. Copy in `lib/site.ts` → `quoteSteps` / `applySteps` | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet | Server |
 | `layout/` | `Header` | Fixed, type-only header: logo top-left, plain text links with a thin gliding line under the current page, Get a quote / Apply now as a same-width pair of interactive hover buttons. White with no bar over dark bands; a white bar with ink type fades in over light sections once scrolled. Careers is a plain link; hide-on-scroll on phones | Client |
+| `layout/` | `HeaderQuote` | Pickup, Delivery and Get a quote in the header, in the nav links' place on the homepage once the hero has scrolled away | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | Logo, footer links, copyright | Server |
 | `home/` | `HomeHero` | Full-screen forest drone loop (road on the left fifth): shipper h1 lighting up word by word, one supporting line, Get a Quote (solid) and Drive with us (thin white ring), in the header's CTA column from `lg` | Client |
+| `home/` | `WhyDriveForUs` | Why drive for us: headline and the four driver reasons (from `applyRoutes`), after the story band | Server |
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
-| `home/` | `ApplyRoutes` | The three flat apply cards (On the road / In the office / In the shop) from `applyRoutes`; photo, role and one line, whole card is one link and one tab stop; near-square photos from `md` up | Server |
-| `home/` | `QuoteBar` | Ship with us's Pickup / Delivery / Weight bar; Get a quote opens `/quote` with them filled in | Client |
+| `home/` | `ApplyRoutes` | The three apply cards (On the road / In the office / In the shop) from `applyRoutes`: from `md` one row where the hovered or focused card opens wide (role, job, line, Apply now over the photo) and the others narrow; stacked and all open on phones. Each card is one link to its job on `/careers` | Client |
+| `home/` | `QuoteBar` | Ship with us's Pickup / Delivery / Pickup date bar; Get a quote opens `/quote` with them filled in | Client |
 | `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, the quote bar) on white in the safety band's type, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
-| `home/` | `SafetyBand` | GPS, dash cams and maintenance records — text and a hairline list left, photo right running off the right edge, its two corners facing the text rounded; the rows play through once on a 5 s timer, then rest 10 s on the photo (the picked row's orange bar fills top-down; tap to hold, tap again to carry on) and each swaps the photo for its clip, on white; it sits straight under the numbers band, before Ship with us (swapped 2026-09-23) | Client (hover state) |
+| `home/` | `SafetyBand` | GPS, dash cams, maintenance and new equipment as a zigzag: two pictures stepping down the page, each a pair of sliding cards (hover opens one and plays its clip, paused otherwise) beside a block of words | Client |
 | `home/` | `SlideOverStack` | Pins the safety band from `lg` while Ship with us slides up over it as a sheet (70% of the band's height), once, on the way down; `useCovered()` tells the band when it's covered so its timer pauses (2026-09-24) | Client (scroll) |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set under a hairline with no box (`companyStats` in `lib/site.ts`); 2×2 on phones, one row from `lg` | Server |
 | `careers/` | `JobApplication` | One application for all three jobs, as a dark split: the picked job's photo on the left half (a band on phones), one question at a time on ink on the right, opening on Which job? (photo tiles); Back from there goes to `/careers`. Tap answers move on, Enter goes on, number keys pick | Client |

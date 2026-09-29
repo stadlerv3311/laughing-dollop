@@ -35,8 +35,11 @@ type Story = {
   summary: string;
   /** One line under the About page's headline. */
   lede: string;
-  /** Full version for the About page. */
-  paragraphs: string[];
+  /**
+   * Full version for the About page, in short titled blocks (owner, 2026-09-25: the story read as one long wall).
+   * The titles only name what each block is about; the text is the owner's stand-in.
+   */
+  chapters: { title: string; text: string }[];
   /** The homepage story band's three marks. */
   milestones: Milestone[];
   /** The About page's timeline. */
@@ -51,13 +54,31 @@ export const story: Story = {
   summary:
     "We started in Citrus Heights, California, with one truck and a simple rule: show up when we say we will, keep the freight safe and treat drivers the way we’d want to be treated.",
   lede: "A dry van carrier out of Citrus Heights, California, with one rule: show up when we say we will, keep the freight safe and treat drivers well.",
-  paragraphs: [
-    "ITrucking Solutions started in 2014 in Citrus Heights, California, with one truck and a driver who knew the job from behind the wheel. There was no office, no dispatch desk, and no plan beyond the next load. The idea was simple: show up when we say we will, keep the freight safe, and treat the people doing the driving the way we would want to be treated.",
-    "The early years were built with owner-operators. Drivers who already had their own trucks wanted a carrier that answered the phone, paid on schedule, and stayed out of their way. We were small enough to know every driver by name and, slowly, large enough to hold a lane. One load turned into a weekly run. Weekly runs turned into shippers who stopped shopping the load around. That model carried us through the first several years and built the customer base we still run today.",
-    "As the freight held, we earned our own for-hire interstate authority and started running past California. Dry van truckload was the work we knew, so we stayed with it. Coverage grew one state at a time, from customers who needed the truck somewhere new. By the late 2010s we were a 48-state carrier on paper, and still a small group trying not to outgrow the way we answered the phone.",
-    "The next step was company equipment. We began buying trucks for company drivers, not to replace the owner-operators, but to add capacity we could plan and equipment we could maintain. The first company trucks were a bet. If the freight stayed, they would pay for themselves. If it did not, we would be stuck with iron. The freight stayed. Most of what is on the road now came out of that shift, and nearly all of it was bought new.",
-    "The office had to catch up. Dispatch moved in-house so the board was covered by people who knew the lanes. Safety took on compliance, onboarding, and driver files. Accounting took settlements, billing, and pay, which mattered as much to a driver as the rate on the load. A fleet manager came on to track the equipment, and a yard crew took over the lot so trucks were not sitting while someone looked for a key. A company shop is in the works, so maintenance does not wait on an outside vendor.",
-    "Today we run 70 late-model trucks and trailers, hauling dry van truckload across all 48 states. Around that fleet sit dispatch, safety, accounting, fleet, and the yard, with the shop being built. We are still the company that started with a single truck in Citrus Heights. The map is bigger than it was. The rule has not changed.",
+  chapters: [
+    {
+      title: "One truck",
+      text: "ITrucking Solutions started in 2014 in Citrus Heights, California, with one truck and a driver who knew the job from behind the wheel. There was no office, no dispatch desk, and no plan beyond the next load. The idea was simple: show up when we say we will, keep the freight safe, and treat the people doing the driving the way we would want to be treated.",
+    },
+    {
+      title: "Owner-operators",
+      text: "The early years were built with owner-operators. Drivers who already had their own trucks wanted a carrier that answered the phone, paid on schedule, and stayed out of their way. We were small enough to know every driver by name and, slowly, large enough to hold a lane. One load turned into a weekly run. Weekly runs turned into shippers who stopped shopping the load around. That model carried us through the first several years and built the customer base we still run today.",
+    },
+    {
+      title: "Our own authority",
+      text: "As the freight held, we earned our own for-hire interstate authority and started running past California. Dry van truckload was the work we knew, so we stayed with it. Coverage grew one state at a time, from customers who needed the truck somewhere new. By the late 2010s we were a 48-state carrier on paper, and still a small group trying not to outgrow the way we answered the phone.",
+    },
+    {
+      title: "Company trucks",
+      text: "The next step was company equipment. We began buying trucks for company drivers, not to replace the owner-operators, but to add capacity we could plan and equipment we could maintain. The first company trucks were a bet. If the freight stayed, they would pay for themselves. If it did not, we would be stuck with iron. The freight stayed. Most of what is on the road now came out of that shift, and nearly all of it was bought new.",
+    },
+    {
+      title: "The office",
+      text: "The office had to catch up. Dispatch moved in-house so the board was covered by people who knew the lanes. Safety took on compliance, onboarding, and driver files. Accounting took settlements, billing, and pay, which mattered as much to a driver as the rate on the load. A fleet manager came on to track the equipment, and a yard crew took over the lot so trucks were not sitting while someone looked for a key. A company shop is in the works, so maintenance does not wait on an outside vendor.",
+    },
+    {
+      title: "Today",
+      text: "Today we run 70 late-model trucks and trailers, hauling dry van truckload across all 48 states. Around that fleet sit dispatch, safety, accounting, fleet, and the yard, with the shop being built. We are still the company that started with a single truck in Citrus Heights. The map is bigger than it was. The rule has not changed.",
+    },
   ],
   milestones: [
     { title: "Where it started", mark: "1", accent: true, text: "One truck and one driver out of Citrus Heights, California." },

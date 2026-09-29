@@ -6,15 +6,16 @@ import { InteractiveHoverButton } from "@/components/ui";
 import { QUOTE_OPEN, quoteLink } from "@/lib/site";
 
 const FIELDS = [
-  { name: "pickup", label: "Pickup", placeholder: "City or ZIP", autoComplete: "off", inputMode: "text" },
-  { name: "delivery", label: "Delivery", placeholder: "City or ZIP", autoComplete: "off", inputMode: "text" },
-  { name: "weight", label: "Weight", placeholder: "lbs", autoComplete: "off", inputMode: "numeric" },
-] as const;
+  { name: "pickup", label: "Pickup", placeholder: "City or ZIP", type: "text" },
+  { name: "delivery", label: "Delivery", placeholder: "City or ZIP", type: "text" },
+  // Owner, 2026-09-25: Pickup date instead of Weight. Weight is still asked on the quote page.
+  { name: "date", label: "Pickup date", type: "date" },
+] as const satisfies readonly { name: string; label: string; type: string; placeholder?: string }[];
 
 /**
- * Ship with us's quote bar (owner's pick "3c", 2026-09-25): the paragraph's "where it's going and what it weighs"
- * as three fields — Pickup, Delivery, Weight, the quote form's own first three — then Get a quote, which opens
- * `/quote` with them filled in (`?pickup=…&delivery=…&weight=…`) and grows the card into the page as before. All
+ * Ship with us's quote bar (owner's pick "3c", 2026-09-25): the paragraph's "where it's going and when it's ready"
+ * as three fields — Pickup, Delivery and Pickup date — then Get a quote, which opens `/quote` with them filled in
+ * (`?pickup=…&delivery=…&date=…`) and grows the card into the page as before. All
  * optional: an empty bar just opens the quote page. Nothing is checked here; the quote form does that.
  *
  * One pill from `sm`, cells split by short hairlines; on phones the fields stack in a rounded card with the button full
@@ -41,6 +42,8 @@ export function QuoteBar() {
       method="get"
       onSubmit={handleSubmit}
       aria-label="Start a quote"
+      // The header's small quote bar stands down while this one is on screen (components/layout/HeaderQuote.tsx).
+      data-quote-bar
       className="mx-auto mt-9 flex max-w-[52rem] flex-col gap-2 rounded-3xl border border-ink/10 bg-ink/[0.03] p-2 text-left sm:flex-row sm:items-center sm:rounded-full"
     >
       <div className="flex flex-1 flex-col sm:flex-row sm:items-center">
@@ -57,11 +60,19 @@ export function QuoteBar() {
             <input
               id={`${baseId}-${field.name}`}
               name={field.name}
-              placeholder={field.placeholder}
-              autoComplete={field.autoComplete}
-              inputMode={field.inputMode}
+              type={field.type}
+              // An empty date input shows "mm/dd/yyyy" in full ink; grey it like the other fields' hints until a
+              // date is picked.
+              data-empty={field.type === "date" ? "true" : undefined}
+              onInput={
+                field.type === "date"
+                  ? (event) => (event.currentTarget.dataset.empty = String(!event.currentTarget.value))
+                  : undefined
+              }
+              placeholder={"placeholder" in field ? field.placeholder : undefined}
+              autoComplete="off"
               maxLength={60}
-              className="mt-0.5 w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink/40"
+              className="mt-0.5 w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink/40 data-[empty=true]:text-ink/40"
             />
           </label>
           </Fragment>

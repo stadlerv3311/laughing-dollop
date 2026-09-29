@@ -50,6 +50,11 @@ export type CompanyStat = {
   suffix?: string;
   label: string;
   /**
+   * One short line under the label on what the number means for a shipper (owner, 2026-09-28, from the Samsara
+   * review: a number should read as a promise, not a brag). Draft copy. No new figures in it.
+   */
+  meaning?: string;
+  /**
    * Which half of the numbers band it sits in: "story" (how long and how far — set large, on the left) or
    * "proof" (the record — set smaller, on the right). See components/home/TrustBar.tsx.
    */
@@ -62,9 +67,15 @@ export type CompanyStat = {
 export const companyStats: CompanyStat[] = [
   { value: 10, suffix: "+", label: "Years in business", group: "story" },
   { value: 32, suffix: "M+", label: "Miles driven", group: "story" },
-  { value: 125000, suffix: "+", label: "Loads completed", group: "proof" },
-  { value: 48, label: "States we serve", group: "proof" },
-  { value: 99, suffix: "%", label: "On-time delivery", group: "proof" },
+  {
+    value: 125000,
+    suffix: "+",
+    label: "Loads completed",
+    meaning: "Your lane has almost certainly been run before.",
+    group: "proof",
+  },
+  { value: 48, label: "States we serve", meaning: "Pickup to delivery, anywhere in the lower 48.", group: "proof" },
+  { value: 99, suffix: "%", label: "On-time delivery", meaning: "Your dock schedule stays your dock schedule.", group: "proof" },
 ];
 
 export type Slogan = {
@@ -252,6 +263,45 @@ export const safetySystems: readonly SafetySystem[] = [
   },
 ];
 
+// The safety band's zigzag (owner, 2026-09-28): two pairs of the cards above, each beside a short block of words.
+// Draft copy, built only from the systems' own facts. `systems` are indexes into `safetySystems`; `open` is which of
+// the pair starts wide (the first pair on its left card, the second on its right, so the two step down the page).
+export const safetyPitch = { lead: "Plenty of carriers ask you to take their word for it.", strong: "We’d rather show you." };
+
+export type SafetyGroup = {
+  kicker: string;
+  title: string;
+  body: string;
+  facts: readonly { label: string; value: string }[];
+  systems: readonly [number, number];
+  open: 0 | 1;
+};
+
+export const safetyGroups: readonly SafetyGroup[] = [
+  {
+    kicker: "On the road",
+    title: "Your load is never out of sight.",
+    body: "A tracker on every truck and every trailer, so we know where each one is, even one dropped at a yard. And cameras facing the road, so if something happens, there’s footage of what really did.",
+    facts: [
+      { label: "GPS", value: "Trucks and trailers" },
+      { label: "Dash cameras", value: "Facing the road" },
+    ],
+    systems: [0, 1],
+    open: 0,
+  },
+  {
+    kicker: "In the shop",
+    title: "Equipment you don’t have to worry about.",
+    body: "Nearly the whole fleet is 2025–26 Volvos pulling brand-new trailers, and every repair and inspection goes on record, so each truck’s service history is on file.",
+    facts: [
+      { label: "Fleet", value: "2025–26 Volvos" },
+      { label: "Maintenance", value: "Every repair logged" },
+    ],
+    systems: [2, 3],
+    open: 1,
+  },
+];
+
 export const footerNav: NavLink[] = [
   { label: "Services", href: "/services" },
   aboutLink,
@@ -259,3 +309,18 @@ export const footerNav: NavLink[] = [
   careersLink,
   fleetMapLink,
 ];
+
+// What happens after each form (2026-09-28): components/ui/NextSteps.tsx. Draft copy, and only what the site already
+// promises — the quote form's "we'll get back to you by phone or email", GPS on truck and trailer, the application's
+// "HR will call you back". Timings go in once the owner confirms them.
+export const quoteSteps = [
+  { title: "Tell us about the load", body: "Where it’s going, where it’s coming from and a few details. No account needed." },
+  { title: "We come back with a price", body: "By phone or email, whichever you gave us." },
+  { title: "Tracked to delivery", body: "GPS on the truck and the trailer, the whole way to your dock." },
+] as const;
+
+export const applySteps = [
+  { title: "Pick your job", body: "On the road, in the office or in the shop." },
+  { title: "Answer a few questions", body: "No résumé, no uploads. About two minutes for drivers, a minute for the rest." },
+  { title: "HR calls you back", body: "On the number you gave us. There’s nothing else to do." },
+] as const;

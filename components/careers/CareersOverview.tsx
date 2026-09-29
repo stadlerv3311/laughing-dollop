@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Container, InteractiveHoverButton, Reveal, labelClass } from "@/components/ui";
+import { Container, InteractiveHoverButton, NextSteps, Reveal, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { applyLink, applyRoutes } from "@/lib/site";
+import { applyLink, applyRoutes, applySteps } from "@/lib/site";
 
 /**
  * The careers page (owner, 2026-09-25: Careers and Apply now should show the jobs, what each one is and why to take
@@ -56,6 +56,8 @@ export function CareersOverview() {
 
       <div className="bg-paper py-20 sm:py-28">
         <Container>
+          {/* How applying works, before the jobs (2026-09-28). */}
+          <NextSteps title="How applying works" steps={applySteps} className="mb-24 sm:mb-32" />
           <div className="grid gap-24 sm:gap-32">
             {applyRoutes.map((route, i) => (
               <section

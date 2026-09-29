@@ -11,6 +11,8 @@ export const useCovered = () => useContext(CoveredContext);
 const WIDE = "(width >= 64rem)";
 /** How tall the sliding section is, as a share of the one it slides over. */
 const OVER_SHARE = 0.7;
+/** …but never taller than this share of the screen. */
+const OVER_MAX = 0.75;
 const subscribeWide = (onChange: () => void) => {
   const query = window.matchMedia(WIDE);
   query.addEventListener("change", onChange);
@@ -45,6 +47,7 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
   const reduceMotion = useReducedMotion();
   const [pinTop, setPinTop] = useState(0);
   const [underHeight, setUnderHeight] = useState(0);
+  const [screenHeight, setScreenHeight] = useState(0);
   const [covered, setCovered] = useState(false);
   const [done, setDone] = useState(false);
   const active = wide && reduceMotion === false && !done;
@@ -56,6 +59,7 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
     const measure = () => {
       setPinTop(Math.min(0, window.innerHeight - el.offsetHeight));
       setUnderHeight(el.offsetHeight);
+      setScreenHeight(window.innerHeight);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(el);
@@ -75,21 +79,24 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
     // Where the sheet's top would be without the lift: the wrapper isn't sticky, so its box is the real layout.
     const natural = wrap.getBoundingClientRect().top + under.offsetHeight;
     // Where the band lets go (the wrapper's end carries both up from here), and where the sheet enters the screen.
-    const release = pinTop + under.offsetHeight * (1 - OVER_SHARE);
+    const release = pinTop + under.offsetHeight - over.offsetHeight;
     const enter = window.innerHeight;
-    // Enter → release maps onto enter → pinTop, then it holds at pinTop until the natural top gets there too.
+    // Where the sheet stops: the top of the screen, or the pinned band's top if that's lower. A band taller than
+    // the screen pins above it (pinTop < 0), and stopping there would carry the sheet off the top.
+    const stop = Math.max(pinTop, 0);
+    // Enter → release maps onto enter → stop, then it holds at stop until the natural top gets there too.
     const shown =
       natural >= enter
         ? natural
         : natural > release
-          ? pinTop + ((natural - release) * (enter - pinTop)) / (enter - release)
-          : Math.min(natural, pinTop);
+          ? stop + ((natural - release) * (enter - stop)) / (enter - release)
+          : Math.min(natural, stop);
     const lift = Math.max(0, natural - shown);
     over.style.transform = lift ? `translateY(${-lift}px)` : "";
     over.style.setProperty("--sheet-lift", `${lift}px`);
-    setCovered(shown < pinTop + under.offsetHeight / 2);
-    // Its top has reached the pinned section's top in its own place: the band is above the screen by now.
-    if (natural <= pinTop) {
+    setCovered(shown < stop + (pinTop + under.offsetHeight - stop) / 2);
+    // Its top has reached the stop in its own place: the band's bottom is above the screen by now.
+    if (natural <= stop) {
       over.style.transform = "";
       over.style.setProperty("--sheet-lift", "0px");
       setDone(true);
@@ -116,7 +123,13 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
             "relative z-10 flex flex-col justify-center bg-paper transition-shadow duration-500",
             active && "shadow-[0_-28px_56px_-20px_rgb(0_0_0/0.16)]",
           )}
-          style={wide && reduceMotion === false ? { minHeight: Math.round(underHeight * OVER_SHARE) } : undefined}
+          // Capped at OVER_MAX of the screen (2026-09-28): the safety band grew past a screen and a half, and 70% of
+          // that made Ship with us taller than the screen.
+          style={
+            wide && reduceMotion === false
+              ? { minHeight: Math.round(Math.min(underHeight * OVER_SHARE, screenHeight * OVER_MAX)) }
+              : undefined
+          }
         >
           {over}
           {/* Fills the gap the lift opens between the sheet and the next section, so the band never shows through. */}

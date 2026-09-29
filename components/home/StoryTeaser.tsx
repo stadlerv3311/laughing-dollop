@@ -43,7 +43,10 @@ export function StoryTeaser() {
               text="Read our full story"
               size="lg"
               variant="ghostLight"
-              className="w-full sm:w-72"
+              // From lg it spans the header's Get a quote + Apply now pair, edge to edge (owner, 2026-09-28) — the
+              // from xl the header pair is a fixed width (`--width-header-cta` in app/globals.css); below xl it sizes to its
+              // labels, which measured 16.2rem at 1100px.
+              className="w-full sm:w-72 lg:w-[16.2rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]"
             />
           </div>
         </Reveal>

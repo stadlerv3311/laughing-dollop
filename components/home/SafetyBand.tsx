@@ -2,283 +2,201 @@
 
 import Image from "next/image";
 import { useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Container, SlideGroup, SlideItem, labelClass, sectionHeadingClass } from "@/components/ui";
+import { Fragment, useRef, useState, type RefObject } from "react";
+import { Container, Reveal, labelClass, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { safetySystems } from "@/lib/site";
-import { useCovered } from "./SlideOverStack";
+import { safetyGroups, safetyPitch, safetySystems, type SafetyGroup } from "@/lib/site";
 
 /**
- * How we look after the freight (2026-09-18): GPS, dash cams and maintenance records. It answers the
- * shipper's question "is my load safe with you?" — so it sits straight under the numbers band, as proof before
- * the ask: Ship with us and its Get a Quote follow it (swapped 2026-09-23; it used to come after Ship with us).
+ * How we look after the freight (2026-09-18): GPS, dash cams, maintenance records and new equipment. It answers
+ * the shipper's question "is my load safe with you?" — so it sits straight under the numbers band, as proof before
+ * the ask: Ship with us and its Get a Quote follow it, sliding up over it from `lg` (SlideOverStack).
  *
- * Text left, photo right, and from `lg` the photo runs off the right screen edge, its two corners facing the text
- * rounded (2026-09-25; it was a rounded arrow pointing at the text, which cut into every clip that wasn't a side-on
- * truck — the GPS map most of all). White, with no background change from the bands around it (owner, 2026-09-18).
+ * A zigzag (owner's sketch, 2026-09-28): the heading with a one-line pitch beside it, then two pictures stepping
+ * down the page — On the road top left with its words to the right, In the shop bottom right with its words to the
+ * left. Each picture is a pair of cards that open up like the apply cards: hovering one widens it, shows its line and
+ * plays its clip; the clips stand paused on a frame until then and pause again when the pointer leaves, and leaving
+ * the pair puts it back as it started (the first pair open on its left card, the second on its right). Cards are
+ * buttons: focus opens one, a click or tap plays or pauses its clip — how touch screens play them. Below `sm` the
+ * cards stack, every one open; below `lg` each picture sits over its words. Reduced-motion visitors get clips only
+ * on a click or tap. Square corners and no box (DECISIONS.md → Homepage section look). Copy in lib/site.ts →
+ * `safetyGroups` / `safetyPitch` (draft).
  *
- * Each row swaps the photo for its own clip (requested 2026-09-19), and the rows play through on a timer
- * (2026-09-24): once the band is on screen, each row is picked in turn for `ROW_MS` while its orange bar fills
- * from the top down, then hands over to the next. After the last row the photo comes back for `REST_MS`, then the
- * pass starts again from the first row. Tapping or clicking a row holds it: the cycle pauses
- * there with the bar full, and tapping the held row again gives it a fresh ROW_MS and lets the cycle carry on. The timer also pauses while the band is off screen. Reduced-motion visitors get the old behaviour instead:
- * nothing plays on its own, hover or focus a row to see its clip, leave the list and the photo comes back. All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and
- * must not go live (docs/DECISIONS.md → Safety band). The fourth row, New equipment (2026-09-24), has no footage:
- * it swaps in a still of the fleet instead (`image` in `safetySystems`), also a placeholder.
- *
- * On first scroll into view the photo slides in from its screen edge and the text from the other side, on
- * one shared trigger so both land on the same frame (requested 2026-09-18) — see `SlideGroup`.
+ * All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and must not
+ * go live (docs/DECISIONS.md → Safety band). New equipment has no footage: a still of the fleet, also a placeholder.
  */
-// How long each row stays picked before the next one takes over (owner, 2026-09-24: 10 s was too long).
-const ROW_MS = 5_000;
-// After one pass through every row, the band rests on its photo with no row picked for this long, then starts
-// again from the first row (owner, 2026-09-24: once every ten seconds, not a constant loop).
-const REST_MS = 10_000;
-
-// False while hydrating (the server can't know the visitor's motion setting), true after — so the first render in
-// the browser matches the server's HTML, and the timer switches on right after.
-const noSubscribe = () => () => {};
-const useHydrated = () => useSyncExternalStore(noSubscribe, () => true, () => false);
-
-// Draft copy — swap in approved wording when it's ready.
 export function SafetyBand() {
-  const [active, setActive] = useState<number | null>(null);
-  // Bumped on every pick, so each row's bar starts filling from empty.
-  const [turn, setTurn] = useState(0);
-  const [inView, setInView] = useState(false);
-  // Ship with us slides over this band on the way down (SlideOverStack); the timer waits while it's covered.
-  const covered = useCovered();
-  const running = inView && !covered;
-  // Held by a tap: the picked row stays until the same row is tapped again.
-  const [held, setHeld] = useState(false);
-  // Between passes: no row picked, the photo back, and a hidden REST_MS clock running.
-  const [resting, setResting] = useState(false);
-  const started = useRef(false);
   const reduceMotion = useReducedMotion();
-  const cycling = useHydrated() && reduceMotion === false;
-  const listRef = useRef<HTMLUListElement>(null);
+  // One list for all four clips, so starting one stops whichever was playing in the other pair.
   const videos = useRef<Array<HTMLVideoElement | null>>([]);
-
-  const pick = (i: number) => {
-    setActive(i);
-    setTurn((t) => t + 1);
-  };
-  // A tap on another row jumps there and holds it; a tap on the row already picked holds it, or, if it's held,
-  // lets the cycle carry on with a fresh ROW_MS on that row.
-  const tap = (i: number) => {
-    setResting(false);
-    if (i === active && held) {
-      pick(i);
-      setHeld(false);
-    } else if (i === active) {
-      setHeld(true);
-    } else {
-      pick(i);
-      setHeld(true);
-    }
-  };
-
-  // The timer runs only while the list is on screen; the first time it comes into view, the first row is picked.
-  useEffect(() => {
-    const list = listRef.current;
-    if (!list || !cycling) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setInView(entry.isIntersecting);
-      if (entry.isIntersecting && !started.current) {
-        started.current = true;
-        setActive(0);
-      }
-    }, { threshold: 0.3 });
-    observer.observe(list);
-    return () => observer.disconnect();
-  }, [cycling]);
-
-  // Only the picked clip runs, from its first frame each time; the others stop so they don't use the CPU. Off
-  // screen, nothing plays.
-  useEffect(() => {
-    videos.current.forEach((video, i) => {
+  const play = (i: number) =>
+    videos.current.forEach((video, k) => {
       if (!video) return;
-      if (i === active && (inView || !cycling)) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
+      if (k === i) video.play().catch(() => {});
+      else video.pause();
     });
-  }, [active, turn, inView, cycling]);
+  const pause = (i: number) => videos.current[i]?.pause();
 
   return (
-    <SlideGroup aria-labelledby="safety" className="relative bg-paper lg:flex lg:min-h-[calc(33.75vw+4rem)] lg:items-center">
-      {/*
-        The photo is absolute from `lg`, so it can't stretch the section. Its box is 54vw wide at 16:10, so
-        33.75vw tall; on wide screens that outgrew the text column and the photo ran over the numbers band's
-        hairline (46px at 1920). The min-height keeps a 2rem margin above and below it, and the text centres.
-      */}
-      <Container className="py-16 sm:py-20 lg:py-8">
-        <SlideItem from="left" className="lg:w-[46%] lg:pr-8">
-          <p className={cx(labelClass, "text-ink/70")}>Safety and equipment</p>
+    <section aria-labelledby="safety" className="bg-paper py-16 sm:py-20 lg:py-24">
+      <Container>
+        <Reveal className="grid gap-6 lg:grid-cols-[1.1fr_1fr] lg:items-end lg:gap-16">
+          <div>
+            <p className={cx(labelClass, "text-ink/70")}>Safety and equipment</p>
+            <h2 id="safety" className={cx("mt-4 max-w-[20ch]", sectionHeadingClass)}>
+              We know where every truck and trailer is, and when each was last serviced.
+            </h2>
+          </div>
+          <p className="max-w-[34rem] text-pretty text-lg leading-relaxed text-ink/70">
+            {safetyPitch.lead} <span className="font-medium text-ink">{safetyPitch.strong}</span>
+          </p>
+        </Reveal>
 
-          <h2 id="safety" className={cx("mt-4", sectionHeadingClass)}>
-            We know where every truck and trailer is, and when each was last serviced.
-          </h2>
-
-          {/*
-            Not numbered: these run side by side, not in order. Buttons, so a pick works from the keyboard and by
-            tap as well as by mouse. Without the timer (reduced motion), hover and focus pick too, and leaving the
-            list, or tabbing out of it, puts the photo back.
-          */}
-          <ul
-            ref={listRef}
-            className="mt-10 divide-y divide-ink/10 border-y border-ink/10"
-            onMouseLeave={cycling ? undefined : () => setActive(null)}
-            onBlur={
-              cycling
-                ? undefined
-                : (event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget)) setActive(null);
-                  }
-            }
-          >
-            {safetySystems.map((system, i) => {
-              const on = active === i;
-              return (
-                <li key={system.name}>
-                  <button
-                    type="button"
-                    aria-pressed={on}
-                    onMouseEnter={cycling ? undefined : () => setActive(i)}
-                    onFocus={cycling ? undefined : () => setActive(i)}
-                    onClick={() => (cycling ? tap(i) : setActive(i))}
-                    className={cx(
-                      "group relative block w-full cursor-pointer py-5 text-left transition-opacity duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-                      active !== null && !on && "opacity-45",
-                    )}
-                  >
-                    {/*
-                      The orange bar is a mark, not text, so it's clear of the small-orange-text rule. On the timer it
-                      is the clock: it fills from the top down over ROW_MS, and when it's full the next row takes
-                      over. Pausing its CSS animation (the band off screen) pauses the cycle. A held row shows the bar
-                      full and still, so it reads as picked rather than stopped halfway.
-                    */}
-                    {cycling ? (
-                      on && (
-                        <span
-                          key={turn}
-                          aria-hidden
-                          className={cx(
-                            "absolute inset-y-5 left-0 w-[3px] origin-top bg-brand",
-                            !held && "animate-row-timer",
-                          )}
-                          style={held ? undefined : { animationDuration: `${ROW_MS}ms`, animationPlayState: running ? "running" : "paused" }}
-                          onAnimationEnd={() => {
-                            if (i + 1 < safetySystems.length) {
-                              pick(i + 1);
-                            } else {
-                              setActive(null);
-                              setResting(true);
-                            }
-                          }}
-                        />
-                      )
-                    ) : (
-                      <span
-                        aria-hidden
-                        className={cx(
-                          "absolute inset-y-5 left-0 w-[3px] origin-top bg-brand transition-transform duration-300 ease-out",
-                          on ? "scale-y-100" : "scale-y-0",
-                        )}
-                      />
-                    )}
-                    <span
-                      className={cx(
-                        "block transition-transform duration-300 ease-out",
-                        on ? "translate-x-5" : "translate-x-0",
-                      )}
-                    >
-                      <span className="block text-lg font-medium tracking-[-0.01em]">{system.name}</span>
-                      {/* Wraps where the heading's first line ends ("…every truck", about 27.5rem), not at the hairline's end (owner, 2026-09-25). */}
-                      <span className="mt-1.5 block max-w-[27.5rem] leading-relaxed text-ink/70">{system.body}</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {/*
-            The rest between passes, timed the same way as the bars (a CSS animation, so it pauses off screen with
-            them). Nothing to see: it's only a clock.
-          */}
-          {cycling && resting && (
-            <span
-              aria-hidden
-              className="block h-0 animate-row-timer"
-              style={{ animationDuration: `${REST_MS}ms`, animationPlayState: running ? "running" : "paused" }}
-              onAnimationEnd={() => {
-                setResting(false);
-                pick(0);
-              }}
-            />
-          )}
-        </SlideItem>
+        {/* 12 columns from lg: each picture takes 7, its words the other 5, the second pair mirrored. */}
+        <div className="mt-12 grid gap-y-10 sm:mt-14 lg:grid-cols-12 lg:gap-x-6 lg:gap-y-3">
+          {safetyGroups.map((group, g) => (
+            <Fragment key={group.kicker}>
+              <Reveal
+                className={
+                  g === 0 ? "lg:col-start-1 lg:col-end-8 lg:row-start-1" : "lg:col-start-6 lg:col-end-13 lg:row-start-2"
+                }
+              >
+                <Pair group={group} reduceMotion={reduceMotion === true} videos={videos} play={play} pause={pause} />
+              </Reveal>
+              <Reveal
+                delay={0.1}
+                className={cx(
+                  "lg:self-center",
+                  g === 0
+                    ? "lg:col-start-8 lg:col-end-13 lg:row-start-1 lg:pl-10"
+                    : "lg:col-start-1 lg:col-end-6 lg:row-start-2 lg:justify-self-end lg:pr-10",
+                )}
+              >
+                <div className="max-w-[30rem]">
+                  <p className={cx(labelClass, "text-ink/70")}>{group.kicker}</p>
+                  <h3 className="mt-3 text-balance text-[1.625rem] font-medium leading-[1.12] tracking-[-0.035em] sm:text-[2rem]">
+                    {group.title}
+                  </h3>
+                  <p className="mt-4 text-pretty leading-relaxed text-ink/70">{group.body}</p>
+                  <dl className="mt-6 border-t border-ink/10">
+                    {group.facts.map((fact) => (
+                      <div key={fact.label} className="flex justify-between gap-4 border-b border-ink/10 py-3 text-[15px]">
+                        <dt>{fact.label}</dt>
+                        <dd className="text-ink/70">{fact.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              </Reveal>
+            </Fragment>
+          ))}
+        </div>
       </Container>
+    </section>
+  );
+}
 
-      {/*
-        A fixed 16:10 box, pinned to the right edge. Below `lg` it's a full-width band under the text.
-        From `lg` its left edge lines up with Loads completed in the numbers band above (owner, 2026-09-25), so
-        `left` repeats TrustBar's sums: the Container's left edge, 40% of its width for the big two, then the
-        three's left padding (2.5rem, 6rem from xl, 10.5rem from 2xl). Change one, change the other.
-      */}
-      <div className="relative h-64 sm:h-80 lg:absolute lg:left-[calc(2rem+0.4*(100%-4rem)+2.5rem)] lg:right-0 lg:top-1/2 lg:aspect-16/10 lg:h-auto lg:-translate-y-1/2 desktop:left-[calc((100%-75rem)/2+32.5rem)] xl:left-[calc((100%-75rem)/2+36rem)] 2xl:left-[calc((100%-75rem)/2+40.5rem)]">
-        {/* Starts fully off the right edge, so the photo arrives from outside the screen. */}
-        <SlideItem from="right" distance="100%" className="absolute inset-0">
-          {/* The rounded corners clip the photo and every clip together; the edge on the screen's side stays square. */}
-          <div className="absolute inset-0 overflow-hidden bg-ink lg:rounded-l-3xl">
-            <Image
-              src="/images/ship-truck-side.jpg"
-              alt="An ITrucking dry van on a desert highway at sunset, the logo on its trailer"
-              fill
-              sizes="(width >= 64rem) 50vw, 100vw"
-              className="object-cover"
-            />
-            {safetySystems.map((system, i) => {
-              const shown = cx(
-                "absolute inset-0 size-full object-cover transition-opacity duration-500",
-                active === i ? "opacity-100" : "opacity-0",
-              );
-              if (system.image) {
-                // A still for rows with no footage (New equipment). Lazy like the clips, and hidden from
-                // screen readers until its row is picked, since only one picture is ever on show.
-                return (
-                  <Image
-                    key={system.image.src}
-                    src={system.image.src}
-                    alt={active === i ? system.image.alt : ""}
-                    aria-hidden={active !== i}
-                    fill
-                    sizes="(width >= 64rem) 50vw, 100vw"
-                    className={shown}
-                  />
-                );
-              }
-              return (
+/** Two cards side by side that open up; `group.open` is the one that starts (and settles back) wide. */
+function Pair({
+  group,
+  reduceMotion,
+  videos,
+  play,
+  pause,
+}: {
+  group: SafetyGroup;
+  reduceMotion: boolean;
+  videos: RefObject<Array<HTMLVideoElement | null>>;
+  play: (i: number) => void;
+  pause: (i: number) => void;
+}) {
+  const [open, setOpen] = useState<number>(group.open);
+
+  return (
+    <ul
+      onMouseLeave={() => setOpen(group.open)}
+      // The tighter 0.625rem gap inside a pair (owner, 2026-09-28); the open card takes up the difference, so the
+      // closed one keeps its place on the column lines.
+      className="flex flex-col gap-2.5 sm:aspect-[1/0.92] sm:flex-row"
+    >
+      {group.systems.map((index, i) => {
+        const system = safetySystems[index];
+        const isOpen = open === i;
+        return (
+          <li
+            key={system.name}
+            onMouseEnter={() => {
+              setOpen(i);
+              if (!reduceMotion) play(index);
+            }}
+            onMouseLeave={() => pause(index)}
+            className={cx(
+              "relative aspect-4/3 sm:aspect-auto sm:min-w-0 sm:basis-0 sm:transition-[flex-grow,flex-basis] sm:duration-700 sm:ease-premium motion-reduce:transition-none",
+              // From lg the widths snap to the section's 12-column grid (owner, 2026-09-28): a pair spans 7 columns,
+              // the closed card exactly 2 and the open one 5, so both pairs' closed cards stand in the same two
+              // columns (6–7, where the pairs overlap). 100% is the pair's width: one column is (100% − 6 gaps) / 7.
+              // The open card is the rest less the pair's own 0.625rem gap: 5 columns + 5 gaps − 0.625rem.
+              isOpen
+                ? "sm:grow-[2.1] lg:grow-0 lg:basis-[calc((100%-9rem)*5/7+6.875rem)]"
+                : "sm:grow lg:grow-0 lg:basis-[calc((100%-9rem)*2/7+1.5rem)]",
+            )}
+          >
+            <button
+              type="button"
+              aria-pressed={isOpen}
+              onFocus={() => setOpen(i)}
+              onClick={() => {
+                setOpen(i);
+                const video = videos.current[index];
+                if (!video) return;
+                if (video.paused) play(index);
+                else video.pause();
+              }}
+              className="group absolute inset-0 block cursor-pointer overflow-hidden bg-ink text-left text-paper focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+            >
+              {system.image ? (
+                <Image
+                  src={system.image.src}
+                  alt={system.image.alt}
+                  fill
+                  sizes="(width >= 64rem) 45vw, 100vw"
+                  className="object-cover transition-transform duration-700 ease-premium group-hover:scale-[1.03]"
+                />
+              ) : (
+                // `#t=0.1` so the paused clip shows a frame rather than black (Safari draws none at 0).
                 <video
-                  key={system.video}
                   ref={(el) => {
-                    videos.current[i] = el;
+                    videos.current[index] = el;
                   }}
-                  src={system.video}
+                  src={`${system.video}#t=0.1`}
                   muted
                   loop
                   playsInline
                   preload="metadata"
                   aria-hidden
-                  className={shown}
+                  className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-premium group-hover:scale-[1.03]"
                 />
-              );
-            })}
-          </div>
-        </SlideItem>
-      </div>
-    </SlideGroup>
+              )}
+              <span aria-hidden className="absolute inset-0 bg-linear-to-t from-black/80 via-black/25 to-transparent" />
+
+              <span className="absolute inset-x-5 bottom-5 block lg:inset-x-6 lg:bottom-6">
+                <span className="block text-xl font-medium leading-tight tracking-[-0.025em] lg:text-[1.375rem]">
+                  {system.name}
+                </span>
+                {/* Fixed width, so the line doesn't rewrap while the card widens. Always in the DOM for screen readers. */}
+                <span
+                  className={cx(
+                    "block overflow-hidden transition-[opacity,max-height] duration-500 ease-premium motion-reduce:transition-none sm:w-[22rem] sm:max-w-full",
+                    isOpen ? "max-h-40 opacity-100 sm:delay-150" : "max-h-40 opacity-100 sm:max-h-0 sm:opacity-0",
+                  )}
+                >
+                  <span className="mt-2 block text-pretty text-[15px] leading-relaxed text-paper/80">{system.body}</span>
+                </span>
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

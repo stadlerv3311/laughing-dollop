@@ -32,9 +32,9 @@ export function ShipWithUs() {
             Have a load to move?
           </h2>
 
-          <p className="mx-auto mt-5 max-w-lg text-pretty leading-relaxed text-ink/70">
-            Tell us where it&rsquo;s going and what it weighs, and we&rsquo;ll come back with a quote. Every
-            load runs in a dry van, so there&rsquo;s nothing else to choose.
+          <p className="mx-auto mt-5 max-w-xl text-pretty leading-relaxed text-ink/70">
+            Tell us where it&rsquo;s going and when it&rsquo;s ready, and we&rsquo;ll come back with a quote.
+            Every load runs in a dry van, so there&rsquo;s nothing else to choose.
           </p>
 
           <QuoteBar />

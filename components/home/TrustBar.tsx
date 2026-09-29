@@ -11,12 +11,12 @@ const proof = companyStats.filter((stat) => stat.group === "proof");
  * left, and the proof — loads, states, on-time — set smaller on the right; both groups sit on the same bottom
  * line. From `lg` there's no line between them, just space (owner, 2026-09-25: the vertical hairline went). The
  * groups stack below `lg`, with a hairline running across between them. Numbers in full ink, labels in the
- * lighter ink under them; no box, no background — hairlines above and below.
+ * lighter ink under them; no box, no background — hairlines above and below. The proof numbers also carry one
+ * quiet line on what they mean for a shipper (`meaning`, 2026-09-28), which sits on the shared bottom line.
  *
  * It sits straight under the hero, above the safety band (moved 2026-09-21; the safety band replaced Ship with us
- * below it 2026-09-23). The hero ends flush on the band, so the top padding keeps it off the hairline. Below `lg`
- * the safety band opens on its text and its own padding; from `lg` its photo is centred beside the text, and
- * `lg:pb-8` keeps it clear of the lower hairline.
+ * below it 2026-09-23). The hero ends flush on the band, so the top padding keeps it off the hairline; `lg:pb-8`
+ * leaves a little room under the lower hairline before the safety band's own padding.
  */
 export function TrustBar() {
   return (
@@ -35,8 +35,8 @@ export function TrustBar() {
             // From lg the three hug the right edge (the last one ends on the Container's edge, under Apply now) and
             // stand further off the big two on wide screens (owner, 2026-09-25: separate the
             // groups more, move the three right, but not past the edge).
-            // The safety band's photo starts on this same line (SafetyBand.tsx repeats these sums), so keep them in step.
-            className="border-ink/10 max-sm:hidden sm:grid-cols-3 sm:border-t sm:py-12 lg:flex lg:flex-1 lg:justify-between lg:border-t-0 lg:py-14 lg:pl-10 xl:pl-24 2xl:pl-[10.5rem]"
+            // Numbers line up along the top: the meaning lines under them run to different lengths.
+            className="border-ink/10 max-sm:hidden sm:items-start sm:grid-cols-3 sm:border-t sm:py-12 lg:flex lg:flex-1 lg:justify-between lg:border-t-0 lg:py-14 lg:pl-10 xl:pl-24 2xl:pl-[10.5rem]"
             // Sized so "125,000+" fits half a phone's width and a third of the group from `sm` up.
             numberClassName="text-[1.875rem] sm:text-[2.25rem] lg:text-[clamp(2rem,2.6vw,2.75rem)]"
             startDelay={story.length * 0.08}
@@ -62,11 +62,15 @@ function StatGroup({
   return (
     <dl className={cx("grid content-end items-end gap-x-6 gap-y-10 sm:gap-x-10", className)}>
       {stats.map((stat, index) => (
-        <Reveal key={stat.label} delay={startDelay + index * 0.08} className="flex flex-col-reverse gap-3">
-          <dt className="text-sm text-ink/70 sm:text-base">{stat.label}</dt>
-          <dd className={cx("font-medium leading-none tracking-[-0.045em]", numberClassName)}>
+        // Label first for screen readers (a dt before its dd), number shown first with `order`.
+        <Reveal key={stat.label} delay={startDelay + index * 0.08} className="flex flex-col gap-3">
+          <dt className="order-2 text-sm text-ink/70 sm:text-base">{stat.label}</dt>
+          <dd className={cx("order-1 font-medium leading-none tracking-[-0.045em]", numberClassName)}>
             <CountUp value={stat.value} suffix={stat.suffix} />
           </dd>
+          {stat.meaning && (
+            <dd className="order-3 -mt-1 max-w-[14rem] text-pretty text-sm leading-snug text-ink/65">{stat.meaning}</dd>
+          )}
         </Reveal>
       ))}
     </dl>
@@ -91,6 +95,7 @@ function StatWheel({ stats }: { stats: CompanyStat[] }) {
               {stat.value.toLocaleString("en-US")}
               {stat.suffix}
             </dd>
+            {stat.meaning && <dd>{stat.meaning}</dd>}
           </div>
         ))}
       </dl>
@@ -101,12 +106,15 @@ function StatWheel({ stats }: { stats: CompanyStat[] }) {
         <div className="flex w-max animate-stat-wheel motion-reduce:animate-none">
           {[0, 1].map((copy) =>
             stats.map((stat) => (
-              <div key={`${copy}-${stat.label}`} className="flex shrink-0 flex-col gap-3 pl-5 pr-7">
+              <div key={`${copy}-${stat.label}`} className="flex w-60 shrink-0 flex-col gap-3 pl-5 pr-7">
                 <span className="text-[1.875rem] font-medium leading-none tracking-[-0.045em]">
                   {stat.value.toLocaleString("en-US")}
                   {stat.suffix}
                 </span>
                 <span className="text-sm text-ink/70">{stat.label}</span>
+                {stat.meaning && (
+                  <span className="-mt-1 text-pretty text-sm leading-snug text-ink/65">{stat.meaning}</span>
+                )}
               </div>
             )),
           )}

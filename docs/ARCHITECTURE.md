@@ -17,7 +17,7 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + SlideOverStack(SafetyBand, ShipWithUs) + StoryTeaser + DriverSlogans + ApplyRoutes
+  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + SlideOverStack(SafetyBand, ShipWithUs) + StoryTeaser + WhyDriveForUs + DriverSlogans + ApplyRoutes
   services/page.tsx          → Services (/services)
   quote/page.tsx             → Request a Quote (/quote)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
@@ -29,11 +29,11 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, PagePlaceholder,
+  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, SlideIn, NextSteps, PagePlaceholder,
                                typography (shared label + section-heading classes)
-  layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, SlideOverStack, TrustBar, StoryTeaser
-  about/                     → StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
+  layout/                    → Header, HeaderQuote, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
+  home/                      → HomeHero, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, SlideOverStack, TrustBar, StoryTeaser, WhyDriveForUs
+  about/                     → Timeline (the About page's sideways timeline), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
   quote/                     → QuoteForm, StateMap
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
@@ -163,7 +163,7 @@ QuoteRequest { pickup: { state, place }, delivery: { state, place }, weightLbs, 
 - Hover lifts a copy of the state on top with a shadow and shows a name tag; touch skips hover. Clicks set pickup → delivery; a route curve draws between the two pin spots (`cx`, `cy`: centroid of each state's largest piece).
 - `QuoteForm` owns the state: map clicks, the state dropdowns and ZIPs typed into City or ZIP (`lib/zip.ts`) all update the same pickup/delivery values. A ZIP from a different state is cleared when the state changes.
 - The SVG is `aria-hidden`; the dropdowns are the accessible way to pick states. Errors show after the first submit (an Alaska/Hawaii ZIP is flagged right away), and the first invalid field gets focus.
-- Map sits right of the form and stays in view (sticky) from `lg`; below that it's above the form (`order-first lg:order-none` — the map is second in the DOM so it falls right at `lg` without reordering the form). It sits straight on the page background — no card — so its `stroke-paper` borders read as gaps between the states.
+- Map sits above the form at every width, centred and up to 60rem wide (owner, 2026-09-28; it used to sit right of the form, smaller and sticky). It's second in the DOM and pulled up with `order-first`, so the form still comes first for keyboard and screen-reader users. From `lg` the form runs two by two under it: Pickup beside Delivery, The load beside Your details, the button across the bottom. It sits straight on the page background — no card — so its `stroke-paper` borders read as gaps between the states.
 
 ### Qualification form (Drive For Us + staff roles)
 5–6 short questions only. Submits into an HR contact flow, not a document/e-signature pipeline. See DECISIONS.md → Applications.

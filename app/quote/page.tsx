@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { ViewTransition } from "react";
 import { QuoteForm } from "@/components/quote";
-import { Container, labelClass } from "@/components/ui";
+import { Container, NextSteps, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { QUOTE_CARD, QUOTE_OPEN, quoteLink } from "@/lib/site";
+import { QUOTE_CARD, QUOTE_OPEN, quoteLink, quoteSteps } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: quoteLink.label,
@@ -18,9 +18,9 @@ const param = (value: string | string[] | undefined) =>
 export default async function QuotePage({
   searchParams,
 }: {
-  searchParams: Promise<{ pickup?: string | string[]; delivery?: string | string[]; weight?: string | string[] }>;
+  searchParams: Promise<{ pickup?: string | string[]; delivery?: string | string[]; date?: string | string[] }>;
 }) {
-  const { pickup, delivery, weight } = await searchParams;
+  const { pickup, delivery, date } = await searchParams;
 
   return (
     // The homepage's Ship with us card grows into this page when you come from its Get a quote button.
@@ -38,8 +38,10 @@ export default async function QuotePage({
         {/* Anything typed into the homepage's quote bar comes along (2026-09-25). */}
         <QuoteForm
           className="mt-12 sm:mt-16"
-          prefill={{ pickup: param(pickup), delivery: param(delivery), weight: param(weight) }}
+          prefill={{ pickup: param(pickup), delivery: param(delivery), date: param(date) }}
         />
+        {/* What pressing the button leads to (2026-09-28). */}
+        <NextSteps steps={quoteSteps} className="mt-20 sm:mt-28" />
       </Container>
     </section>
     </ViewTransition>

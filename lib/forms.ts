@@ -8,6 +8,8 @@ export type QuoteRequest = {
   pickup: QuoteStop;
   delivery: QuoteStop;
   weightLbs: number;
+  /** When it's ready to be picked up, `YYYY-MM-DD` (optional; added 2026-09-25 — agree with the backend teammate). */
+  pickupDate?: string;
   /** What's being shipped. Equipment is always a dry van (DECISIONS.md → Freight types). */
   freight: string;
   contact: { name: string; company?: string; email: string; phone: string };

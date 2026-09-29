@@ -15,6 +15,8 @@ type Values = {
   pickup: Stop;
   delivery: Stop;
   weight: string;
+  /** `YYYY-MM-DD` from the date input, or empty. */
+  pickupDate: string;
   freight: string;
   name: string;
   company: string;
@@ -29,6 +31,7 @@ const FIELDS = [
   "deliveryState",
   "deliveryPlace",
   "weight",
+  "pickupDate",
   "freight",
   "name",
   "email",
@@ -44,6 +47,7 @@ const emptyValues: Values = {
   pickup: emptyStop,
   delivery: emptyStop,
   weight: "",
+  pickupDate: "",
   freight: "",
   name: "",
   company: "",
@@ -68,6 +72,12 @@ function pickOnMap(values: Values, code: StateCode): Values {
   return { ...values, delivery: withState(values.delivery, code) };
 }
 
+/** Today in the visitor's own time zone, as `YYYY-MM-DD` (what a date input holds). */
+function today() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+}
+
 function parseWeight(text: string) {
   return Number(text.replace(/[,\s]/g, "").replace(/lbs?$/i, ""));
 }
@@ -81,6 +91,8 @@ function validate(values: Values): Errors {
     else if (!values[key].place.trim()) errors[`${key}Place`] = `Enter the ${label} city or ZIP.`;
   }
   if (!(parseWeight(values.weight) > 0)) errors.weight = "Enter the weight in pounds.";
+  // Optional; a date in the past is the only thing to catch. Compared as text, which works for YYYY-MM-DD.
+  if (values.pickupDate && values.pickupDate < today()) errors.pickupDate = "Pick today or a later date.";
   if (!values.freight.trim()) errors.freight = "Enter what you’re shipping.";
   if (!values.name.trim()) errors.name = "Enter your name.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) errors.email = "Enter an email we can reply to.";
@@ -93,6 +105,7 @@ function toRequest(values: Values): QuoteRequest {
     pickup: { state: values.pickup.state as StateCode, place: values.pickup.place.trim() },
     delivery: { state: values.delivery.state as StateCode, place: values.delivery.place.trim() },
     weightLbs: parseWeight(values.weight),
+    pickupDate: values.pickupDate || undefined,
     freight: values.freight.trim(),
     contact: {
       name: values.name.trim(),
@@ -103,8 +116,8 @@ function toRequest(values: Values): QuoteRequest {
   };
 }
 
-/** What the homepage's quote bar carries over (`/quote?pickup=…&delivery=…&weight=…`). */
-export type QuotePrefill = { pickup?: string; delivery?: string; weight?: string };
+/** What the homepage's quote bar carries over (`/quote?pickup=…&delivery=…&date=…`). */
+export type QuotePrefill = { pickup?: string; delivery?: string; date?: string };
 
 /** A place typed into the quote bar: a ZIP also picks its state (and lights the map); a city waits for one. */
 function prefillStop(place = ""): Stop {
@@ -126,7 +139,8 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
           ...emptyValues,
           pickup: prefillStop(prefill.pickup),
           delivery: prefillStop(prefill.delivery),
-          weight: prefill.weight ?? "",
+          // Only a well-formed date; anything else in the address bar is ignored.
+          pickupDate: /^\d{4}-\d{2}-\d{2}$/.test(prefill.date ?? "") ? prefill.date! : "",
         }
       : emptyValues,
   );
@@ -142,7 +156,7 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
         deliveryPlace: allErrors.deliveryPlace === OUTSIDE_MESSAGE ? OUTSIDE_MESSAGE : undefined,
       };
 
-  function setField(field: "weight" | "freight" | "name" | "company" | "email" | "phone", value: string) {
+  function setField(field: "weight" | "pickupDate" | "freight" | "name" | "company" | "email" | "phone", value: string) {
     setValues((current) => ({ ...current, [field]: value }));
   }
 
@@ -183,9 +197,11 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
   const delivery = values.delivery.state || null;
 
   return (
-    <div className={cx("grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-14", className)}>
+    // The map leads, centred and large, with the form under it (owner, 2026-09-28: it sat beside the form, smaller).
+    // From lg the form runs two by two under it: Pickup beside Delivery, The load beside Your details.
+    <div className={cx("flex flex-col gap-12 sm:gap-16", className)}>
       {status.kind === "sent" ? (
-        <div className="rounded-[2rem] bg-ink p-8 text-paper sm:p-10">
+        <div className="mx-auto w-full max-w-[60rem] rounded-[2rem] bg-ink p-8 text-paper sm:p-10">
           <p className={cx(labelClass, "text-paper/70")}>Request received</p>
           <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
             Thanks, {values.name.trim().split(/\s+/)[0]}.
@@ -203,7 +219,7 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
           </button>
         </div>
       ) : (
-        <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-10">
+        <form noValidate onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-2 lg:gap-x-14 lg:gap-y-12">
           <StopFields
             legend="Pickup"
             dotClass="bg-ink"
@@ -228,7 +244,7 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
           />
 
           <Group legend="The load">
-            <div className="grid gap-4 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]">
+            <div className="grid gap-4 sm:grid-cols-2">
               <Field id={id("weight")} label="Weight" error={errors.weight}>
                 <div className="relative">
                   <input
@@ -244,7 +260,17 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
                   </span>
                 </div>
               </Field>
-              <Field id={id("freight")} label="What are you shipping?" error={errors.freight}>
+              {/* Added 2026-09-25 with the homepage quote bar's Pickup date. Optional. */}
+              <Field id={id("pickupDate")} label="Pickup date" optional error={errors.pickupDate}>
+                <input
+                  {...controlProps(id("pickupDate"), errors.pickupDate)}
+                  type="date"
+                  value={values.pickupDate}
+                  onChange={(event) => setField("pickupDate", event.target.value)}
+                  className={controlClass}
+                />
+              </Field>
+              <Field id={id("freight")} label="What are you shipping?" error={errors.freight} className="sm:col-span-2">
                 <input
                   {...controlProps(id("freight"), errors.freight)}
                   placeholder="e.g. Palletized canned goods"
@@ -299,7 +325,7 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
             </div>
           </Group>
 
-          <div className="flex flex-col items-start gap-4">
+          <div className="flex flex-col items-start gap-4 lg:col-span-2">
             {status.kind === "failed" && (
               <p role="alert" className="text-base font-medium">
                 {status.message}
@@ -312,7 +338,7 @@ export function QuoteForm({ className, prefill }: { className?: string; prefill?
         </form>
       )}
 
-      <div className="order-first lg:order-none lg:sticky lg:mt-[50px] lg:top-[162px]">
+      <div className="order-first mx-auto w-full max-w-[60rem]">
         <StateMap
           pickup={pickup}
           delivery={delivery}

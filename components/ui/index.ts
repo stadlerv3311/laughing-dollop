@@ -6,6 +6,7 @@ export { Field, controlClass, errorId } from "./Field";
 export { HeroMedia } from "./HeroMedia";
 export { InteractiveHoverButton } from "./InteractiveHoverButton";
 export { Logo } from "./Logo";
+export { NextSteps, type Step } from "./NextSteps";
 export { PagePlaceholder } from "./PagePlaceholder";
 export { Reveal } from "./Reveal";
 export { RotatingSlogan } from "./RotatingSlogan";

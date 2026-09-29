@@ -1,4 +1,4 @@
-import { ApplyRoutes, DriverSlogans, HomeHero, SafetyBand, ShipWithUs, SlideOverStack, StoryTeaser, TrustBar } from "@/components/home";
+import { ApplyRoutes, DriverSlogans, HomeHero, SafetyBand, ShipWithUs, SlideOverStack, StoryTeaser, TrustBar, WhyDriveForUs } from "@/components/home";
 import { HomeIntro } from "@/components/intro";
 
 export default function HomePage() {
@@ -15,6 +15,8 @@ export default function HomePage() {
       {/* Ship with us slides up over the safety band on the way down (from lg) — see SlideOverStack. */}
       <SlideOverStack under={<SafetyBand />} over={<ShipWithUs />} />
       <StoryTeaser />
+      {/* Opens the driver half: why drive for us, then the slogans and the apply cards (2026-09-28). */}
+      <WhyDriveForUs />
       <DriverSlogans />
       <ApplyRoutes />
     </>
