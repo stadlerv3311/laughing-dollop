@@ -1,5 +1,5 @@
 import { ViewTransition } from "react";
-import { Container, InteractiveHoverButton, Reveal, labelClass } from "@/components/ui";
+import { Container, InteractiveHoverButton, Reveal, chapterHeadingClass, chapterY, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { aboutLink } from "@/lib/site";
 import { STORY_BAND, STORY_OPEN, story } from "@/lib/story";
@@ -19,7 +19,7 @@ export function StoryTeaser() {
     // Shares its name with the About page's dark opening: following "Read our full story" morphs this band up
     // into it (2026-09-24). Only that link's `story-open` navigation plays it — see STORY_BAND in lib/story.ts.
     <ViewTransition name={STORY_BAND} share={{ [STORY_OPEN]: "story-open", default: "none" }} default="none">
-    <section aria-labelledby="story-teaser-title" data-header-theme="dark" className="bg-ink py-20 text-paper sm:py-28 lg:py-32">
+    <section aria-labelledby="story-teaser-title" data-header-theme="dark" className={cx("bg-ink text-paper", chapterY)}>
       <Container>
         <Reveal>
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-16">
@@ -27,7 +27,7 @@ export function StoryTeaser() {
               <p className={cx(labelClass, "text-paper/70")}>Our story</p>
               <h2
                 id="story-teaser-title"
-                className="mt-4 text-[2.5rem] font-medium leading-[1.04] tracking-[-0.045em] sm:text-5xl lg:text-[3.5rem]"
+                className={cx("mt-4", chapterHeadingClass)}
               >
                 {story.headline.map((line) => (
                   <span key={line} className="block text-balance">
@@ -64,7 +64,7 @@ export function StoryTeaser() {
                 >
                   {milestone.mark}
                 </p>
-                <h3 className="mt-6 text-sm text-paper/60">{milestone.title}</h3>
+                <h3 className="mt-6 text-sm text-paper/70">{milestone.title}</h3>
                 <p className="mt-2 max-w-[20rem] text-pretty leading-relaxed">{milestone.text}</p>
               </li>
             ))}

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { Fragment, useRef, useState, type RefObject } from "react";
-import { Container, Reveal, ScrollFillText, labelClass, sectionHeadingClass } from "@/components/ui";
+import { Container, Reveal, ScrollFillText, labelClass, sectionHeadingClass, sectionY } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { safetyGroups, safetyPitch, safetySystems, type SafetyGroup, type SafetySystem } from "@/lib/site";
 
@@ -45,7 +45,7 @@ export function SafetyBand() {
     setActive((all) => (all[g] === on ? all : all.map((v, k) => (k === g ? on : v))));
 
   return (
-    <section aria-labelledby="safety" className="bg-paper py-16 sm:py-20 lg:py-24">
+    <section aria-labelledby="safety" className={cx("bg-paper", sectionY)}>
       <Container>
         {/* The same 12 columns as the pictures below, so the pitch starts on the first block of words' left edge. */}
         <Reveal className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-x-6">
@@ -95,7 +95,7 @@ export function SafetyBand() {
                   <h3 className="text-balance text-[1.5rem] font-medium leading-[1.12] tracking-[-0.03em] sm:text-[1.75rem]">
                     {group.title}
                   </h3>
-                  <p className="mt-5 text-pretty text-[17px] leading-relaxed text-ink/65">{group.body}</p>
+                  <p className="mt-5 text-pretty text-[17px] leading-relaxed text-ink/70">{group.body}</p>
                   {group.systems.some((index) => safetySystems[index].readout) && (
                     <Readout system={safetySystems[group.systems[open[g]]]} visible={active[g]} />
                   )}
@@ -263,20 +263,20 @@ function Readout({ system, visible }: { system: SafetySystem; visible: boolean }
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="pt-10"
           >
-            <p className="flex justify-between text-[13px] text-ink/55">
+            <p className="flex justify-between text-[13px] text-ink/70">
               <span>{readout.label}</span>
               <span>Example</span>
             </p>
             <p className="mt-1.5 text-[2.5rem] font-light leading-none tracking-[-0.035em] tabular-nums">
               {readout.figure}
               {readout.unit && (
-                <span className="ml-1.5 text-[17px] font-normal tracking-normal text-ink/55">{readout.unit}</span>
+                <span className="ml-1.5 text-[17px] font-normal tracking-normal text-ink/70">{readout.unit}</span>
               )}
             </p>
             <dl className="mt-4 grid grid-cols-[7.5rem_1fr] gap-y-1.5 text-[15px] leading-normal">
               {readout.rows.map((row) => (
                 <Fragment key={row.label}>
-                  <dt className="text-ink/55">{row.label}</dt>
+                  <dt className="text-ink/70">{row.label}</dt>
                   <dd>{row.value}</dd>
                 </Fragment>
               ))}

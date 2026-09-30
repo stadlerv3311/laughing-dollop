@@ -19,6 +19,7 @@
 |---|---|
 | Change a nav link or the company name | `lib/site.ts` — Header, mobile menu and Footer all read from it |
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
+| Change the space above and below homepage sections | `components/ui/spacing.ts` (`sectionY` / `sectionTop` / `sectionBottom`, `chapterY` / `chapterTop`) — see ARCHITECTURE.md → Section spacing |
 | Change the page margins or the column grid | `components/ui/Container.tsx`, `components/ui/Columns.tsx`, `--breakpoint-desktop` / `--width-header-cta` in `app/globals.css` — see ARCHITECTURE.md → Layout grid |
 | Change the font | `app/layout.tsx` → `Geist` import (feeds `--font-sans` in `app/globals.css`) |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
@@ -27,7 +28,7 @@
 | Change how Ship with us slides over the safety band (sheet height, pin, shadow) | `components/home/SlideOverStack.tsx` — `OVER_SHARE`; wired in `app/page.tsx` |
 | Change the story band → About opening animation | Names: `lib/story.ts` → `STORY_BAND` / `STORY_OPEN`; the two `<ViewTransition>`s in `components/home/StoryTeaser.tsx` and `app/about/page.tsx`; timing in `app/globals.css` → `.story-open` |
 | Change the Ship with us card → Quote page animation | Names: `lib/site.ts` → `QUOTE_CARD` / `QUOTE_OPEN`; the two `<ViewTransition>`s in `components/home/ShipWithUs.tsx` and `app/quote/page.tsx`; timing in `app/globals.css` → `.quote-open` |
-| Change the Ship with us band (copy, the quote bar) | `components/home/ShipWithUs.tsx` — a centred closing ask on white in the safety band's type, no photo since 2026-09-24; the bar's fields in `components/home/QuoteBar.tsx`, what the quote page does with them in `app/quote/page.tsx` → `prefill` and `QuoteForm`'s `QuotePrefill` |
+| Change the Ship with us band (copy, the quote bar) | `components/home/ShipWithUs.tsx` — a centred closing ask on white in the safety band's type, no photo since 2026-09-24; the bar's fields in `components/home/QuoteBar.tsx`, what the quote page does with them in `app/quote/page.tsx` → `prefill` and `QuoteForm`'s `QuotePrefill`; the proof line under the bar in `lib/site.ts` → `shipProof` (figures come from `companyStats`) |
 | Change the safety band (GPS, dash cams, maintenance, new equipment) | Copy: `lib/site.ts` → `safetySystems` (the four cards), `safetyGroups` (the two blocks of words and which cards pair up), `safetyPitch` (the line beside the heading); layout: `components/home/SafetyBand.tsx`; each card's clip is its `video` in `safetySystems` (or an `image` still — New equipment, `public/images/safety-fleet.jpg`) (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Change the logo row under the safety band (Samsara, Fleetio, Volvo, Datatruck, OnRamp) | List, line and each logo's display height: `lib/site.ts` → `tools`, `toolsLine`; logo files: `public/logos/*.svg`; layout: `components/home/ToolsBand.tsx` |
 | Edit the homepage headline (h1) — its rolling pairs (keep each line's nouns close in width) | `lib/site.ts` → `heroPairs`; timing and animation in `components/home/HeroHeadline.tsx`; placement in `components/home/HomeHero.tsx` |
@@ -106,7 +107,8 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `WhyDriveForUs` | Why drive for us: headline and the four driver reasons (from `applyRoutes`), after the story band | Server |
 | `home/` | `DriverSlogans` | The rolling slogans as a smaller line under Ship with us, above the apply cards | Server |
 | `home/` | `ApplyRoutes` | The three apply cards (On the road / In the office / In the shop) from `applyRoutes`: from `md` one row where the hovered or focused card opens wide (role, job, line, Apply now over the photo) and the others narrow; stacked and all open on phones. Each card is one link to its job on `/careers` | Client |
-| `home/` | `QuoteBar` | Ship with us's Pickup / Delivery / Pickup date bar; Get a quote opens `/quote` with them filled in | Client |
+| `home/` | `ShipRouteMap` | The faint dotted lower-48 map behind Ship with us from `lg`, with one dashed route and a riding orange dot; fades out behind the words; paused off screen, still under reduced motion. Map image `public/images/us-dots.svg` (rebuild: `node scripts/build-us-dots.mjs`) | Client |
+| `home/` | `QuoteBar` | Ship with us's Pickup / Delivery / Pickup date bar — white with a soft shadow, an icon per field, a route badge with a riding orange dot between Pickup and Delivery; Get a quote opens `/quote` with them filled in | Client |
 | `home/` | `ShipWithUs` | The shipper half's closing ask: a centred column (label, heading, paragraph, the quote bar) on white in the safety band's type, between the safety band and the story (rebuilt 2026-09-24; was a photo-and-text band until then). Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Server |
 | `home/` | `SafetyBand` | GPS, dash cams, maintenance and new equipment as a zigzag: two pictures stepping down the page, each a pair of sliding cards (hover opens one and plays its clip, paused otherwise) beside a block of words | Client |
 | `home/` | `ToolsBand` | One quiet line and the five tool companies' logos, centred, closing the safety band inside the same pinned section | Server |

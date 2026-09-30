@@ -32,7 +32,7 @@ export function Footer() {
       </Container>
 
       {/* Not built yet: Privacy Policy, Terms of Service, Driver FAQ, contact info, socials. */}
-      <Container className="pb-8 text-sm text-paper/60">
+      <Container className="pb-8 text-sm text-paper/70">
         <p>
           © {new Date().getFullYear()} {site.name}. All rights reserved.
         </p>

@@ -32,7 +32,7 @@ components/                  → component library, one folder per area, each wi
   ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, NextSteps, PagePlaceholder,
                                typography (shared label + section-heading classes)
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, HeroHeadline, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, SlideOverStack, TrustBar, StoryTeaser, WhyDriveForUs
+  home/                      → HomeHero, HeroHeadline, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, WhyDriveForUs
   about/                     → Timeline (the About page's sideways timeline), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
   quote/                     → QuoteForm, StateMap
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
@@ -82,10 +82,17 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 - Never use orange for small body text or links — use near-black
 
 ### Typography (2026-09-24)
-- One face, Geist. Two shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked) and `sectionHeadingClass` (the safety band, apply cards and About timeline h2 — medium weight, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
+- One face, Geist. Three shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked), `chapterHeadingClass` (the three big moments after the hero — Ship with us, Our story, Why drive for us — 40 / 48 / 56px, since 2026-09-29) and `sectionHeadingClass` (the safety band, apply cards and About timeline h2 — medium weight, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
 - Page h1s (inner pages) are `text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale, with its fixed words at `text-paper/60` (large text, so it clears the contrast floor for its size).
 - Header nav links are all one size (15px); inactive links `text-ink/70`, the contrast floor.
 - Copy rules (case, "and", apostrophes, commas) are in DECISIONS.md → Wording and type.
+- **Greys (2026-09-29, spacing audit point 04; there were six).** Small text that isn't ink — labels, body, meta, captions — is `text-ink/70` on white (5.7:1) and `text-paper/70` on the dark bands, and `text-paper/80` over photos, which are busier. `/60` is only for the grey half of large type (the rolling slogan's tail, the hero's fixed words), where the contrast floor is 3:1. `text-ink/40` is only for decorative text screen readers skip (Why drive for us's 01–04). Don't add another step. Form placeholders are the one leftover (`ink/40`, QuoteBar and Field).
+
+### Section spacing (2026-09-29)
+- Three steps for the space around homepage bands, as shared classes in `components/ui/spacing.ts` (phone → `sm` → `lg`): **section** 64 → 80 → 96px (`sectionY`, `sectionTop`, `sectionBottom`) for most bands; **chapter** 80 → 112 → 128px (`chapterY`, `chapterTop`) for the dark story band and Why drive for us, which opens the driver half; **joined**, no top space, for a band that closes the one above it (the logo row under the safety band, the apply cards under the slogan).
+- Where two white bands meet, only one of them carries the step, so the gap is one step, not two: the numbers band has top space only, Why drive for us has top space only, the apply cards have bottom space only.
+- One tuned exception: from `lg`, where Ship with us slides up over the safety band, the logo row keeps 40px under it and Ship with us 160px above / 200px below (32 / 72 until the map went in behind it, 2026-09-29), so the ask sits centred in its sheet (ShipWithUs.tsx, ToolsBand.tsx).
+- Don't hand-pick a new padding for a homepage band; use one of the three steps.
 
 ### Layout grid (2026-09-23)
 A Figma-style margin/column grid for desktop, replacing the old fixed `max-w-7xl` + 32px padding: content caps

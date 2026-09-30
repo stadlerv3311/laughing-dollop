@@ -31,6 +31,33 @@
      side, moved by half the strip, so the second copy lands exactly where the first began. */
   --animate-stat-wheel: stat-wheel 28s linear infinite;
 
+  /* Quote bar: a small orange dot rides the arrow from Pickup to Delivery, once per play (2026-09-29, QuoteBar.tsx). */
+  --animate-route-ride: route-ride 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  /* The map behind Ship with us: its dashed route drifts toward New York (2026-09-29, ShipRouteMap.tsx). */
+  --animate-route-flow: route-flow 18s linear infinite;
+
+  @keyframes route-flow {
+    to {
+      stroke-dashoffset: -480;
+    }
+  }
+
+  @keyframes route-ride {
+    0% {
+      transform: translateX(-8px);
+      opacity: 0;
+    }
+    20%,
+    75% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(7px);
+      opacity: 0;
+    }
+  }
+
   @keyframes stat-wheel {
     from {
       transform: translateX(0);

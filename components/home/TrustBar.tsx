@@ -1,4 +1,4 @@
-import { Container, CountUp, Reveal } from "@/components/ui";
+import { Container, CountUp, Reveal, sectionTop } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { companyStats, site, type CompanyStat } from "@/lib/site";
 
@@ -20,7 +20,7 @@ const proof = companyStats.filter((stat) => stat.group === "proof");
  */
 export function TrustBar() {
   return (
-    <section aria-label={`${site.name} in numbers`} className="bg-paper pt-16 sm:pt-20 lg:pt-24 lg:pb-8">
+    <section aria-label={`${site.name} in numbers`} className={cx("bg-paper", sectionTop)}>
       <Container>
         <div className="border-y border-ink/10 lg:flex">
           <StatGroup
@@ -69,7 +69,7 @@ function StatGroup({
             <CountUp value={stat.value} suffix={stat.suffix} />
           </dd>
           {stat.meaning && (
-            <dd className="order-3 -mt-1 max-w-[14rem] text-pretty text-sm leading-snug text-ink/65">{stat.meaning}</dd>
+            <dd className="order-3 -mt-1 max-w-[14rem] text-pretty text-sm leading-snug text-ink/70">{stat.meaning}</dd>
           )}
         </Reveal>
       ))}
@@ -113,7 +113,7 @@ function StatWheel({ stats }: { stats: CompanyStat[] }) {
                 </span>
                 <span className="text-sm text-ink/70">{stat.label}</span>
                 {stat.meaning && (
-                  <span className="-mt-1 text-pretty text-sm leading-snug text-ink/65">{stat.meaning}</span>
+                  <span className="-mt-1 text-pretty text-sm leading-snug text-ink/70">{stat.meaning}</span>
                 )}
               </div>
             )),

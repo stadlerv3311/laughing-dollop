@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Container, Reveal, sectionHeadingClass } from "@/components/ui";
+import { Container, labelClass, Reveal, sectionBottom, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { applyLink, applyRoutes, careersLink } from "@/lib/site";
 
@@ -23,10 +23,12 @@ export function ApplyRoutes() {
   const [open, setOpen] = useState(0);
 
   return (
-    <section aria-labelledby="apply-routes" className="bg-paper pb-16 sm:pb-20 lg:pb-24">
+    <section aria-labelledby="apply-routes" className={cx("bg-paper", sectionBottom)}>
       <Container>
         <Reveal>
-          <h2 id="apply-routes" className={sectionHeadingClass}>
+          {/* Labelled like every other section (2026-09-29), so it reads as a new band, not a caption to the slogan. */}
+          <p className={cx(labelClass, "text-ink/70")}>Careers</p>
+          <h2 id="apply-routes" className={cx("mt-4", sectionHeadingClass)}>
             Where you&rsquo;d fit.
           </h2>
           <p className="mt-3 text-ink/70">A few short questions for any of them, then HR calls you back.</p>
@@ -71,7 +73,7 @@ export function ApplyRoutes() {
                       card clips what it can't show, and only its role and job are visible.
                     */}
                     <span className="absolute inset-x-5 bottom-5 block sm:inset-x-7 sm:bottom-7 md:inset-x-5 md:bottom-5 lg:inset-x-7 lg:bottom-7">
-                      <span className="block text-sm text-paper/75">{route.role}</span>
+                      <span className="block text-sm text-paper/80">{route.role}</span>
                       <span className="mt-1 block text-2xl font-medium leading-tight tracking-[-0.025em] sm:text-[1.75rem] md:text-xl lg:text-[1.75rem]">
                         {route.title}
                       </span>

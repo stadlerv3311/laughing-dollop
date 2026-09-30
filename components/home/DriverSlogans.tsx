@@ -1,15 +1,17 @@
-import { Container, Reveal, RotatingSlogan } from "@/components/ui";
+import { Container, Reveal, RotatingSlogan, sectionY } from "@/components/ui";
 import { driverSlogans } from "@/lib/site";
 
 /**
  * The rolling slogans, as a smaller line under the safety band, heading the driver block (moved 2026-09-21). They were the page's h1 until the
  * photo hero took a fixed one; now they're a paragraph, so the h1 no longer changes under a screen reader.
- * The apply cards follow directly, so this band only carries top space.
+ * The apply cards follow directly. The space under it is the page's normal section step (2026-09-29, spacing audit
+ * point 01: at 48px the slogan and "Where you'd fit." read as one block), and it's set in medium like every other
+ * heading so it doesn't outrank the one under it.
  */
 export function DriverSlogans() {
   return (
     <div className="bg-paper">
-      <Container className="pt-14 pb-10 sm:pt-16 sm:pb-12 lg:pt-20">
+      <Container className={sectionY}>
         <Reveal>
           {/*
             Every slogan is written to roughly the same length, so each one fills the same number of lines
@@ -18,7 +20,7 @@ export function DriverSlogans() {
           <RotatingSlogan
             slogans={driverSlogans}
             hold={4.5}
-            className="text-balance text-[clamp(1.5rem,2.8vw,2.4rem)] font-semibold leading-[1.1] tracking-[-0.025em]"
+            className="text-balance text-[clamp(1.5rem,2.8vw,2.4rem)] font-medium leading-[1.1] tracking-[-0.03em]"
           />
         </Reveal>
       </Container>

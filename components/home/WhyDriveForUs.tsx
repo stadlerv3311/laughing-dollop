@@ -1,4 +1,4 @@
-import { Container, Reveal, labelClass } from "@/components/ui";
+import { Container, Reveal, chapterHeadingClass, chapterTop, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { applyRoutes } from "@/lib/site";
 
@@ -14,13 +14,13 @@ export function WhyDriveForUs() {
   if (!driver) return null;
 
   return (
-    <section aria-labelledby="why-drive-title" className="bg-paper pt-20 sm:pt-28 lg:pt-32">
+    <section aria-labelledby="why-drive-title" className={cx("bg-paper", chapterTop)}>
       <Container>
         <Reveal>
-          <p className={cx(labelClass, "text-ink/60")}>Why drive for us</p>
+          <p className={cx(labelClass, "text-ink/70")}>Why drive for us</p>
           <h2
             id="why-drive-title"
-            className="mt-4 text-[2.5rem] font-medium leading-[1.04] tracking-[-0.045em] sm:text-5xl lg:text-[3.5rem]"
+            className={cx("mt-4", chapterHeadingClass)}
           >
             <span className="block">Good trucks.</span>
             <span className="block text-balance">One kind of freight.</span>

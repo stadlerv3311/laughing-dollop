@@ -78,6 +78,22 @@ export const companyStats: CompanyStat[] = [
   { value: 99, suffix: "%", label: "On-time delivery", meaning: "Your dock schedule stays your dock schedule.", group: "proof" },
 ];
 
+/** A stat's figure as the numbers band shows it once counted up ("125,000+", "99%"). */
+function statFigure(label: CompanyStat["label"]) {
+  const stat = companyStats.find((s) => s.label === label);
+  if (!stat) throw new Error(`No company stat labelled "${label}"`);
+  return `${stat.value.toLocaleString("en-US")}${stat.suffix ?? ""}`;
+}
+
+// The proof line under Ship with us's quote bar (2026-09-29, Ship with us review point 05): three of the numbers band's
+// own figures, read from `companyStats` so the two can't disagree. No new claim. "Dry van only" moved here from the
+// band's paragraph.
+export const shipProof = [
+  { figure: statFigure("Loads completed"), words: "loads completed" },
+  { figure: statFigure("On-time delivery"), words: "on time" },
+  { figure: statFigure("States we serve"), words: "states, dry van only" },
+];
+
 export type Slogan = {
   /** The setup, in full-strength ink. */
   lead: string;
