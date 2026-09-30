@@ -32,7 +32,7 @@ components/                  → component library, one folder per area, each wi
   ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, NextSteps, PagePlaceholder,
                                typography (shared label + section-heading classes)
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, HeroHeadline, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, WhyDriveForUs
+  home/                      → HomeHero, HeroHeadline, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyDriveForUs
   about/                     → Timeline (the About page's sideways timeline), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
   quote/                     → QuoteForm, StateMap
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)

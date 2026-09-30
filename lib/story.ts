@@ -15,8 +15,8 @@ export type Milestone = {
   title: string;
   /** The big mark over it in the homepage story band ("1", "DOT", "48"). */
   mark: string;
-  /** Set in brand orange in the story band; the last one stays white, as where the story has got to. */
-  accent?: boolean;
+  /** Counts up from this to the mark when the story band's route reaches it ("48" from 1: one truck to 48 states). */
+  countFrom?: number;
   text: string;
 };
 
@@ -29,6 +29,11 @@ export type StoryFact = { label: string; value: string };
 type Story = {
   /** The headline on the homepage story band and the About page, one line each (owner, 2026-09-28). */
   headline: string[];
+  /**
+   * The one word the homepage band turns orange once its line has landed (owner's pick "D", 2026-09-29): the rule the
+   * summary under it spells out. Must appear in the last line.
+   */
+  headlineAccent: string;
   /** The About page's closing line. */
   origin: string;
   /** Short version for the homepage card. */
@@ -50,6 +55,7 @@ type Story = {
 
 export const story: Story = {
   headline: ["The map got bigger.", "The rule didn’t."],
+  headlineAccent: "rule",
   origin: "It started with one truck.",
   summary:
     "We started in Citrus Heights, California, with one truck and a simple rule: show up when we say we will, keep the freight safe and treat drivers the way we’d want to be treated.",
@@ -81,9 +87,9 @@ export const story: Story = {
     },
   ],
   milestones: [
-    { title: "Where it started", mark: "1", accent: true, text: "One truck and one driver out of Citrus Heights, California." },
-    { title: "Our own authority", mark: "DOT", accent: true, text: "Registered with the U.S. DOT as a for-hire interstate carrier." },
-    { title: "Today", mark: "48", text: "Dry van freight moving across 48 states." },
+    { title: "Where it started", mark: "1", text: "One truck and one driver out of Citrus Heights, California." },
+    { title: "Our own authority", mark: "DOT", text: "Registered with the U.S. DOT as a for-hire interstate carrier." },
+    { title: "Today", mark: "48", countFrom: 1, text: "Dry van freight moving across 48 states." },
   ],
   timeline: [
     { year: "2014", title: "One truck.", text: "ITrucking Solutions opens in Citrus Heights with a single truck and a plan to haul dry van freight the right way." },

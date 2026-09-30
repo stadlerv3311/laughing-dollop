@@ -1,8 +1,10 @@
 import { ViewTransition } from "react";
-import { Container, InteractiveHoverButton, Reveal, chapterHeadingClass, chapterY, labelClass } from "@/components/ui";
+import { Container, InteractiveHoverButton, Reveal, chapterY, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { aboutLink } from "@/lib/site";
 import { STORY_BAND, STORY_OPEN, story } from "@/lib/story";
+import { StoryHeadline } from "./StoryHeadline";
+import { StoryRoute } from "./StoryRoute";
 
 /**
  * Homepage band with the short company story — the page's one dark passage, edge to edge rather than a card
@@ -10,31 +12,32 @@ import { STORY_BAND, STORY_OPEN, story } from "@/lib/story";
  * driver halves (moved up from the end of the page 2026-09-24).
  *
  * Layout "2c" (owner's pick from three mock-ups, 2026-09-25): the headline and summary on the left with Read our
- * full story on the right, then a hairline and the three milestones as big marks — 1, DOT, 48 — set like the
- * numbers band near the top of the page. Orange only on the marks (the logo's `brand`), never on the button: it's
- * the site's thin white ring (DECISIONS.md → Brand orange). Only Read our full story links to About.
+ * full story on the right, then the three milestones — 1, DOT, 48 — as a short route that draws itself (StoryRoute,
+ * 2026-09-29: white marks at a light weight, orange only on the rider and the last stop; until then the marks were
+ * 115px with two in orange). The button is the site's thin white ring (DECISIONS.md → Brand orange). Only Read our
+ * full story links to About.
  */
 export function StoryTeaser() {
   return (
     // Shares its name with the About page's dark opening: following "Read our full story" morphs this band up
     // into it (2026-09-24). Only that link's `story-open` navigation plays it — see STORY_BAND in lib/story.ts.
     <ViewTransition name={STORY_BAND} share={{ [STORY_OPEN]: "story-open", default: "none" }} default="none">
-    <section aria-labelledby="story-teaser-title" data-header-theme="dark" className={cx("bg-ink text-paper", chapterY)}>
+    {/* The faint light in the top-left corner (story band review point 06): about 4% lighter than ink, gone by the
+        middle. */}
+    <section
+      aria-labelledby="story-teaser-title"
+      data-header-theme="dark"
+      className={cx(
+        "bg-ink bg-[radial-gradient(120%_90%_at_0%_0%,color-mix(in_srgb,var(--color-paper)_4%,var(--color-ink))_0%,var(--color-ink)_55%)] text-paper",
+        chapterY,
+      )}
+    >
       <Container>
         <Reveal>
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-16">
             <div>
               <p className={cx(labelClass, "text-paper/70")}>Our story</p>
-              <h2
-                id="story-teaser-title"
-                className={cx("mt-4", chapterHeadingClass)}
-              >
-                {story.headline.map((line) => (
-                  <span key={line} className="block text-balance">
-                    {line}
-                  </span>
-                ))}
-              </h2>
+              <StoryHeadline id="story-teaser-title" lines={story.headline} accent={story.headlineAccent} className="mt-4" />
               <p className="mt-6 max-w-[38rem] text-pretty text-lg leading-relaxed text-paper/70">{story.summary}</p>
             </div>
             <InteractiveHoverButton
@@ -52,23 +55,7 @@ export function StoryTeaser() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <ol className="mt-14 grid gap-12 border-t border-paper/15 pt-12 sm:mt-20 sm:grid-cols-3 sm:gap-10 sm:pt-14">
-            {story.milestones.map((milestone) => (
-              <li key={milestone.title}>
-                <p
-                  aria-hidden
-                  className={cx(
-                    "text-[4.5rem] font-medium leading-[0.9] tracking-[-0.06em] sm:text-[clamp(4rem,8vw,7.5rem)]",
-                    milestone.accent ? "text-brand" : "text-paper",
-                  )}
-                >
-                  {milestone.mark}
-                </p>
-                <h3 className="mt-6 text-sm text-paper/70">{milestone.title}</h3>
-                <p className="mt-2 max-w-[20rem] text-pretty leading-relaxed">{milestone.text}</p>
-              </li>
-            ))}
-          </ol>
+          <StoryRoute milestones={story.milestones} />
         </Reveal>
       </Container>
     </section>
