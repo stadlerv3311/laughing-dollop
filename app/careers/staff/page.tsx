@@ -7,8 +7,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Office and shop: the same job application as Drive for us, opened on the office job — or the shop job when the
- * homepage's In the shop card sends `?job=shop`.
+ * Office and shop: the same job application as Drive for us, for the office job — or the shop job when the careers
+ * page's shop Apply now sends `?job=shop`.
  */
 export default async function StaffPage({ searchParams }: { searchParams: Promise<{ job?: string | string[] }> }) {
   const { job } = await searchParams;

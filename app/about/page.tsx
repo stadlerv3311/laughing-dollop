@@ -1,117 +1,97 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ViewTransition } from "react";
 import { Timeline } from "@/components/about";
-import { Container, InteractiveHoverButton, Reveal, labelClass } from "@/components/ui";
+import { StoryHeadline } from "@/components/home/StoryHeadline";
+import { Container, HalfStar, InteractiveHoverButton, Reveal, inkDepthClass, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { applyLink, quoteLink } from "@/lib/site";
 import { STORY_BAND, STORY_OPEN, story } from "@/lib/story";
 
 export const metadata: Metadata = { title: "About" };
 
-/** Quiet label on the left of the story and timeline: the content leads, not the heading. */
+/** Quiet label on the close's cards. */
 const sideLabelClass = cx(labelClass, "text-ink/70");
-/** Label on the left, content across the rest. */
-const splitClass = "grid gap-5 md:grid-cols-[1fr_2fr] md:gap-12";
 
 /**
- * About page (2026-09-24, owner chose the beats after an outside review): alternating mass and thin — loud type on dark,
- * the facts row inside it under a hairline, the story as six short titled blocks, the timeline sideways on scroll (2026-09-25), and a closing line over two cards, shippers and careers (2026-09-28). The headline is "The map got bigger. The rule didn't." (owner,
- * 2026-09-28), and the close answers it with where it started. The dark
- * band is the opening (owner, 2026-09-24; it was the close at first). The gaps are uneven on purpose. A photo beat
- * between the facts and the story is left out until a real photo exists. Copy, timeline and facts are in lib/story.ts (draft). Team, fleet and safety
- * record are still to come.
+ * About page. The opening is the owner's "B" (2026-10-01): the safety band's dark look with one picture across the
+ * edge where the black turns white, and the story in a few lines beside it. Then the sideways timeline (2026-09-25) and
+ * the two cards, shippers and careers (2026-09-28). The headline is "The map got bigger. The rule didn't." (owner,
+ * 2026-09-28). The six titled story blocks and the facts row came out on 2026-10-01. What follows the opening is still
+ * open: the owner wants two screens in all. Copy and timeline are in lib/story.ts (draft).
  */
 export default function AboutPage() {
   return (
     <>
-      {/* The page's one dark mass, at the top (owner, 2026-09-24: moved up from the close). The homepage story
-          band morphs into it when you come from its "Read our full story" link. */}
-      <ViewTransition name={STORY_BAND} share={{ [STORY_OPEN]: "story-open", default: "none" }} default="none">
-      <section data-header-theme="dark" className="bg-ink pb-16 pt-36 text-paper sm:pb-20 sm:pt-44">
-        <Container>
-          {/* Headline left, lede right on its last line (after Koto on Mobbin, 2026-09-25): the band was all on the
-              left with nothing across from it. */}
-          <Reveal className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-end lg:gap-16">
-            <div>
+      {/*
+        The opening (owner's "B", 2026-10-01, from mock-ups after a Mobbin pass): the safety band's look — the ink with
+        its depth, the orange outline star, the two-tone heading rising in — then one picture that sits across the
+        edge where the black turns white, about a third of the way down it, with the short story beside it on the
+        white. The black block alone is marked dark for the header, and it's what the homepage story band morphs into
+        from "Read our full story".
+      */}
+      <section aria-labelledby="about-heading">
+        <ViewTransition name={STORY_BAND} share={{ [STORY_OPEN]: "story-open", default: "none" }} default="none">
+          <div
+            data-header-theme="dark"
+            className={cx(
+              "relative isolate overflow-hidden bg-ink pt-36 text-paper sm:pt-40",
+              inkDepthClass,
+              // Room under the lede, plus what the picture overlaps: 30% of its height — about a fifth of the
+              // screen's width while it runs full width, 8rem beside the story from lg.
+              "pb-[calc(3.5rem+20vw)] lg:pb-[calc(3.5rem+8rem)]",
+            )}
+          >
+            <HalfStar />
+            <Container>
               <p className={cx(labelClass, "text-paper/70")}>About</p>
-              <h1 className="mt-4 text-[2.75rem] font-medium leading-[1.02] tracking-[-0.045em] sm:text-6xl lg:text-[4.5rem] xl:text-[5rem]">
-                {/* One line each, as the owner set it; they wrap on their own only on narrow phones. */}
-                {story.headline.map((line) => (
-                  <span key={line} className="block text-balance">
-                    {line}
-                  </span>
-                ))}
-              </h1>
-            </div>
-            <p className="max-w-[28rem] text-pretty text-lg leading-relaxed text-paper/70 lg:pb-2">{story.lede}</p>
-          </Reveal>
-          {/* The facts close the dark band under a hairline (after MasterClass and Koto on Mobbin, 2026-09-28) — they
-              used to sit alone on the white under it, with empty dark above and empty white below. */}
-          <Reveal delay={0.1}>
-            <dl className="mt-16 grid grid-cols-2 border-t border-paper/15 sm:mt-20 lg:grid-cols-4">
-              {story.facts.map((fact, i) => (
-                <div
-                  key={fact.label}
-                  className={cx(
-                    "pt-6 pr-4",
-                    i % 2 === 1 && "border-l border-paper/15 pl-4 sm:pl-6",
-                    i >= 2 && "mt-6 border-t border-paper/15 lg:mt-0 lg:border-t-0",
-                    i === 2 && "lg:border-l lg:pl-6",
-                  )}
-                >
-                  <dt className="text-sm text-paper/60">{fact.label}</dt>
-                  <dd className="mt-1.5 text-lg font-medium leading-snug tracking-[-0.015em]">{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
+              <StoryHeadline as="h1" id="about-heading" lines={story.headline} className="mt-4" />
+              <p className="mt-6 max-w-[38rem] text-pretty text-lg leading-relaxed text-paper/70">{story.lede}</p>
+            </Container>
+          </div>
+        </ViewTransition>
+
+        <Container className="relative -mt-[20vw] lg:-mt-32">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-x-6">
+            {/* An AI-made stand-in (owner's generated pictures, 2026-10-01) — no caption, so nothing reads it as a
+                photo from our history. */}
+            <Reveal className="relative aspect-[3/2] overflow-hidden bg-ink lg:col-span-7 lg:aspect-[680/430]">
+              <Image
+                src="/images/about-truck-front.jpg"
+                alt="A white ITrucking truck and trailer on a desert highway"
+                fill
+                priority
+                sizes="(min-width: 75rem) 42rem, (min-width: 64rem) 58vw, 100vw"
+                className="object-cover object-[58%_center]"
+              />
+            </Reveal>
+            <Reveal delay={0.1} className="lg:col-span-5 lg:self-end lg:pl-10">
+              <h2 className="text-[1.75rem] font-medium leading-[1.12] tracking-[-0.03em]">{story.origin}</h2>
+              <p className="mt-4 max-w-[26rem] text-pretty leading-relaxed text-ink/70">{story.opening}</p>
+              <a
+                href="#about-timeline"
+                className="mt-6 inline-block border-b border-ink/50 pb-0.5 font-medium transition-colors duration-300 hover:border-ink"
+              >
+                How we got here
+              </a>
+            </Reveal>
+          </div>
         </Container>
       </section>
-      </ViewTransition>
-
-      <Container>
-        <section aria-labelledby="about-story" className={cx(splitClass, "pt-20 sm:pt-24")}>
-          <Reveal>
-            <h2 id="about-story" className={sideLabelClass}>
-              Our story
-            </h2>
-          </Reveal>
-          {/* Six short blocks, two across, each under a hairline (after Patreon's and Büro's chapters on Mobbin,
-              2026-09-25) — it was one long column of text. */}
-          <ol className="grid gap-x-12 gap-y-12 sm:grid-cols-2 sm:gap-y-16">
-            {story.chapters.map((chapter, i) => (
-              <li key={chapter.title}>
-                <Reveal delay={(i % 2) * 0.06} className="border-t border-ink/12 pt-6">
-                  <p className="text-sm tabular-nums text-ink/50">{String(i + 1).padStart(2, "0")}</p>
-                  <h3 className="mt-3 text-xl font-medium tracking-[-0.02em]">{chapter.title}</h3>
-                  <p className="mt-3 text-pretty leading-[1.75] text-ink/70">{chapter.text}</p>
-                </Reveal>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-      </Container>
 
       {/* Full-bleed, so the strip can run past the Container's edges as it slides (components/about/Timeline.tsx). */}
       {story.timeline.length > 0 && <Timeline entries={story.timeline} />}
 
-      {/* The close, on white now that the dark band is at the top: a hairline, where it started, and the two CTAs. */}
-      <section aria-labelledby="about-closing" className="pb-24 sm:pb-32">
+      {/* The close, on white: one door for each audience. Its line "It started with one truck." moved up beside the
+          opening's picture (2026-10-01), so the cards close the page on their own; the timeline's own bottom space
+          keeps them apart from it. */}
+      <section aria-label="Ship or drive with us" className="pb-24 sm:pb-32">
         <Container>
-          <Reveal className="border-t border-ink/12 pt-20 sm:pt-24">
-            <h2
-              id="about-closing"
-              className="max-w-[18ch] text-balance text-[2rem] font-medium leading-[1.1] tracking-[-0.04em] sm:text-5xl lg:text-[3.5rem]"
-            >
-              {story.origin}
-            </h2>
-          </Reveal>
           {/*
             One door for each audience (2026-09-28, from the Samsara review): shippers on white, jobs on ink, side by
             side from md. It used to be the two buttons in a row, with nothing saying who each was for.
           */}
-          <Reveal delay={0.1} className="mt-12 grid gap-4 sm:mt-16 md:grid-cols-2">
+          <Reveal className="grid gap-4 md:grid-cols-2">
             <div className="flex flex-col rounded-3xl border border-ink/10 p-8 sm:p-10">
               <p className={sideLabelClass}>Shippers</p>
               <h3 className="mt-3 text-[1.75rem] font-medium leading-[1.1] tracking-[-0.035em] sm:text-4xl">Have a load to move?</h3>

@@ -9,7 +9,6 @@ import { InteractiveHoverButton, errorId } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { submitJobApplication } from "@/lib/forms";
 import { applyRoutes, careersLink, driverSlogans, type Job } from "@/lib/site";
-import { usStates } from "@/lib/us-states";
 
 // The owner's eight driver questions (2026-09-25). Office and shop share the contact questions and one on
 // experience — a draft until the owner says what else to ask them. The copy around the questions is draft too.
@@ -18,11 +17,6 @@ const ENDORSEMENTS = ["Hazmat", "Tanker", "Doubles"] as const;
 const NONE = "None";
 
 const backClass = "font-medium text-paper/60 transition-colors hover:text-paper";
-
-// A license can come from any state; the quote map's list is the lower 48 and DC, so Alaska and Hawaii are added.
-const LICENSE_STATES = [...usStates, { code: "AK", name: "Alaska" }, { code: "HI", name: "Hawaii" }]
-  .map(({ code, name }) => ({ code, name }))
-  .sort((a, b) => a.name.localeCompare(b.name));
 
 type Values = {
   job: Job;
@@ -33,31 +27,53 @@ type Values = {
   zip: string;
   classA: string;
   years: string;
-  licenseState: string;
-  licenseNumber: string;
   endorsements: string[];
 };
 type FieldName = keyof Values;
 type Errors = Partial<Record<FieldName, string>>;
 type Status = { kind: "idle" | "sending" | "sent" } | { kind: "failed"; message: string };
-type Step = "job" | "name" | "phone" | "email" | "zip" | "classA" | "years" | "license" | "endorsements";
+type Step = "name" | "phone" | "email" | "zip" | "classA" | "years" | "endorsements";
 
 const STEP_FIELDS: Record<Step, FieldName[]> = {
-  job: ["job"],
   name: ["first", "last"],
   phone: ["phone"],
   email: ["email"],
   zip: ["zip"],
   classA: ["classA"],
   years: ["years"],
-  license: ["licenseState", "licenseNumber"],
   endorsements: ["endorsements"],
 };
 
-/** The job comes first, the contact questions next (so HR can reach anyone who stops partway), then the job's own. */
+/**
+ * Pictures that follow the questions (owner, 2026-10-01): the job's own photo unless a question has its own, so the
+ * picture changes as you answer — you, how we reach you, your home on the road, your seat, the wheel, the road, then
+ * the engine start button once it's sent. Wide images: `position` keeps the subject in the tall panel.
+ * - phone, email: AI-generated stand-ins the owner made — never caption or present them as one of our drivers.
+ * - sleeper, seat, wheel, road, sent: PLACEHOLDERS — Volvo Trucks' own marketing images (from the owner's "Driver
+ *   application Pictures" folder). They must not go live without Volvo's written OK; swap in our own photos or
+ *   stand-ins first (docs/DECISIONS.md). The road picture is only 700px wide, so it's soft.
+ */
+const STEP_IMAGES: Partial<Record<Job, Partial<Record<Step | "sent", { src: string; position: string }>>>> = {
+  driver: {
+    phone: { src: "/images/apply-driver-call.jpg", position: "64% center" },
+    email: { src: "/images/apply-driver-email.jpg", position: "66% center" },
+    zip: { src: "/images/apply-driver-sleeper.jpg", position: "60% center" },
+    classA: { src: "/images/apply-driver-seat.jpg", position: "center 40%" },
+    years: { src: "/images/apply-driver-wheel.jpg", position: "40% center" },
+    endorsements: { src: "/images/apply-driver-road.jpg", position: "35% center" },
+    sent: { src: "/images/apply-driver-start.jpg", position: "45% center" },
+  },
+};
+
+/**
+ * The contact questions first (so HR can reach anyone who stops partway), then the job's own. No "Which job?" since
+ * 2026-10-01 (owner): every way in comes from a job's own Apply now on the careers page, so the job is already known.
+ * No driver's license step either since the same day (owner): asking for a license number needs a terms of service
+ * and privacy page first; HR can take it on the call back.
+ */
 function stepsFor(job: Job): Step[] {
-  const start: Step[] = ["job", "name", "phone", "email", "zip"];
-  return job === "driver" ? [...start, "classA", "years", "license", "endorsements"] : [...start, "years"];
+  const start: Step[] = ["name", "phone", "email", "zip"];
+  return job === "driver" ? [...start, "classA", "years", "endorsements"] : [...start, "years"];
 }
 
 const empty = (job: Job): Values => ({
@@ -69,8 +85,6 @@ const empty = (job: Job): Values => ({
   zip: "",
   classA: "",
   years: "",
-  licenseState: "",
-  licenseNumber: "",
   endorsements: [],
 });
 
@@ -84,8 +98,6 @@ function validate(values: Values): Errors {
   if (!/^\d{1,2}$/.test(values.years.trim())) errors.years = "Enter a number of years — 0 is fine.";
   if (values.job === "driver") {
     if (!values.classA) errors.classA = "Choose one.";
-    if (!values.licenseState) errors.licenseState = "Choose the state.";
-    if (!/^[A-Za-z0-9-]{4,20}$/.test(values.licenseNumber.replace(/\s/g, ""))) errors.licenseNumber = "Enter the license number.";
     if (values.endorsements.length === 0) errors.endorsements = "Choose any that apply, or None.";
   }
   return errors;
@@ -103,8 +115,11 @@ const lineClass =
  * Half the screen is the picked job's photo, bled to the edges; the other half is ink, with one question at a time
  * set large under a thin progress line — on every screen size, so phones and desktops get the same flow. Tap
  * answers move on by themselves, Enter moves on from a typed answer, and the number keys pick an answer. On phones
- * the photo becomes a band across the top. It opens on one screen about working here, with Apply now; then one
- * application for all three jobs, starting with Which job?, and the photo follows the pick. Sends through `submitJobApplication`, a stub until the backend exists.
+ * the photo becomes a band across the top. One application for all three jobs, opened on the job whose Apply now
+ * brought you here (the page's URL says which): its photo, its title over the progress line, and its own questions —
+ * the "Which job?" step that opened it came out on 2026-10-01 (owner), since the job was always picked already. To
+ * apply for another job, Back on the first question returns to the careers page. Sends through
+ * `submitJobApplication`, a stub until the backend exists.
  */
 export function JobApplication({ initialJob }: { initialJob: Job }) {
   const baseId = useId();
@@ -125,6 +140,10 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
   const allErrors = validate(values);
   const errors: Errors = Object.fromEntries(shown.map((field) => [field, allErrors[field]]));
   const driver = values.job === "driver";
+  const route = applyRoutes.find((item) => item.job === values.job) ?? applyRoutes[0];
+  const stepImages = STEP_IMAGES[values.job] ?? {};
+  // The question's own picture while it's on screen, the "sent" one after; the job's photo where there's none.
+  const stepImage = status.kind === "sent" ? stepImages.sent : stepImages[step];
   const sent = status.kind === "sent";
 
   const set = (field: Exclude<FieldName, "endorsements" | "job">, value: string) =>
@@ -179,7 +198,6 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
       driver: driver
         ? {
             hasClassA: values.classA === "Yes",
-            license: { state: values.licenseState, number: values.licenseNumber.replace(/\s/g, "").toUpperCase() },
             endorsements: values.endorsements.filter((endorsement) => endorsement !== NONE),
           }
         : undefined,
@@ -228,9 +246,25 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
             sizes="(width >= 48rem) 50vw, 100vw"
             className={cx(
               "object-cover transition-opacity duration-700 ease-premium",
-              item.job === values.job ? "opacity-100" : "opacity-0",
+              item.job === values.job && !stepImage ? "opacity-100" : "opacity-0",
             )}
             style={item.image.position ? { objectPosition: item.image.position } : undefined}
+          />
+        ))}
+        {/* The job's question pictures, over its photo, each showing while its question is on screen. */}
+        {Object.entries(stepImages).map(([key, image]) => (
+          <Image
+            key={key}
+            src={image.src}
+            alt=""
+            aria-hidden
+            fill
+            sizes="(width >= 48rem) 50vw, 100vw"
+            className={cx(
+              "object-cover transition-opacity duration-700 ease-premium",
+              stepImage === image ? "opacity-100" : "opacity-0",
+            )}
+            style={{ objectPosition: image.position }}
           />
         ))}
         {/* A little shade under the header, and a rise from the bottom under the owner's line. */}
@@ -238,12 +272,12 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
           aria-hidden
           className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(12_12_12/.45),rgb(12_12_12/0)_28%),linear-gradient(to_top,rgb(12_12_12/.55),rgb(12_12_12/0)_42%)]"
         />
-        {/* The owner's line is a driver's line, so it shows on the driver photo only. */}
+        {/* The owner's line is a driver's line, so it shows on the driver's own photo only, not the question pictures. */}
         <p
-          aria-hidden={!driver}
+          aria-hidden={!driver || Boolean(stepImage)}
           className={cx(
             "absolute inset-x-5 bottom-5 max-w-[20ch] text-balance text-lg font-medium leading-snug tracking-[-0.02em] transition-opacity duration-500 sm:text-2xl md:inset-x-10 md:bottom-10",
-            driver ? "opacity-100" : "opacity-0",
+            driver && !stepImage ? "opacity-100" : "opacity-0",
           )}
         >
           {slogan.lead} <span className="text-paper/60">{slogan.tail}</span>
@@ -270,6 +304,14 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
             </Appear>
           ) : (
             <>
+              {/* The job this is for, since nothing asks any more — set at the sub-heading size (owner, 2026-10-01: it's
+                  important), a clear step under the question. */}
+              <p className="mb-8 sm:mb-10">
+                <span className="block text-sm text-paper/70">Applying for</span>
+                <span className="mt-1 block text-[1.5rem] font-medium leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
+                  {route.title}
+                </span>
+              </p>
               {/* Where you are. */}
               <div className="h-0.5 overflow-hidden rounded-full bg-paper/15">
                 <div
@@ -286,51 +328,6 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
 
               <form noValidate onSubmit={handleSubmit} className="mt-10 sm:mt-14">
                 <Appear key={step} still={reduceMotion}>
-                  {step === "job" && (
-                    <Question legend="Which job?" hint="No résumé, no uploads. Then HR calls you back.">
-                      <div data-choice id={id("job")} className="grid grid-cols-3 gap-2.5 sm:gap-3">
-                        {applyRoutes.map((item) => {
-                          const on = item.job === values.job;
-                          return (
-                            <label
-                              key={item.job}
-                              className={cx(
-                                "group relative aspect-3/4 cursor-pointer overflow-hidden rounded-2xl bg-paper/10 outline-offset-4 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-brand",
-                                on ? "ring-2 ring-paper" : "ring-1 ring-paper/15",
-                              )}
-                            >
-                              <input
-                                type="radio"
-                                name={id("job")}
-                                value={item.job}
-                                checked={on}
-                                readOnly
-                                // A click, not a change, so tapping the job that's already picked also moves on.
-                                onClick={() => pickAndGo(() => setValues((current) => ({ ...current, job: item.job })))}
-                                className="sr-only"
-                              />
-                              <Image
-                                src={item.image.src}
-                                alt=""
-                                fill
-                                sizes="12rem"
-                                className="object-cover transition-transform duration-700 ease-premium group-hover:scale-[1.05]"
-                                style={item.image.position ? { objectPosition: item.image.position } : undefined}
-                              />
-                              <span
-                                aria-hidden
-                                className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_12_12/.7),rgb(12_12_12/0)_55%)]"
-                              />
-                              <span className="absolute inset-x-3 bottom-3 text-sm font-medium leading-tight tracking-[-0.01em] sm:inset-x-4 sm:bottom-3.5 sm:text-base">
-                                {item.role}
-                              </span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </Question>
-                  )}
-
                   {step === "name" && (
                     <Question legend="What’s your name?">
                       <div className="grid gap-6 sm:grid-cols-2">
@@ -435,41 +432,6 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
                           onChange={(event) => set("years", event.target.value)}
                         />
                       </Line>
-                    </Question>
-                  )}
-
-                  {step === "license" && (
-                    <Question legend="Your driver’s license" hint="The state that issued it, and its number.">
-                      <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-6">
-                        <Line id={id("licenseState")} label="State" error={errors.licenseState}>
-                          <select
-                            {...lineProps(id("licenseState"), errors.licenseState)}
-                            value={values.licenseState}
-                            onChange={(event) => set("licenseState", event.target.value)}
-                            className={cx(lineClass, "cursor-pointer appearance-none", !values.licenseState && "text-paper/30")}
-                          >
-                            <option value="" disabled>
-                              State
-                            </option>
-                            {LICENSE_STATES.map((state) => (
-                              <option key={state.code} value={state.code} className="bg-ink text-paper">
-                                {state.name}
-                              </option>
-                            ))}
-                          </select>
-                        </Line>
-                        <Line id={id("licenseNumber")} label="License number" error={errors.licenseNumber}>
-                          <input
-                            {...lineProps(id("licenseNumber"), errors.licenseNumber)}
-                            placeholder="Number"
-                            autoComplete="off"
-                            autoCapitalize="characters"
-                            spellCheck={false}
-                            value={values.licenseNumber}
-                            onChange={(event) => set("licenseNumber", event.target.value)}
-                          />
-                        </Line>
-                      </div>
                     </Question>
                   )}
 

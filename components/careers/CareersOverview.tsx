@@ -1,14 +1,14 @@
 import Image from "next/image";
-import Link from "next/link";
-import { Container, InteractiveHoverButton, NextSteps, Reveal, labelClass } from "@/components/ui";
+import { Container, InteractiveHoverButton, Reveal, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { applyLink, applyRoutes, applySteps } from "@/lib/site";
+import { applyLink, applyRoutes } from "@/lib/site";
 
 /**
  * The careers page (owner, 2026-09-25: Careers and Apply now should show the jobs, what each one is and why to take
  * it, before the application). A dark opening like About's, then one section per job — photo on one side, the job
  * on the other, alternating — each ending in Apply now, which opens the application on that job. Copy is in
- * lib/site.ts → applyRoutes (draft).
+ * lib/site.ts → applyRoutes (draft). The row of three jump links under the opening came out on 2026-10-01 (owner): the
+ * opening names the three jobs already, and the jobs start right under it.
  */
 export function CareersOverview() {
   return (
@@ -26,38 +26,12 @@ export function CareersOverview() {
             </p>
           </Reveal>
 
-          {/* Straight to a job. */}
-          <Reveal delay={0.1}>
-            <ul className="mt-12 grid border-t border-paper/15 sm:grid-cols-3">
-              {applyRoutes.map((route, i) => (
-                <li key={route.job} className={cx(i > 0 && "border-t border-paper/15 sm:border-l sm:border-t-0")}>
-                  <Link
-                    href={`#${route.job}`}
-                    className={cx(
-                      "group flex items-baseline justify-between gap-4 py-5 transition-colors hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-                      i > 0 && "sm:pl-6",
-                      i < applyRoutes.length - 1 && "sm:pr-6",
-                    )}
-                  >
-                    <span>
-                      <span className="block text-sm text-paper/60">{route.role}</span>
-                      <span className="mt-1 block text-lg font-medium tracking-[-0.015em]">{route.title}</span>
-                    </span>
-                    <span aria-hidden className="text-paper/40 transition-transform duration-300 group-hover:translate-y-0.5 group-hover:text-paper">
-                      ↓
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
         </Container>
       </section>
 
       <div className="bg-paper py-20 sm:py-28">
         <Container>
-          {/* How applying works, before the jobs (2026-09-28). */}
-          <NextSteps title="How applying works" steps={applySteps} className="mb-24 sm:mb-32" />
+          {/* "How applying works" sat here 2026-09-28 to 10-01 (owner removed it: the opening already says it). */}
           <div className="grid gap-24 sm:gap-32">
             {applyRoutes.map((route, i) => (
               <section
@@ -92,7 +66,7 @@ export function CareersOverview() {
                   <p className="mt-5 max-w-[34rem] text-pretty text-lg leading-relaxed text-ink/70">{route.summary}</p>
 
                   <h3 className="mt-10 text-sm font-semibold">Why here</h3>
-                  <ul className="mt-3 divide-y divide-ink/10 border-y border-ink/10">
+                  <ul className="mt-3">
                     {route.reasons.map((reason) => (
                       <li key={reason.title} className="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-6">
                         <span className="font-medium">{reason.title}</span>

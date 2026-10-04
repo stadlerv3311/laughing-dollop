@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Class A dry van driver jobs at ITrucking Solutions. A few short questions, then HR calls you back.",
 };
 
-/** The careers page's driver Apply now lands here: the application, opened on the driver job (the other two are one tap away). */
+/** The careers page's driver Apply now lands here: the application for the driver job, starting with the name. */
 export default function DriversPage() {
   return (
     <JobApplication initialJob="driver" />
