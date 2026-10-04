@@ -17,9 +17,9 @@ app/
   layout.tsx                 → root layout: font, metadata, providers, Header/Footer
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
-  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + TrustBar + SlideOverStack(SafetyBand + ToolsBand, ShipWithUs) + StoryTeaser + WhyDriveForUs + DriverSlogans + ApplyRoutes
+  page.tsx                   → Homepage (/) — HomeIntro + HomeHero + SlideOverStack(SafetyBand(between: TrustBar) + ToolsBand, ShipWithUs) + StoryTeaser + WhyWorkWithUs
   services/page.tsx          → Services (/services)
-  quote/page.tsx             → Request a Quote (/quote)
+  quote/page.tsx             → redirects to /#quote (the quote form is in Ship with us since 2026-10-02)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
   news/page.tsx              → News (/news)
   careers/
@@ -29,19 +29,20 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Columns, Container, CountUp, Field, HeroMedia, Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, NextSteps, PagePlaceholder,
+  ui/                        → Button, Columns, Container, CountUp, Field, HalfStar (+ inkDepthClass, the dark bands' look), HeroMedia, Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, PagePlaceholder,
                                typography (shared label + section-heading classes)
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, HeroHeadline, DriverSlogans, ApplyRoutes, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyDriveForUs
+  home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs
   about/                     → Timeline (the About page's sideways timeline), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
-  quote/                     → QuoteForm, StateMap
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll
 
 lib/
   site.ts                    → company name, every nav link (single source for Header, menu, Footer), homepage numbers,
-                               rolling slogans, the three apply cards
+                               rolling slogans, the three apply cards, Why work with us (`whyWorkWithUs`),
+                               the footer's link groups (`footerGroups`) and the FMCSA record (`company`: legal name,
+                               phone, address, USDOT, MC)
   cx.ts                      → className join helper
   forms.ts                   → QuoteRequest type + submitQuote stub (backend contract goes here)
   us-states.ts               → generated lower-48 state shapes for the quote map — don't edit by hand
@@ -74,6 +75,7 @@ Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordi
 | Near-black | `ink` | `#252525` | Text, dark UI elements |
 | White | `paper` | `#FFFFFF` | Primary background |
 | Soft off-white | `mist` | `#F7F0F0` | Alternate section backgrounds — gives rhythm without shadows/borders |
+| Light grey | `cloud` | `#EBEBEB` | Ship with us's big Get a quote button and quote form on the black band (2026-10-02) — white there glared |
 | Orange | `brand` | `#FF3000` | Accent only — the logo, active marks, small dots and bars; never a button fill (buttons went black 2026-09-19) or a dominant fill. Matches the logo icon exactly |
 | Easing | `ease-premium` | `cubic-bezier(0.22, 1, 0.36, 1)` | Default for UI transitions |
 
@@ -82,16 +84,18 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 - Never use orange for small body text or links — use near-black
 
 ### Typography (2026-09-24)
-- One face, Geist. Three shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked), `chapterHeadingClass` (the three big moments after the hero — Ship with us, Our story, Why drive for us — 40 / 48 / 56px, since 2026-09-29) and `sectionHeadingClass` (the safety band, apply cards and About timeline h2 — medium weight, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
+- One face, Geist. Three shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked), `chapterHeadingClass` (the big moments after the hero — the safety band since 2026-09-30, Ship with us, Our story, Why work with us — 40 / 48 / 56px, since 2026-09-29) and `sectionHeadingClass` (the About timeline h2, and the safety band's until 2026-09-30 — medium weight, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
 - Page h1s (inner pages) are `text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale, with its fixed words at `text-paper/60` (large text, so it clears the contrast floor for its size).
 - Header nav links are all one size (15px); inactive links `text-ink/70`, the contrast floor.
 - Copy rules (case, "and", apostrophes, commas) are in DECISIONS.md → Wording and type.
-- **Greys (2026-09-29, spacing audit point 04; there were six).** Small text that isn't ink — labels, body, meta, captions — is `text-ink/70` on white (5.7:1) and `text-paper/70` on the dark bands, and `text-paper/80` over photos, which are busier. `/60` is only for the grey half of large type (the rolling slogan's tail, the hero's fixed words), where the contrast floor is 3:1. `text-ink/40` is only for decorative text screen readers skip (Why drive for us's 01–04). Don't add another step. Form placeholders are the one leftover (`ink/40`, QuoteBar and Field).
+- **Line wrapping site-wide (2026-10-01, owner).** `app/globals.css` sets `text-wrap: pretty` on running text (p, li, dt, dd, blockquote, figcaption, label, legend) so a paragraph doesn't end on one lonely word, and `text-wrap: balance` on h1–h6 so headings split into even lines. It's in the base layer, so a component's own `text-pretty` / `text-balance` / `whitespace-nowrap` still wins; the many per-element `text-pretty` classes are now redundant but harmless. Browsers without support (older Firefox) wrap normally.
+- **Greys (2026-09-29, spacing audit point 04; there were six).** Small text that isn't ink — labels, body, meta, captions — is `text-ink/70` on white (5.7:1) and `text-paper/70` on the dark bands, and `text-paper/80` over photos, which are busier. `/60` is only for the grey half of large type (the rolling slogan's tail, the hero's fixed words), where the contrast floor is 3:1. `text-ink/40` is only for decorative text screen readers skip (the 01–05 beside Why work with us's reasons). Don't add another step. Form placeholders are the one leftover (`ink/40`, QuoteBar and Field).
 
 ### Section spacing (2026-09-29)
-- Three steps for the space around homepage bands, as shared classes in `components/ui/spacing.ts` (phone → `sm` → `lg`): **section** 64 → 80 → 96px (`sectionY`, `sectionTop`, `sectionBottom`) for most bands; **chapter** 80 → 112 → 128px (`chapterY`, `chapterTop`) for the dark story band and Why drive for us, which opens the driver half; **joined**, no top space, for a band that closes the one above it (the logo row under the safety band, the apply cards under the slogan).
-- Where two white bands meet, only one of them carries the step, so the gap is one step, not two: the numbers band has top space only, Why drive for us has top space only, the apply cards have bottom space only.
-- One tuned exception: from `lg`, where Ship with us slides up over the safety band, the logo row keeps 40px under it and Ship with us 160px above / 200px below (32 / 72 until the map went in behind it, 2026-09-29), so the ask sits centred in its sheet (ShipWithUs.tsx, ToolsBand.tsx).
+- Three steps for the space around homepage bands, as shared classes in `components/ui/spacing.ts` (phone → `sm` → `lg`): **section** 64 → 80 → 96px (`sectionY`, `sectionTop`, `sectionBottom`) for most bands; **chapter** 80 → 112 → 128px (`chapterY`, `chapterTop`) for Why work with us (the story band had it too, top only, until 2026-10-02 — see the exceptions below), which is the careers half and ends the page; **joined**, no top space, for a band that closes the one above it (the logo row under the safety band).
+- Where two white bands meet, only one of them carries the step, so the gap is one step, not two: the numbers band has no space of its own since it moved inside the safety band (2026-10-02). Why work with us, the last band, carries the chapter step top and bottom.
+- One tuned exception: from `lg`, where Ship with us slides up over the safety band, the logo row keeps 70px under it (owner, 2026-10-02; 40 before) (ToolsBand.tsx). Ship with us itself is the full screen since 2026-10-02, its heading and button centred in it (ShipWithUs.tsx); it was 130px above / 200px below the ask before. Our story's top space is 70px from `sm` (64px on phones) since 2026-10-02 (owner: it had the chapter's 128px), the same as the safety band's foot (StoryTeaser.tsx).
+- Inside the safety band: the numbers band sits between its two pictures, 64px (phones) / 70px (from `sm`) from each, and the band ends 64 / 70px under its last picture, so the logo row is as far below it (owner, 2026-10-02; the band used the section foot before). Until 2026-10-02 the band's top half was ink and the space between the pictures was split either side of the colour change; it's all white now (DECISIONS.md → Safety band).
 - Don't hand-pick a new padding for a homepage band; use one of the three steps.
 
 ### Layout grid (2026-09-23)
@@ -158,19 +162,12 @@ Array of freight-type entries. Today contains exactly one entry (Dry Van). Addin
 { id, name, description }
 ```
 
-### Quote form (`/quote`)
-Fields: pickup and delivery (state + city or ZIP each), weight, what's being shipped, contact info. Shape sent to the backend (`lib/forms.ts`):
+### Quote form (Ship with us on the homepage)
+The site's one quote form since 2026-10-02 (`components/home/QuoteBar.tsx`): every Get a quote link goes to `/#quote` and opens it (`components/home/ShipWithUs.tsx` → `useQuoteLinks`); `/quote` redirects there. Fields (ZIP-only since 2026-10-01): pickup ZIP, delivery ZIP, pickup date, name, and one "Phone or email" field, sent as `phone` or `email` by what was typed. Shape sent to the backend (`lib/forms.ts`):
 ```
-QuoteRequest { pickup: { state, place }, delivery: { state, place }, weightLbs, freight, contact: { name, company?, email, phone } }
+QuoteRequest { pickup: { zip, state }, delivery: { zip, state }, pickupDate, contact: { name, phone?, email? } }
 ```
-`state` is a two-letter code from `lib/us-states.ts`. `submitQuote` is a stub until the backend teammate's endpoint exists: it succeeds in development and fails with a message in production.
-
-## Get a Quote map
-- `StateMap` draws the lower 48 + D.C. as SVG paths from `lib/us-states.ts` (Census shapes via us-atlas, Albers projection, generated by `scripts/build-us-states.mjs`; about 67 KB, no map service or API key).
-- Hover lifts a copy of the state on top with a shadow and shows a name tag; touch skips hover. Clicks set pickup → delivery; a route curve draws between the two pin spots (`cx`, `cy`: centroid of each state's largest piece).
-- `QuoteForm` owns the state: map clicks, the state dropdowns and ZIPs typed into City or ZIP (`lib/zip.ts`) all update the same pickup/delivery values. A ZIP from a different state is cleared when the state changes.
-- The SVG is `aria-hidden`; the dropdowns are the accessible way to pick states. Errors show after the first submit (an Alaska/Hawaii ZIP is flagged right away), and the first invalid field gets focus.
-- Map sits above the form at every width, centred and up to 60rem wide (owner, 2026-09-28; it used to sit right of the form, smaller and sticky). It's second in the DOM and pulled up with `order-first`, so the form still comes first for keyboard and screen-reader users. From `lg` the form runs two by two under it: Pickup beside Delivery, The load beside Your details, the button across the bottom. It sits straight on the page background — no card — so its `stroke-paper` borders read as gaps between the states.
+`state` is the two-letter code the ZIP belongs to (`lib/zip.ts`, from the first three digits — the backend should still check it). `submitQuote` is a stub until the backend teammate's endpoint exists: it succeeds in development and fails with a message in production.
 
 ### Qualification form (Drive For Us + staff roles)
 5–6 short questions only. Submits into an HR contact flow, not a document/e-signature pipeline. See DECISIONS.md → Applications.

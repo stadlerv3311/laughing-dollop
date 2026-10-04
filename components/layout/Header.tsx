@@ -18,7 +18,10 @@ const PHONE_QUERY = "(width < 40rem)";
 /** Where the header's logo sits, from the top of the screen — the point checked against dark bands. */
 const HEADER_MID = 36;
 
-/** The band marked `data-header-theme="dark"` under the header, if any, so the logo and CTAs switch to light. */
+/**
+ * The band marked `data-header-theme="dark"` under the header, if any, so the logo and CTAs switch to light. A band
+ * marked `data-header-glass="none"` as well (the homepage hero) keeps the film clear of the dark glass bar.
+ */
 function darkBandUnder() {
   return Array.from(document.querySelectorAll<HTMLElement>('[data-header-theme="dark"]')).find((band) => {
     const { top, bottom } = band.getBoundingClientRect();
@@ -87,9 +90,9 @@ function NavItem({ href, active, light, children, ...rest }: NavItemProps) {
 /**
  * Fixed site header, type only (2026-09-24, after Lightship on Mobbin; it replaced the frosted-glass pills): the
  * logo top-left, plain text links in the middle with a thin line under the current page, and the two CTAs on the
- * right as a matched pair of interactive hover buttons. Over dark bands (the hero, the story band) everything is
- * white on the film with no bar; over light sections, once the page has scrolled, a white bar with a hairline
- * fades in and everything turns ink — Get a quote outlined, Apply now solid. It stays in view as you scroll
+ * right as a matched pair of interactive hover buttons. Over dark bands everything is white — on the hero's film with
+ * no bar, on the others over an ink frosted bar once the page has scrolled (2026-10-01); over light sections a white
+ * frosted bar fades in (no hairline under it since 2026-10-02) and everything turns ink — Get a quote outlined, Apply now solid. It stays in view as you scroll
  * — except on phones, where it slides away on scroll down and drops back on scroll up. Careers is a plain link
  * since 2026-09-25 (owner: remove the dropdown); it opens the job application, which covers all three jobs. During the homepage
  * intro the nav stays dimmed over the scene (full on hover) while the logo fades and settles into place —
@@ -107,6 +110,7 @@ export function Header() {
   // The homepage opens on the dark hero, so start light there — otherwise the CTAs flash solid black on load
   // until the first check below runs.
   const [onDark, setOnDark] = useState(isHome);
+  const [glassOff, setGlassOff] = useState(isHome);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // On the homepage's first open the whole bar slides down from above the screen with the hero's truck, easing to a
@@ -117,8 +121,16 @@ export function Header() {
 
   useMotionValueEvent(intro, "change", (p) => setIntroDone(p >= INTRO.litAt));
 
+  /** What's under the header right now: dark or light, the hero's film, and whether the page has scrolled. */
+  function checkBand() {
+    const band = darkBandUnder();
+    setOnDark(Boolean(band));
+    setGlassOff(band?.dataset.headerGlass === "none");
+    setSolid(intro.get() >= 1 && window.scrollY > 12);
+  }
+
   useMotionValueEvent(scrollY, "change", (y) => {
-    setOnDark(Boolean(darkBandUnder()));
+    checkBand();
     const introFinished = intro.get() >= 1;
     setSolid(introFinished && y > 12);
     if (!introFinished || mobileOpen || !window.matchMedia(PHONE_QUERY).matches) {
@@ -130,11 +142,34 @@ export function Header() {
     setHidden(y > previous && y > 160);
   });
 
-  // A new page can open with a dark band already under the header; check once it has painted.
+  // A new page can open with a dark band already under the header, and it may still be swapping in (view
+  // transitions) or restoring its scroll on the first frame — so keep checking for its first second.
   useEffect(() => {
-    const frame = requestAnimationFrame(() => setOnDark(Boolean(darkBandUnder())));
+    let frame = 0;
+    const until = performance.now() + 1000;
+    const tick = () => {
+      checkBand();
+      if (performance.now() < until) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
+    // Only on a page change; `checkBand` reads the page at that moment.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  // Belt and braces with the scroll value above: the plain scroll event and resizing also re-check what's under
+  // the header, so the bars can't be left showing the band you came from (owner, 2026-10-01: the dark glass stayed
+  // on over the hero).
+  useEffect(() => {
+    const onChange = () => checkBand();
+    window.addEventListener("scroll", onChange, { passive: true });
+    window.addEventListener("resize", onChange);
+    return () => {
+      window.removeEventListener("scroll", onChange);
+      window.removeEventListener("resize", onChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -166,15 +201,23 @@ export function Header() {
       >
         <motion.div className="relative" style={{ y: dropY }}>
           {/*
-            No bar over dark bands — the film shows through the whole top edge. Over light sections, once the page
-            has scrolled, a white bar with a hairline fades in behind everything so the links stay readable; it also
-            shows while the phone menu is open, since the links turn dark then.
+            Over light sections, once the page has scrolled, a white bar fades in behind everything so
+            the links stay readable; it also shows while the phone menu is open, since the links turn dark then.
+            Over dark bands the same frosted bar in ink (owner, 2026-10-01: the white logo and links ran into the
+            safety band's heading as it scrolled under them). None over the homepage hero, so the film shows through.
           */}
           <div
             aria-hidden
             className={cx(
-              "absolute inset-0 -z-10 border-b border-ink/10 bg-paper/85 backdrop-blur-xl transition-opacity duration-500",
+              "absolute inset-0 -z-10 bg-paper/85 backdrop-blur-xl transition-opacity duration-500",
               (solid && !onDark) || mobileOpen ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <div
+            aria-hidden
+            className={cx(
+              "absolute inset-0 -z-10 bg-ink/85 backdrop-blur-xl transition-opacity duration-500",
+              solid && onDark && !glassOff && !mobileOpen ? "opacity-100" : "opacity-0",
             )}
           />
           <Container className="flex h-18 items-center gap-4 xl:gap-6">

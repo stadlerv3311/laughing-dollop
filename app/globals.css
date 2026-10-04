@@ -6,6 +6,8 @@
   --color-paper: #ffffff;
   --color-mist: #f7f0f0;
   --color-brand: #ff3000;
+  /* Ship with us's button and form (2026-10-02): a step down from paper, so they don't glare on the black band. */
+  --color-cloud: #ebebeb;
 
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
 
@@ -27,43 +29,40 @@
   --animate-hero-settle: hero-settle 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-hero-rise: hero-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 
-  /* Numbers band on phones: the three smaller numbers run past in an endless loop (2026-09-25). Two copies side by
-     side, moved by half the strip, so the second copy lands exactly where the first began. */
-  --animate-stat-wheel: stat-wheel 28s linear infinite;
+  /*
+   * Ship with us (2026-10-02, ShipWithUs.tsx): the white light that sweeps across the map's dots — once as the band
+   * lands, then every few seconds while it's on screen; the form's cells arriving in turn as the button opens into it;
+   * and the ring a state's pin sends out when it lands.
+   */
+  --animate-ship-wave: ship-wave 8s linear infinite;
+  --animate-ship-cell-in: ship-cell-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-ship-pulse: ship-pulse 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
 
-  /* Quote bar: a small orange dot rides the arrow from Pickup to Delivery, once per play (2026-09-29, QuoteBar.tsx). */
-  --animate-route-ride: route-ride 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-
-  /* The map behind Ship with us: its dashed route drifts toward New York (2026-09-29, ShipRouteMap.tsx). */
-  --animate-route-flow: route-flow 18s linear infinite;
-
-  @keyframes route-flow {
-    to {
-      stroke-dashoffset: -480;
-    }
-  }
-
-  @keyframes route-ride {
+  @keyframes ship-wave {
     0% {
-      transform: translateX(-8px);
-      opacity: 0;
+      transform: translateX(-100%);
     }
-    20%,
-    75% {
-      opacity: 1;
-    }
+    24%,
     100% {
-      transform: translateX(7px);
-      opacity: 0;
+      transform: translateX(100%);
     }
   }
 
-  @keyframes stat-wheel {
+  @keyframes ship-cell-in {
     from {
-      transform: translateX(0);
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  @keyframes ship-pulse {
+    from {
+      transform: scale(1);
+      opacity: 0.55;
     }
     to {
-      transform: translateX(-50%);
+      transform: scale(4.2);
+      opacity: 0;
     }
   }
 
@@ -99,6 +98,29 @@
     color: var(--color-ink);
   }
 
+  /* Site-wide wrapping (owner, 2026-10-01): running text avoids a lone word on its last line, and headings even out
+     their lines. Only browsers that support it (Chrome, Edge, Safari 17.4+); others wrap as before. A component's own
+     `text-*` wrap class still wins, since utilities sit above this layer. */
+  p,
+  li,
+  dt,
+  dd,
+  blockquote,
+  figcaption,
+  label,
+  legend {
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+
   ::selection {
     background: var(--color-brand);
     color: var(--color-paper);
@@ -115,13 +137,12 @@
   }
 }
 
-/* Card-into-page transitions (2026-09-24; names and types in lib/story.ts and lib/site.ts):
-   "Read our full story" — the homepage story band grows and rises into the About page's dark opening;
-   Ship with us's Get a quote — the white card grows into the Quote page.
+/* Card-into-page transition (2026-09-24; names and types in lib/story.ts): "Read our full story" — the homepage
+   story band grows and rises into the About page's dark opening. (Ship with us's card grew into the Quote page the
+   same way until 2026-10-02, when the quote moved into the band and the page went.)
    The box morphs; the old words fade out fast and the new page's fade in, pinned to the top-left so they don't
    stretch with the box. The rest of the page crossfades. */
-::view-transition-group(.story-open),
-::view-transition-group(.quote-open) {
+::view-transition-group(.story-open) {
   animation-duration: 650ms;
   animation-timing-function: var(--ease-premium);
   overflow: clip;
@@ -131,23 +152,16 @@
 ::view-transition-group(.story-open) {
   background: var(--color-ink);
 }
-::view-transition-group(.quote-open) {
-  background: var(--color-paper);
-}
 ::view-transition-old(.story-open),
-::view-transition-new(.story-open),
-::view-transition-old(.quote-open),
-::view-transition-new(.quote-open) {
+::view-transition-new(.story-open) {
   height: 100%;
   object-fit: none;
   object-position: left top;
 }
-::view-transition-old(.story-open),
-::view-transition-old(.quote-open) {
+::view-transition-old(.story-open) {
   animation: 200ms ease-out both card-open-fade reverse;
 }
-::view-transition-new(.story-open),
-::view-transition-new(.quote-open) {
+::view-transition-new(.story-open) {
   animation: 300ms ease-in 250ms both card-open-fade;
 }
 @keyframes card-open-fade {
@@ -156,8 +170,8 @@
 }
 /* Every other navigation stays instant, as before: React starts a view transition for any navigation once a page
    has <ViewTransition>s, and the browser's default is a whole-page crossfade. */
-:root:not(:active-view-transition-type(story-open, quote-open))::view-transition-old(root),
-:root:not(:active-view-transition-type(story-open, quote-open))::view-transition-new(root) {
+:root:not(:active-view-transition-type(story-open))::view-transition-old(root),
+:root:not(:active-view-transition-type(story-open))::view-transition-new(root) {
   animation: none;
 }
 @media (prefers-reduced-motion: reduce) {

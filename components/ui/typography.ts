@@ -11,7 +11,8 @@ export const labelClass = "text-sm font-semibold";
  * clearly outranks the sub-headings under it. From `lg`, where these sit in columns, it eases from 36px up to 40px.
  */
 /**
- * Chapter heading (h2): the three big moments after the hero — Ship with us, Our story, Why drive for us. 40px on
+ * Chapter heading (h2): the big moments after the hero — the safety band (2026-09-30), Ship with us, Our story, Why work
+ * with us. 40px on
  * phones, 48px from `sm`, 56px from `lg`; the hero stays the one bigger line (72px). Shared since 2026-09-29, when Ship
  * with us moved up to it (it was a section heading, smaller than the story band right after it).
  */
