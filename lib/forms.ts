@@ -1,18 +1,18 @@
 import type { StateCode } from "./us-states";
 
-/** One end of the load: a state (picked on the map or in the dropdown) plus a city or ZIP. */
-export type QuoteStop = { state: StateCode; place: string };
+/** One end of the load: its ZIP and the state that ZIP is in (`lib/zip.ts`). */
+export type QuoteStop = { zip: string; state: StateCode };
 
-/** What the Get a Quote form sends — the shape to agree with the backend teammate. */
+/**
+ * What the Get a Quote form sends — the shape to agree with the backend teammate. ZIPs only since 2026-10-01 (owner):
+ * no city, weight, freight or company. Phone or email: at least one is there.
+ */
 export type QuoteRequest = {
   pickup: QuoteStop;
   delivery: QuoteStop;
-  weightLbs: number;
-  /** When it's ready to be picked up, `YYYY-MM-DD` (optional; added 2026-09-25 — agree with the backend teammate). */
-  pickupDate?: string;
-  /** What's being shipped. Equipment is always a dry van (DECISIONS.md → Freight types). */
-  freight: string;
-  contact: { name: string; company?: string; email: string; phone: string };
+  /** When it's ready to be picked up, `YYYY-MM-DD`. */
+  pickupDate: string;
+  contact: { name: string; phone?: string; email?: string };
 };
 
 export type SubmitResult = { ok: true } | { ok: false; message: string };
@@ -44,11 +44,8 @@ export type JobApplication = {
   yearsExperience: number;
   driver?: {
     hasClassA: boolean;
-    /**
-     * Sensitive: a driver's license number. The backend must take it over HTTPS only, store it encrypted and limit
-     * who can read it — it's the one field on the site that identifies a person to the state.
-     */
-    license: { state: string; number: string };
+    // No license state or number since 2026-10-01 (owner): asking for them needs a terms of service and privacy page
+    // first. HR takes them on the call back.
     /** Any of "Hazmat", "Tanker", "Doubles"; empty means None. */
     endorsements: string[];
   };

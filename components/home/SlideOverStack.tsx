@@ -47,8 +47,11 @@ const useWide = () =>
  *
  * From `lg` only, since on phones the safety band is taller than the screen, and pinning it would feel heavy.
  * Reduced-motion visitors get the two sections in plain order.
+ *
+ * `dark` gives the sheet (and the strip that fills the gap under it) the ink instead of white — Ship with us is on
+ * black since 2026-10-02 (owner).
  */
-export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactNode }) {
+export function SlideOverStack({ under, over, dark = false }: { under: ReactNode; over: ReactNode; dark?: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const underRef = useRef<HTMLDivElement>(null);
   const overRef = useRef<HTMLDivElement>(null);
@@ -134,7 +137,8 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
         <div
           ref={overRef}
           className={cx(
-            "relative z-10 flex flex-col justify-center bg-paper transition-shadow duration-500",
+            "relative z-10 flex flex-col justify-center transition-shadow duration-500",
+            dark ? "bg-ink" : "bg-paper",
             active && "shadow-[0_-28px_56px_-20px_rgb(0_0_0/0.16)]",
           )}
           // Capped at OVER_MAX of the screen (2026-09-28): the safety band grew past a screen and a half, and 70% of
@@ -146,9 +150,13 @@ export function SlideOverStack({ under, over }: { under: ReactNode; over: ReactN
           }
         >
           {over}
-          {/* Fills the gap the lift opens between the sheet and the next section, so the band never shows through. */}
+          {/* Fills the gap the lift opens between the sheet and the next section, so the band never shows through.
+              In the sheet's own colour. */}
           {active && (
-            <div aria-hidden className="absolute inset-x-0 top-full h-[var(--sheet-lift,0px)] bg-paper" />
+            <div
+              aria-hidden
+              className={cx("absolute inset-x-0 top-full h-[var(--sheet-lift,0px)]", dark ? "bg-ink" : "bg-paper")}
+            />
           )}
         </div>
       </div>
