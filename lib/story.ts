@@ -13,7 +13,7 @@ export const STORY_OPEN = "story-open";
 
 export type Milestone = {
   title: string;
-  /** The big mark over it in the homepage story band ("1", "DOT", "48"). */
+  /** The big mark over it in the homepage story band ("1", "70+", "30", "48"). */
   mark: string;
   /** Counts up from this to the mark when the story band's route reaches it ("48" from 1: one truck to 48 states). */
   countFrom?: number;
@@ -22,9 +22,6 @@ export type Milestone = {
 
 /** One row of the About page's timeline. */
 export type TimelineEntry = { year: string; title: string; text: string };
-
-/** One cell of the About page's facts row: a small label over a short value. */
-export type StoryFact = { label: string; value: string };
 
 type Story = {
   /** The headline on the homepage story band and the About page, one line each (owner, 2026-09-28). */
@@ -36,59 +33,41 @@ type Story = {
   headlineAccent: string;
   /** The About page's closing line. */
   origin: string;
-  /** Short version for the homepage card. */
+  /** Short version for the homepage card: the setup that leads into `rule`, so it ends on a colon. */
   summary: string;
+  /**
+   * The rule the orange word points at, set on its own under `summary` on the homepage band (owner, 2026-10-02: "the
+   * rule is orange but what rule. i can barely see it"). The third part is shortened from "treat drivers the way we’d
+   * want to be treated" (owner's OK, same day).
+   */
+  rule: string[];
   /** One line under the About page's headline. */
   lede: string;
-  /**
-   * Full version for the About page, in short titled blocks (owner, 2026-09-25: the story read as one long wall).
-   * The titles only name what each block is about; the text is the owner's stand-in.
-   */
-  chapters: { title: string; text: string }[];
-  /** The homepage story band's three marks. */
+  /** The story in a few lines, beside the About page's opening picture (2026-10-01; it was six titled blocks). */
+  opening: string;
+  /** The homepage story band's four marks. */
   milestones: Milestone[];
   /** The About page's timeline. */
   timeline: TimelineEntry[];
-  /** The About page's facts row. Only facts already on record (FMCSA SAFER, the approved 48 states). */
-  facts: StoryFact[];
 };
 
 export const story: Story = {
   headline: ["The map got bigger.", "The rule didn’t."],
   headlineAccent: "rule",
   origin: "It started with one truck.",
-  summary:
-    "We started in Citrus Heights, California, with one truck and a simple rule: show up when we say we will, keep the freight safe and treat drivers the way we’d want to be treated.",
+  summary: "We started with one truck and a simple rule:",
+  rule: ["Show up when we say we will.", "Keep the freight safe.", "Treat drivers right."],
   lede: "A dry van carrier out of Citrus Heights, California, with one rule: show up when we say we will, keep the freight safe and treat drivers well.",
-  chapters: [
-    {
-      title: "One truck",
-      text: "ITrucking Solutions started in 2014 in Citrus Heights, California, with one truck and a driver who knew the job from behind the wheel. There was no office, no dispatch desk, and no plan beyond the next load. The idea was simple: show up when we say we will, keep the freight safe, and treat the people doing the driving the way we would want to be treated.",
-    },
-    {
-      title: "Owner-operators",
-      text: "The early years were built with owner-operators. Drivers who already had their own trucks wanted a carrier that answered the phone, paid on schedule, and stayed out of their way. We were small enough to know every driver by name and, slowly, large enough to hold a lane. One load turned into a weekly run. Weekly runs turned into shippers who stopped shopping the load around. That model carried us through the first several years and built the customer base we still run today.",
-    },
-    {
-      title: "Our own authority",
-      text: "As the freight held, we earned our own for-hire interstate authority and started running past California. Dry van truckload was the work we knew, so we stayed with it. Coverage grew one state at a time, from customers who needed the truck somewhere new. By the late 2010s we were a 48-state carrier on paper, and still a small group trying not to outgrow the way we answered the phone.",
-    },
-    {
-      title: "Company trucks",
-      text: "The next step was company equipment. We began buying trucks for company drivers, not to replace the owner-operators, but to add capacity we could plan and equipment we could maintain. The first company trucks were a bet. If the freight stayed, they would pay for themselves. If it did not, we would be stuck with iron. The freight stayed. Most of what is on the road now came out of that shift, and it was bought new.",
-    },
-    {
-      title: "The office",
-      text: "The office had to catch up. Dispatch moved in-house so the board was covered by people who knew the lanes. Safety took on compliance, onboarding, and driver files. Accounting took settlements, billing, and pay, which mattered as much to a driver as the rate on the load. A fleet manager came on to track the equipment, and a yard crew took over the lot so trucks were not sitting while someone looked for a key. A company shop is in the works, so maintenance does not wait on an outside vendor.",
-    },
-    {
-      title: "Today",
-      text: "Today we run 70 late-model trucks and trailers, hauling dry van truckload across all 48 states. Around that fleet sit dispatch, safety, accounting, fleet, and the yard, with the shop being built. We are still the company that started with a single truck in Citrus Heights. The map is bigger than it was. The rule has not changed.",
-    },
-  ],
+  opening:
+    "One truck and one driver out of Citrus Heights. Then owner-operators, our own authority, company trucks and an office of our own. The map got bigger; the way we answer the phone didn’t.",
   milestones: [
-    { title: "Where it started", mark: "1", text: "One truck and one driver out of Citrus Heights, California." },
-    { title: "Our own authority", mark: "DOT", text: "Registered with the U.S. DOT as a for-hire interstate carrier." },
+    { title: "Where it started", mark: "1", text: "One truck and one driver out of California." },
+    // "70+" is the About page's fleet figure (owner, 2026-10-02: 55 trucks on the road and about 30 new ones in the
+    // yard, so more than 70 — but 70 is the number kept). It replaced "DOT" (own authority) the same day.
+    { title: "The fleet", mark: "70+", text: "Late-model trucks on the road." },
+    // The owner's figure for the yard, same day. It replaced "In-house" (our own office) the same day — owner: every
+    // mark a number.
+    { title: "New trucks", mark: "30", text: "Brand-new trucks in the yard, joining the fleet." },
     { title: "Today", mark: "48", countFrom: 1, text: "Dry van freight moving across 48 states." },
   ],
   timeline: [
@@ -98,12 +77,6 @@ export const story: Story = {
     { year: "2020", title: "First company trucks.", text: "We buy our own equipment and put company drivers in it. Owner-operators stay; the company fleet is added capacity, not a replacement." },
     { year: "2022", title: "The office takes shape.", text: "Dispatch, safety, and accounting move fully in-house, so drivers and customers deal with the same people instead of a patchwork of outside help." },
     { year: "2024", title: "Yard and fleet desk.", text: "A yard operation and a fleet manager come on as the truck and trailer count climbs. Most new equipment is bought new." },
-    { year: "2026", title: "About 70 trucks and trailers.", text: "The fleet is late-model, dry van, and running all 48 states. The shop is in the works." },
-  ],
-  facts: [
-    { label: "Based in", value: "Citrus Heights, California" },
-    { label: "Authority", value: "For-hire interstate carrier" },
-    { label: "Freight", value: "Dry van truckload" },
-    { label: "Coverage", value: "All 48 states" },
+    { year: "2026", title: "About 70 trucks and trailers.", text: "The fleet is late-model and dry van, runs all 48 states, and is serviced in our own shop." },
   ],
 };

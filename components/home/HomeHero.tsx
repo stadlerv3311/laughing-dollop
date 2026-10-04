@@ -17,7 +17,7 @@ const EMPTY_ROAD_MS = 2000;
  * loop fills the screen: a forest highway on the left fifth of the frame, one truck driving up it, and calm forest
  * across the rest, where the text sits (new loop 2026-09-24 — the first one had the road dead centre, which fought
  * the right-hand text column). Shipper-first since 2026-09-24 (trial): the h1 lighting up word by word as the
- * intro hands over, then rolling through its line pairs (HeroHeadline, 2026-09-29), one supporting line, then
+ * intro hands over ("A fleet you can trust. A load you can see.", fixed since 2026-10-02; HeroHeadline), one supporting line, then
  * Get a quote (solid) over Apply now (a thin white ring).
  * The oversized DRIVE. word that sat along the bottom left was removed with the driver h1. On scroll the footage
  * zooms in a touch and darkens. The loop is AI-generated (Grok), upscaled to 1080p — see docs/DECISIONS.md →
@@ -48,7 +48,7 @@ export function HomeHero() {
 
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
-  const shade = useTransform(scrollYProgress, [0, 1], [0, 0.55]);
+  // No darkening as it scrolls away (owner, 2026-10-01: keep the green film as it is); only the slow push-in.
   // The scroll cue comes in with the text block and is gone after the first bit of scrolling.
   const cueFade = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const cueOpacity = useTransform(() => Math.min(blockOpacity.get(), cueFade.get()));
@@ -98,13 +98,17 @@ export function HomeHero() {
       ref={sectionRef}
       id="content"
       data-header-theme="dark"
+      // The film shows through the header: no dark glass bar here (Header.tsx).
+      data-header-glass="none"
       className="relative isolate flex min-h-svh flex-col overflow-hidden bg-ink text-paper"
     >
       <motion.div aria-hidden className="absolute inset-0 -z-10" style={reduceMotion ? undefined : { scale: videoScale }}>
         <video
           ref={videoRef}
           data-hero-video
-          className="h-full w-full object-cover object-[20%_50%] lg:object-center"
+          // From lg the road (18–25% across the clip) runs right beside the 1.5× headline (2026-10-02): framed 70% across,
+          // not centred, so the headline's "A" keeps a clear gap from it — centred, it touched the road at 1280px wide.
+          className="h-full w-full object-cover object-[20%_50%] lg:object-[70%_50%]"
           src="/videos/home-hero-forest.mp4"
           poster="/images/home-hero-forest.jpg"
           muted
@@ -129,21 +133,20 @@ export function HomeHero() {
         aria-hidden
         className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_left,rgb(12_12_12/.38)_0%,rgb(12_12_12/.28)_32%,rgb(12_12_12/0)_60%)] lg:block"
       />
-      <motion.div aria-hidden className="absolute inset-0 -z-10 bg-[rgb(12_12_12)]" style={{ opacity: shade }} />
 
       <Container className="flex flex-1 flex-col pt-32 pb-6 sm:pb-8 lg:pb-10">
         <div className="flex flex-1 items-center">
           {/*
-            From lg the block sits in the header's CTA column: its left edge lines up with Get a quote and its
-            right edge with Apply now. From xl the pair is a fixed width (`--width-header-cta`, set once in
-            app/globals.css and shared with Header.tsx) plus the 0.75rem gap between them; below xl the buttons
-            size to their labels instead, so 18.1rem is a measured stand-in for that width, not a derived one.
+            From lg the block's right edge lines up with the header's Apply now. Until 2026-10-02 the line and the
+            stacked buttons sat exactly in the header's CTA column (`--width-header-cta` × 2 plus the gap); side by side
+            they need two 14rem buttons, so the column is 28.75rem now.
           */}
           {/*
             From lg the headline is set large and runs left of the column into the open forest, its right edge on the
             column's right edge, while the supporting line and buttons stay in the column (owner, 2026-09-24: the
-            middle of the screen felt empty with the headline at button width). 72px at xl (owner, 2026-09-29: up from 60,
-            so the hero clearly outranks the 56px chapter headings further down).
+            middle of the screen felt empty with the headline at button width). 1.5× since 2026-10-02 (owner): 84px at lg,
+            108px at xl, 120px at 2xl (72px at xl from 2026-09-29, 60 before). On phones it grows only as far as each line
+            still fits on one line (36px at 375px wide, 28px before).
           */}
           <motion.div
             className="max-w-[34rem] lg:ml-auto lg:flex lg:max-w-none lg:flex-col lg:items-end"
@@ -151,28 +154,35 @@ export function HomeHero() {
           >
             <HeroHeadline
               lit={lit}
-              className="text-balance text-[clamp(1.75rem,6.5vw,2.75rem)] font-medium leading-[1.12] tracking-[-0.03em] lg:w-max lg:text-[3.5rem] lg:leading-[1.05] lg:tracking-[-0.04em] xl:text-[4.5rem] 2xl:text-[5rem]"
+              className="text-balance text-[clamp(1.75rem,9.6vw,4.125rem)] font-medium leading-[1.08] tracking-[-0.035em] lg:w-max lg:text-[5.25rem] lg:leading-[1.02] lg:tracking-[-0.045em] xl:text-[6.75rem] 2xl:text-[7.5rem]"
             />
-            <div className="lg:w-[18.1rem] xl:w-[calc(2*var(--width-header-cta)+0.75rem)]">
-              <p className="mt-6 text-pretty leading-relaxed text-paper/80 lg:mt-8">{homeSupport}</p>
+            {/* Two 14rem buttons and their gap from lg (2026-10-02), so the dot clears each label; the header's pair
+                width, which they used to match, is too narrow for two side by side at this size. */}
+            <div className="lg:w-[28.75rem]">
+              {/* Headline, line and buttons as one tight block (owner, 2026-10-02): 16 / 20px apart, 24 / 20 before
+                  the 1.5× headline (32px under the headline from lg). */}
+              {/* Full white with the headline since 2026-10-02 (owner: "go white on the hero"; it was at 80%). */}
+              <p className="mt-4 text-pretty leading-relaxed text-paper lg:mt-5">{homeSupport}</p>
               {/*
-                Get a quote solid, Apply now as a thin white ring under it (side by side from sm to lg, at a fixed 14rem so
-                the dot, 20% in, clears the label) — the solid one leads. The gap under the headline is the largest in the stack, so the buttons read as attached to the
-                words above them.
+                Get a quote solid, Apply now as a thin white ring beside it — one row at every size since 2026-10-02
+                (owner; from lg they were stacked). From sm a fixed 14rem each, so the dot, 20% in, clears the label;
+                on phones they share the width, with more room left of the label so the dot still clears it.
               */}
-              <InteractiveHoverButton
-                href={quoteLink.href}
-                text={quoteLink.label}
-                size="lg"
-                className="mt-5 w-full sm:w-56 lg:w-full"
-              />
-              <InteractiveHoverButton
-                href={applyLink.href}
-                text={applyLink.label}
-                size="lg"
-                variant="ghostLight"
-                className="mt-3 w-full sm:ml-3 sm:mt-5 sm:w-56 lg:ml-0 lg:mt-3 lg:w-full"
-              />
+              <div className="mt-5 flex gap-3">
+                <InteractiveHoverButton
+                  href={quoteLink.href}
+                  text={quoteLink.label}
+                  size="lg"
+                  className="min-w-0 flex-1 max-sm:pr-4 max-sm:pl-10 sm:w-56 sm:flex-none"
+                />
+                <InteractiveHoverButton
+                  href={applyLink.href}
+                  text={applyLink.label}
+                  size="lg"
+                  variant="ghostLight"
+                  className="min-w-0 flex-1 max-sm:pr-4 max-sm:pl-10 sm:w-56 sm:flex-none"
+                />
+              </div>
             </div>
           </motion.div>
         </div>

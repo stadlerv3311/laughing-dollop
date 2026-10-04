@@ -1,11 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "motion/react";
-import { Fragment, useRef, useState, type RefObject } from "react";
-import { Container, Reveal, ScrollFillText, labelClass, sectionHeadingClass, sectionY } from "@/components/ui";
+import { motion, useInView, useReducedMotion } from "motion/react";
+import { Fragment, useRef, useState, type ReactNode, type RefObject } from "react";
+import { Container, Reveal, sectionTop } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { safetyGroups, safetyPitch, safetySystems, type SafetyGroup, type SafetySystem } from "@/lib/site";
+import { StoryHeadline } from "./StoryHeadline";
+
+/** The band's heading, run on as one line (owner's wording, 2026-10-02; it was "We know truck and trailer location / and last service."). */
+const SAFETY_HEADLINE = ["Tracked trucks.", "Proven service."];
 
 /**
  * How we look after the freight (2026-09-18): GPS, dash cams, maintenance records and new equipment. It answers
@@ -22,10 +26,17 @@ import { safetyGroups, safetyPitch, safetySystems, type SafetyGroup, type Safety
  * on a click or tap. Square corners and no box (DECISIONS.md → Homepage section look). Copy in lib/site.ts →
  * `safetyGroups` / `safetyPitch` (draft).
  *
+ * All on white since 2026-10-02 (owner: the black top half — heading and road pair on ink, 2026-09-30 — made the band
+ * read as two sections). The orange half star went with the black.
+ *
  * All three clips are placeholders until the owner sends our own footage — the GPS one is Samsara's and must not
  * go live (docs/DECISIONS.md → Safety band). New equipment has no footage: a still of the fleet, also a placeholder.
+ *
+ * `between` sits between the two pictures (owner, 2026-10-02: the numbers band, TrustBar, moved in there from above
+ * the band). It brings its own Container and no padding; the slot sets 70px from the pictures to it on either side
+ * (owner, same day, after trying 80; 64px on phones).
  */
-export function SafetyBand() {
+export function SafetyBand({ between }: { between?: ReactNode }) {
   const reduceMotion = useReducedMotion();
   // One list for all four clips, so starting one stops whichever was playing in the other pair.
   const videos = useRef<Array<HTMLVideoElement | null>>([]);
@@ -44,67 +55,65 @@ export function SafetyBand() {
   const activate = (g: number, on: boolean) =>
     setActive((all) => (all[g] === on ? all : all.map((v, k) => (k === g ? on : v))));
 
+  // One picture and its words. Each block below has its own 12-column grid on the same container, so the two still
+  // line up: the first pair in columns 1–7 with its words in 8–12, the second mirrored (6–12, words in 1–5).
+  const group = (g: number) => (
+    <div className="grid gap-y-10 lg:grid-cols-12 lg:gap-x-6">
+      <Reveal className={cx("lg:row-start-1", g === 0 ? "lg:col-start-1 lg:col-end-8" : "lg:col-start-6 lg:col-end-13")}>
+        <Pair
+          group={safetyGroups[g]}
+          open={open[g]}
+          onOpen={(i) => openCard(g, i)}
+          onActive={(on) => activate(g, on)}
+          reduceMotion={reduceMotion === true}
+          videos={videos}
+          play={play}
+          pause={pause}
+        />
+      </Reveal>
+      {/* Centred on its picture from lg (owner, 2026-09-28), so neither end of the column sits empty. */}
+      <Reveal
+        delay={0.1}
+        className={cx(
+          "lg:row-start-1 lg:self-center",
+          g === 0 ? "lg:col-start-8 lg:col-end-13 lg:pl-10" : "lg:col-start-1 lg:col-end-6 lg:pr-10",
+        )}
+      >
+        <div className="max-w-[28rem]">
+          <h3 className="text-balance text-[1.5rem] font-medium leading-[1.12] tracking-[-0.03em] sm:text-[1.75rem]">
+            {safetyGroups[g].title}
+          </h3>
+          <p className="mt-5 text-pretty text-[17px] leading-relaxed text-ink/70">
+            {safetyGroups[g].body}
+          </p>
+          {safetyGroups[g].systems.some((index) => safetySystems[index].readout) && (
+            <Readout system={safetySystems[safetyGroups[g].systems[open[g]]]} active={active[g]} />
+          )}
+        </div>
+      </Reveal>
+    </div>
+  );
+
   return (
-    <section aria-labelledby="safety" className={cx("bg-paper", sectionY)}>
+    // 70px from the shop pair to the logo row under it (owner, 2026-10-02; 64 on phones), the same as either side of
+    // the numbers — not the usual section foot.
+    <section aria-labelledby="safety" className={cx("bg-paper pb-16 sm:pb-[4.375rem]", sectionTop)}>
       <Container>
-        {/* The same 12 columns as the pictures below, so the pitch starts on the first block of words' left edge. */}
-        <Reveal className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-x-6">
-          <div className="lg:col-span-7">
-            <p className={cx(labelClass, "text-ink/70")}>Safety and equipment</p>
-            <h2 id="safety" className={cx("mt-4 max-w-[20ch]", sectionHeadingClass)}>
-              {/* Fills in word by word as it scrolls up (2026-09-29) — the band's one moving heading. */}
-              <ScrollFillText text="We know where every truck and trailer is, and when each was last serviced." />
-            </h2>
-          </div>
-          <p className="max-w-[34rem] text-pretty text-lg leading-relaxed text-ink/70 lg:col-span-5 lg:pl-10">
-            {safetyPitch.lead} <span className="font-medium text-ink">{safetyPitch.strong}</span>
+        {/* Set like Our story's heading (owner, 2026-09-30): a two-line chapter heading, the first line in grey and
+            the second in full ink, each rising in, with the pitch under it. Centred since 2026-10-02 (owner), like the
+            numbers band and Ship with us, so the page holds one look. */}
+        <Reveal className="text-center">
+          {/* No "Safety and equipment" label over it since 2026-10-02 (owner: remove). */}
+          <StoryHeadline id="safety" lines={SAFETY_HEADLINE} light inline solid large />
+          <p className="mx-auto mt-6 max-w-[38rem] text-balance text-lg leading-relaxed text-ink">
+            {safetyPitch}
           </p>
         </Reveal>
-
-        {/* 12 columns from lg: each picture takes 7, its words the other 5, the second pair mirrored. */}
-        <div className="mt-12 grid gap-y-10 sm:mt-14 lg:grid-cols-12 lg:gap-x-6 lg:gap-y-3">
-          {safetyGroups.map((group, g) => (
-            <Fragment key={group.title}>
-              <Reveal
-                className={
-                  g === 0 ? "lg:col-start-1 lg:col-end-8 lg:row-start-1" : "lg:col-start-6 lg:col-end-13 lg:row-start-2"
-                }
-              >
-                <Pair
-                  group={group}
-                  open={open[g]}
-                  onOpen={(i) => openCard(g, i)}
-                  onActive={(on) => activate(g, on)}
-                  reduceMotion={reduceMotion === true}
-                  videos={videos}
-                  play={play}
-                  pause={pause}
-                />
-              </Reveal>
-              {/* Centred on its picture from lg (owner, 2026-09-28), so neither end of the column sits empty. */}
-              <Reveal
-                delay={0.1}
-                className={cx(
-                  "lg:self-center",
-                  g === 0
-                    ? "lg:col-start-8 lg:col-end-13 lg:row-start-1 lg:pl-10"
-                    : "lg:col-start-1 lg:col-end-6 lg:row-start-2 lg:pr-10",
-                )}
-              >
-                <div className="max-w-[28rem]">
-                  <h3 className="text-balance text-[1.5rem] font-medium leading-[1.12] tracking-[-0.03em] sm:text-[1.75rem]">
-                    {group.title}
-                  </h3>
-                  <p className="mt-5 text-pretty text-[17px] leading-relaxed text-ink/70">{group.body}</p>
-                  {group.systems.some((index) => safetySystems[index].readout) && (
-                    <Readout system={safetySystems[group.systems[open[g]]]} visible={active[g]} />
-                  )}
-                </div>
-              </Reveal>
-            </Fragment>
-          ))}
-        </div>
+        <div className="mt-12 sm:mt-14">{group(0)}</div>
       </Container>
+      {between && <div className="mt-16 sm:mt-[4.375rem]">{between}</div>}
+      {/* The two pictures step down the page, sharing columns 6–7, so they need clear space between them. */}
+      <Container className={between ? "mt-16 sm:mt-[4.375rem]" : "mt-16 sm:mt-20 lg:mt-28"}>{group(1)}</Container>
     </section>
   );
 }
@@ -217,15 +226,7 @@ function Pair({
                 <span className="block text-xl font-medium leading-tight tracking-[-0.025em] lg:text-[1.375rem]">
                   {system.name}
                 </span>
-                {/* Fixed width, so the line doesn't rewrap while the card widens. Always in the DOM for screen readers. */}
-                <span
-                  className={cx(
-                    "block overflow-hidden transition-[opacity,max-height] duration-500 ease-premium motion-reduce:transition-none sm:w-[22rem] sm:max-w-full",
-                    isOpen ? "max-h-40 opacity-100 sm:delay-150" : "max-h-40 opacity-100 sm:max-h-0 sm:opacity-0",
-                  )}
-                >
-                  <span className="mt-2 block text-pretty text-[15px] leading-relaxed text-paper/80">{system.body}</span>
-                </span>
+                {/* Just the name since 2026-10-02 (owner): the line under it, shown as a card opened, is gone. */}
               </span>
             </button>
           </li>
@@ -238,20 +239,29 @@ function Pair({
 /**
  * What the open card's system records, under the pair's words (owner, 2026-09-28, "L1" after a round of mock-ups;
  * the scale after T1 Energy on Mobbin): a small label, one figure in a thin weight at about the heading's size — so it
- * reads as data and doesn't outshout the heading — and a short list of details. At rest only the heading and
- * paragraph show, centred on the pictures; while the pair is hovered, focused or tapped, the readout's row opens and
- * the centred group glides up to make room, then settles back when the pointer leaves. It follows the open card, so
- * moving from GPS to Dash cameras swaps it. Sample values, marked Example; hidden from screen readers while closed.
+ * reads as data and doesn't outshout the heading — and a short list of details. It opens once the words are well on
+ * screen (owner, 2026-10-01: hover-only left the column looking empty) — the centred group glides up to make room —
+ * and then stays; hovering, focusing or tapping the pair before then opens it too. It follows the open card, so
+ * moving from GPS to Dash cameras swaps it. Sample values — no longer marked "Example" on the page since 2026-10-01
+ * (owner) — so they must stay plainly illustrative, never a real unit, position or event; hidden from screen readers
+ * while closed.
  */
-function Readout({ system, visible }: { system: SafetySystem; visible: boolean }) {
+function Readout({ system, active }: { system: SafetySystem; active: boolean }) {
   const readout = system.readout;
+  const grey = "text-ink/70";
+  // The closed row is 0px tall, which an IntersectionObserver still reports; the margin waits until it's 15% of
+  // the screen up from the bottom, so the opening is seen rather than happening below the fold.
+  const ref = useRef<HTMLDivElement>(null);
+  const seen = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
+  const visible = seen || active;
   return (
     <div
+      ref={ref}
       aria-hidden={!visible}
       inert={!visible}
       className={cx(
-        "grid transition-[grid-template-rows,opacity] duration-600 ease-premium motion-reduce:transition-none",
-        visible ? "grid-rows-[1fr] opacity-100 delay-100" : "grid-rows-[0fr] opacity-0",
+        "grid transition-[grid-template-rows,opacity] duration-700 ease-premium motion-reduce:transition-none",
+        visible ? "grid-rows-[1fr] opacity-100 delay-300" : "grid-rows-[0fr] opacity-0",
       )}
     >
       <div className="min-h-0 overflow-hidden">
@@ -263,20 +273,17 @@ function Readout({ system, visible }: { system: SafetySystem; visible: boolean }
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="pt-10"
           >
-            <p className="flex justify-between text-[13px] text-ink/70">
-              <span>{readout.label}</span>
-              <span>Example</span>
-            </p>
+            <p className={cx("text-[13px]", grey)}>{readout.label}</p>
             <p className="mt-1.5 text-[2.5rem] font-light leading-none tracking-[-0.035em] tabular-nums">
               {readout.figure}
               {readout.unit && (
-                <span className="ml-1.5 text-[17px] font-normal tracking-normal text-ink/70">{readout.unit}</span>
+                <span className={cx("ml-1.5 text-[17px] font-normal tracking-normal", grey)}>{readout.unit}</span>
               )}
             </p>
             <dl className="mt-4 grid grid-cols-[7.5rem_1fr] gap-y-1.5 text-[15px] leading-normal">
               {readout.rows.map((row) => (
                 <Fragment key={row.label}>
-                  <dt className="text-ink/70">{row.label}</dt>
+                  <dt className={grey}>{row.label}</dt>
                   <dd>{row.value}</dd>
                 </Fragment>
               ))}
