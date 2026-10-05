@@ -17,7 +17,7 @@ export function CareersOverview() {
         <Container>
           <Reveal>
             <p className={cx(labelClass, "text-paper/70")}>Careers</p>
-            <h1 className="mt-4 max-w-[14ch] text-balance text-[2.75rem] font-medium leading-[1.02] tracking-[-0.045em] sm:text-6xl lg:text-[5rem]">
+            <h1 className="mt-4 max-w-[14ch] text-balance font-display font-semibold text-[2.75rem] leading-[1.02] tracking-[-0.03em] sm:text-6xl lg:text-[5rem]">
               Come work with us.
             </h1>
             <p className="mt-6 max-w-[36rem] text-pretty text-lg leading-relaxed text-paper/70">
@@ -59,7 +59,7 @@ export function CareersOverview() {
                   <p className={cx(labelClass, "text-ink/60")}>{route.role}</p>
                   <h2
                     id={`${route.job}-title`}
-                    className="mt-4 text-balance text-[2.25rem] font-medium leading-[1.05] tracking-[-0.04em] sm:text-5xl"
+                    className="mt-4 text-balance font-display font-semibold text-[2.25rem] leading-[1.05] tracking-[-0.03em] sm:text-5xl"
                   >
                     {route.title}
                   </h2>

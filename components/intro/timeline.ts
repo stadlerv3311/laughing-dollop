@@ -28,6 +28,12 @@ export const INTRO = {
   blockDrop: "-20vh",
   /** How much larger than its resting size the logo starts, settling down to 1. */
   appearScale: 1.06,
-  /** Fraction of the way in when the header brightens and the headline starts lighting up — as the block lands. */
+  /** Fraction of the way in when the header brightens — as the block lands. */
   litAt: 0.82,
+  /**
+   * Fraction of the way in when the hero's headline starts lighting up: 1.5s into the video (owner, 2026-10-05; it
+   * was `litAt`, about 2.9s). (1.5 − truckIn) / (landed − truckIn) = 0.65 / 2.55. The block is still coming down and
+   * fading in then, so the words are white by the time it has landed.
+   */
+  headlineAt: 0.255,
 } as const;

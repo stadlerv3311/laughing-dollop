@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Archivo, Geist } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { Footer, Header } from "@/components/layout";
@@ -12,6 +12,15 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
+// Archivo for headlines (2026-10-03, owner's pick "4" of the type pairings): set wide through its width axis, like the
+// lettering on a trailer, so the headlines have a voice of their own while Geist keeps the body. Used through the
+// `font-display` utility in app/globals.css.
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  axes: ["wdth"],
+});
+
 export const metadata: Metadata = {
   title: {
     default: `${site.name} | Dry van truckload and driver jobs`,
@@ -22,7 +31,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={geist.variable}>
+    <html lang="en" className={`${geist.variable} ${archivo.variable}`}>
       <body className="flex min-h-svh flex-col font-sans">
         <a
           href="#main"

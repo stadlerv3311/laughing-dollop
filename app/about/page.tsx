@@ -66,7 +66,7 @@ export default function AboutPage() {
               />
             </Reveal>
             <Reveal delay={0.1} className="lg:col-span-5 lg:self-end lg:pl-10">
-              <h2 className="text-[1.75rem] font-medium leading-[1.12] tracking-[-0.03em]">{story.origin}</h2>
+              <h2 className="font-display font-semibold text-[1.75rem] leading-[1.12] tracking-[-0.03em]">{story.origin}</h2>
               <p className="mt-4 max-w-[26rem] text-pretty leading-relaxed text-ink/70">{story.opening}</p>
               <a
                 href="#about-timeline"
@@ -94,7 +94,7 @@ export default function AboutPage() {
           <Reveal className="grid gap-4 md:grid-cols-2">
             <div className="flex flex-col rounded-3xl border border-ink/10 p-8 sm:p-10">
               <p className={sideLabelClass}>Shippers</p>
-              <h3 className="mt-3 text-[1.75rem] font-medium leading-[1.1] tracking-[-0.035em] sm:text-4xl">Have a load to move?</h3>
+              <h3 className="mt-3 font-display font-semibold text-[1.75rem] leading-[1.1] tracking-[-0.03em] sm:text-4xl">Have a load to move?</h3>
               <p className="mt-4 max-w-[24rem] text-pretty leading-relaxed text-ink/70">
                 Tell us where it&rsquo;s going and what it weighs, and we&rsquo;ll come back with a price.
               </p>
@@ -105,7 +105,7 @@ export default function AboutPage() {
             </div>
             <div className="flex flex-col rounded-3xl bg-ink p-8 text-paper sm:p-10">
               <p className={cx(labelClass, "text-paper/70")}>Careers</p>
-              <h3 className="mt-3 text-[1.75rem] font-medium leading-[1.1] tracking-[-0.035em] sm:text-4xl">Come work with us.</h3>
+              <h3 className="mt-3 font-display font-semibold text-[1.75rem] leading-[1.1] tracking-[-0.03em] sm:text-4xl">Come work with us.</h3>
               <p className="mt-4 max-w-[24rem] text-pretty leading-relaxed text-paper/70">
                 On the road, in the office or in the shop. Answer a few short questions, and HR calls you back.
               </p>

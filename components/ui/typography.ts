@@ -17,7 +17,7 @@ export const labelClass = "text-sm font-semibold";
  * with us moved up to it (it was a section heading, smaller than the story band right after it).
  */
 export const chapterHeadingClass =
-  "text-balance text-[2.5rem] font-medium leading-[1.04] tracking-[-0.045em] sm:text-5xl lg:text-[3.5rem]";
+  "text-balance font-display text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.03em] sm:text-5xl lg:text-[3.5rem]";
 
 export const sectionHeadingClass =
-  "text-balance text-[1.75rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-[2.5rem] lg:text-[clamp(2.25rem,3vw,2.5rem)]";
+  "text-balance font-display text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[2.5rem] lg:text-[clamp(2.25rem,3vw,2.5rem)]";

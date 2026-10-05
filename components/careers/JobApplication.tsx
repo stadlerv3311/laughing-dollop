@@ -276,7 +276,7 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
         <p
           aria-hidden={!driver || Boolean(stepImage)}
           className={cx(
-            "absolute inset-x-5 bottom-5 max-w-[20ch] text-balance text-lg font-medium leading-snug tracking-[-0.02em] transition-opacity duration-500 sm:text-2xl md:inset-x-10 md:bottom-10",
+            "absolute inset-x-5 bottom-5 max-w-[20ch] text-balance font-display font-semibold text-lg leading-snug tracking-[-0.03em] transition-opacity duration-500 sm:text-2xl md:inset-x-10 md:bottom-10",
             driver && !stepImage ? "opacity-100" : "opacity-0",
           )}
         >
@@ -294,7 +294,7 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
             <Appear key="sent" still={reduceMotion}>
               <div role="status">
                 <p className="text-sm text-paper/60">Sent</p>
-                <h2 className="mt-5 text-[2.5rem] font-medium leading-[1.02] tracking-[-0.045em] sm:text-[3.25rem]">
+                <h2 className="mt-5 font-display font-semibold text-[2.5rem] leading-[1.02] tracking-[-0.03em] sm:text-[3.25rem]">
                   Thanks, {values.first.trim()}.
                 </h2>
                 <p className="mt-4 text-lg leading-relaxed text-paper/60">
@@ -308,7 +308,7 @@ export function JobApplication({ initialJob }: { initialJob: Job }) {
                   important), a clear step under the question. */}
               <p className="mb-8 sm:mb-10">
                 <span className="block text-sm text-paper/70">Applying for</span>
-                <span className="mt-1 block text-[1.5rem] font-medium leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
+                <span className="mt-1 block font-display font-semibold text-[1.5rem] leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
                   {route.title}
                 </span>
               </p>
@@ -504,7 +504,7 @@ function Appear({ still, children }: { still: boolean | null; children: ReactNod
 function Question({ legend, hint, children }: { legend: string; hint?: string; children: ReactNode }) {
   return (
     <fieldset>
-      <legend className="text-balance text-[2.25rem] font-medium leading-[1.04] tracking-[-0.045em] sm:text-[3rem]">
+      <legend className="text-balance font-display font-semibold text-[2.25rem] leading-[1.04] tracking-[-0.03em] sm:text-[3rem]">
         {legend}
       </legend>
       {hint && <p className="mt-3 text-lg text-paper/60">{hint}</p>}

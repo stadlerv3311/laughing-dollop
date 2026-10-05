@@ -2,7 +2,7 @@
 
 import { useLenis } from "lenis/react";
 import { useInView, useReducedMotion } from "motion/react";
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { quoteLink } from "@/lib/site";
@@ -12,8 +12,11 @@ import { ShipRouteMap } from "./ShipRouteMap";
 
 /** Remembers, for the visit, that the band has had its landing pause. */
 const LANDED_KEY = "itr-ship-landed";
-/** How long the page holds on the band after landing: one sweep of the wave (24% of its 8s, globals.css). */
-const HOLD_MS = 2000;
+/**
+ * How long the page holds on the band after landing: one sweep of the wave (24% of its 8s, 1.92s, globals.css) and a
+ * beat after it (owner, 2026-10-05: stop "while that wave is going"; it was 2000, which let go as the wave left).
+ */
+const HOLD_MS = 2400;
 
 /**
  * The shipper half's closing ask, full screen since 2026-10-02 (owner, from three rounds of mock-ups): "Have a load to
@@ -43,6 +46,11 @@ export function ShipWithUs() {
   const [ride, setRide] = useState(0);
   const [sweep, setSweep] = useState(0);
   const [openRequest, setOpenRequest] = useState(0);
+  // Whether the quote button has been pressed: the map's demo trips stop and only the wave stays.
+  const [formOpen, setFormOpen] = useState(false);
+  // The heading waits dimmed for the landing's wave, then lights with it; "lit" when there's no landing to wait for.
+  const [heading, setHeading] = useState<HeadingState>("waiting");
+  const still = useReducedMotion() ?? false;
   const inView = useInView(ref);
 
   const onStates = useCallback((from: StateCode | null, to: StateCode | null) => {
@@ -51,8 +59,19 @@ export function ShipWithUs() {
   }, []);
   const onSent = useCallback(() => setRide((n) => n + 1), []);
   const requestOpen = useCallback(() => setOpenRequest((n) => n + 1), []);
-  const disarm = useLandingPause(ref, () => setSweep((n) => n + 1));
-  useQuoteLinks(ref, disarm, requestOpen);
+  const disarm = useLandingPause(
+    ref,
+    () => {
+      setSweep((n) => n + 1);
+      setHeading("wave");
+    },
+    () => setHeading("lit"),
+  );
+  const skip = useCallback(() => {
+    disarm();
+    setHeading("lit");
+  }, [disarm]);
+  useQuoteLinks(ref, skip, requestOpen);
 
   return (
     <section
@@ -71,6 +90,7 @@ export function ShipWithUs() {
         ride={ride}
         sweep={sweep}
         playing={inView}
+        demo={!formOpen}
         className="relative order-2 my-7 aspect-[960/613] w-full md:absolute md:inset-x-[2vw] md:top-22 md:bottom-4 md:order-none md:my-0 md:aspect-auto md:w-auto"
       />
 
@@ -80,17 +100,41 @@ export function ShipWithUs() {
         {/* A size up from the other band headings (owner: "give it more weight"), held at 72px so it stays under the hero's. */}
         <h2
           id="ship-with-us"
-          className="mt-3.5 text-[3rem] font-medium leading-none tracking-[-0.05em] text-balance sm:text-[4.5rem]"
+          className="mt-3.5 font-display font-semibold text-[3rem] leading-none tracking-[-0.03em] text-balance sm:text-[4.5rem]"
+          style={still ? undefined : headingWaveStyle(heading)}
         >
           Have a load to move?
         </h2>
       </div>
 
       <div className="relative z-10 order-3 flex w-full justify-center md:mt-11">
-        <QuoteBar onStates={onStates} onSent={onSent} openRequest={openRequest} />
+        <QuoteBar onStates={onStates} onSent={onSent} openRequest={openRequest} onOpenChange={setFormOpen} />
       </div>
     </section>
   );
+}
+
+type HeadingState = "waiting" | "wave" | "lit";
+
+/**
+ * The heading's one white wave (owner, 2026-10-05: "when you scroll down there is 1 white wave"). It waits at 35% white
+ * until the landing, then lights to full white from left to right as the map's wave passes behind it — timed to the
+ * wave (ship-wave in app/globals.css: the band crosses the map in 1.92s, and passes the heading's middle stretch about
+ * 0.75–1.2s in) — and stays lit. The text is a clip of a gradient twice and a half its width, white on the left and
+ * dim on the right, slid from its dim end to its white end. Under reduced motion, or with no landing to wait for (a
+ * Get a quote link, a page opened past the band, a later visit), it's plain white.
+ */
+function headingWaveStyle(state: HeadingState): CSSProperties {
+  return {
+    color: "transparent",
+    backgroundImage:
+      "linear-gradient(90deg, rgb(255 255 255) 0%, rgb(255 255 255) 40%, rgb(255 255 255 / 0.35) 60%, rgb(255 255 255 / 0.35) 100%)",
+    backgroundSize: "250% 100%",
+    backgroundClip: "text",
+    WebkitBackgroundClip: "text",
+    backgroundPosition: state === "waiting" ? "100% 0" : "0% 0",
+    transition: state === "wave" ? "background-position 0.5s linear 0.72s" : undefined,
+  };
 }
 
 /** The band's top in the page, ignoring the slide-over's lift (offsets don't see transforms). */
@@ -103,9 +147,10 @@ function pageTop(element: HTMLElement) {
 /**
  * The landing: once its top is in the upper half of the screen on the way down, the scroll glides it to the top and
  * holds for HOLD_MS, `onLand` starting the wave, then gives the scroll back. Once a visit; skipped under reduced motion
- * and when the page opens already past it. Returns `disarm`, for when the visitor is sent here on purpose.
+ * and when the page opens already past it (`onSkip`, also on a later visit). Returns `disarm`, for when the visitor is
+ * sent here on purpose.
  */
-function useLandingPause(ref: RefObject<HTMLElement | null>, onLand: () => void) {
+function useLandingPause(ref: RefObject<HTMLElement | null>, onLand: () => void, onSkip: () => void) {
   const still = useReducedMotion() ?? false;
   const armed = useRef(true);
 
@@ -118,10 +163,15 @@ function useLandingPause(ref: RefObject<HTMLElement | null>, onLand: () => void)
 
   useEffect(() => {
     try {
-      if (sessionStorage.getItem(LANDED_KEY)) armed.current = false;
+      if (sessionStorage.getItem(LANDED_KEY)) {
+        armed.current = false;
+        onSkip();
+      }
     } catch {
       // No storage: it lands once per page load instead.
     }
+    // Once, on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useLenis((lenis) => {
@@ -131,6 +181,7 @@ function useLandingPause(ref: RefObject<HTMLElement | null>, onLand: () => void)
     const distance = target - lenis.scroll;
     if (distance <= 0) {
       armed.current = false;
+      onSkip();
       return;
     }
     if (lenis.direction !== 1 || distance > window.innerHeight * 0.5) return;

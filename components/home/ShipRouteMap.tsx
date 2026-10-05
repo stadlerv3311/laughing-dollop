@@ -29,6 +29,8 @@ type ShipRouteMapProps = {
   sweep: number;
   /** False while the band is off screen: the wave holds still. */
   playing: boolean;
+  /** True while the quote button is closed: made-up trips come and go on the map (DemoQuotes). */
+  demo: boolean;
   className?: string;
 };
 
@@ -43,9 +45,13 @@ type ShipRouteMapProps = {
  * Until 2026-10-02 it was decoration: faint, masked out behind the words, laptop and up only, one dashed California →
  * New York route with a dot riding it.
  *
- * Under reduced motion there's no wave, pulse, draw or ride: the states and pins just appear.
+ * While the button is closed, made-up trips come and go (owner, 2026-10-05: "connect random dots on the map like
+ * somebody is getting a quote"; DemoQuotes). Pressing Get a quote clears them, so only the wave stays and the map is
+ * the visitor's own.
+ *
+ * Under reduced motion there's no wave, pulse, draw, ride or demo trip: the states and pins just appear.
  */
-export function ShipRouteMap({ pickup, delivery, ride, sweep, playing, className }: ShipRouteMapProps) {
+export function ShipRouteMap({ pickup, delivery, ride, sweep, playing, demo, className }: ShipRouteMapProps) {
   const still = useReducedMotion() ?? false;
   const svgRef = useRef<SVGSVGElement>(null);
   const solidRef = useRef<SVGPathElement>(null);
@@ -126,6 +132,8 @@ export function ShipRouteMap({ pickup, delivery, ride, sweep, playing, className
           ))}
         </g>
 
+        {!still && <DemoQuotes active={demo && playing} />}
+
         {route && <Route key={route} d={route} still={still} solidRef={solidRef} />}
         <circle ref={loadRef} r={5} className="fill-brand" style={{ opacity: 0 }} />
 
@@ -199,6 +207,134 @@ function Pin({ code, kind, unit, still }: { code: StateCode; kind: "pickup" | "d
       >
         {state.name}
       </text>
+    </g>
+  );
+}
+
+/** A new made-up trip every DEMO_MS; each one plays for TRIP_MS of that. */
+const DEMO_MS = 4400;
+const TRIP_MS = 4100;
+
+/** Two states far enough apart that the arc reads as a trip, not a hop; never starting where the last one ended. */
+function randomTrip(last: StateCode | null): [StateCode, StateCode] {
+  for (;;) {
+    const a = usStates[Math.floor(Math.random() * usStates.length)];
+    const b = usStates[Math.floor(Math.random() * usStates.length)];
+    if (a.code === last || a.code === b.code) continue;
+    if (Math.hypot(b.cx - a.cx, b.cy - a.cy) < 260) continue;
+    return [a.code, b.code];
+  }
+}
+
+/**
+ * Made-up trips, one after another, so the map looks like people are getting quotes (owner, 2026-10-05). Decoration
+ * only: random states, no names or numbers, nothing that reads as a live feed of real requests. Each trip is the
+ * form's own marks a little quieter — the two states light, a hollow white pickup and an orange delivery drop in, the
+ * dashed arc draws, a dot rides it — then it fades and the next begins. While `active` is false (the button pressed,
+ * or the band off screen) no new trip starts and the one on the map fades out.
+ */
+function DemoQuotes({ active }: { active: boolean }) {
+  const [trip, setTrip] = useState<{ id: number; from: StateCode; to: StateCode } | null>(null);
+
+  useEffect(() => {
+    if (!active) {
+      const clear = window.setTimeout(() => setTrip(null), 400);
+      return () => window.clearTimeout(clear);
+    }
+    let id = 0;
+    let last: StateCode | null = null;
+    const next = () => {
+      const [from, to] = randomTrip(last);
+      last = to;
+      id += 1;
+      setTrip({ id, from, to });
+    };
+    const first = window.setTimeout(next, 800);
+    const timer = window.setInterval(next, DEMO_MS);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(timer);
+    };
+  }, [active]);
+
+  return (
+    <g
+      className="transition-opacity duration-400 ease-premium"
+      style={{ opacity: active ? 0.85 : 0 }}
+    >
+      {trip && <DemoTrip key={trip.id} id={trip.id} from={trip.from} to={trip.to} />}
+    </g>
+  );
+}
+
+/** One made-up trip's whole life, driven by one animation frame loop so nothing re-renders while it plays. */
+function DemoTrip({ id, from, to }: { id: number; from: StateCode; to: StateCode }) {
+  const groupRef = useRef<SVGGElement>(null);
+  const deliveryRef = useRef<SVGGElement>(null);
+  const revealRef = useRef<SVGPathElement>(null);
+  const solidRef = useRef<SVGPathElement>(null);
+  const loadRef = useRef<SVGCircleElement>(null);
+  const d = arc(from, to);
+  const a = byCode.get(from)!;
+  const b = byCode.get(to)!;
+  const maskId = `ship-demo-reveal-${id}`;
+
+  useEffect(() => {
+    const group = groupRef.current;
+    const drop = deliveryRef.current;
+    const reveal = revealRef.current;
+    const solid = solidRef.current;
+    const load = loadRef.current;
+    if (!group || !drop || !reveal || !solid || !load) return;
+    const length = solid.getTotalLength();
+    const clamp = (x: number) => Math.min(1, Math.max(0, x));
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const start = performance.now();
+    let frame = 0;
+    // Seconds: the pickup at 0, the delivery at 0.35, the arc draws 0.35–1.25, the ride 1.4–2.8, the fade 3.5–4.1.
+    const step = (now: number) => {
+      const s = (now - start) / 1000;
+      group.style.opacity = String(s < 3.5 ? clamp(s / 0.3) : 1 - clamp((s - 3.5) / 0.6));
+      drop.style.opacity = String(clamp((s - 0.35) / 0.2));
+      reveal.style.strokeDashoffset = String(1 - ease(clamp((s - 0.35) / 0.9)));
+      const r = ease(clamp((s - 1.4) / 1.4));
+      const point = solid.getPointAtLength(length * r);
+      load.setAttribute("cx", String(point.x));
+      load.setAttribute("cy", String(point.y));
+      load.style.opacity = s > 1.4 && s < 2.8 ? "1" : "0";
+      solid.style.strokeDashoffset = String(1 - r);
+      if (s * 1000 < TRIP_MS) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  return (
+    <g ref={groupRef} style={{ opacity: 0 }}>
+      <g fill="url(#ship-dot-lit)" opacity={0.45}>
+        <path d={a.d} />
+        <path d={b.d} />
+      </g>
+      <mask id={maskId} maskUnits="userSpaceOnUse" x="-50" y="-200" width="1060" height="900">
+        <path ref={revealRef} d={d} pathLength={1} fill="none" stroke="#fff" strokeWidth={8} strokeDasharray="1 1" strokeDashoffset={1} />
+      </mask>
+      <path d={d} fill="none" strokeWidth={1.6} strokeDasharray="5 7" mask={`url(#${maskId})`} className="stroke-paper/45" />
+      <path ref={solidRef} d={d} fill="none" strokeWidth={1.8} pathLength={1} strokeDasharray="1 1" strokeDashoffset={1} className="stroke-paper/80" />
+      <circle cx={a.cx} cy={a.cy} r={6} fill="none" strokeWidth={2} className="origin-center animate-ship-pulse stroke-paper [transform-box:fill-box]" />
+      <circle cx={a.cx} cy={a.cy} r={6} strokeWidth={2.2} className="fill-ink stroke-paper" />
+      <g ref={deliveryRef} style={{ opacity: 0 }}>
+        <circle
+          cx={b.cx}
+          cy={b.cy}
+          r={6}
+          fill="none"
+          strokeWidth={2}
+          className="origin-center animate-ship-pulse stroke-brand [transform-box:fill-box]"
+          style={{ animationDelay: "0.35s" }}
+        />
+        <circle cx={b.cx} cy={b.cy} r={6} className="fill-brand" />
+      </g>
+      <circle ref={loadRef} r={4.5} className="fill-brand" style={{ opacity: 0 }} />
     </g>
   );
 }

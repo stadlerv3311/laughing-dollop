@@ -25,11 +25,12 @@ export function HeroHeadline({ lit, className }: HeroHeadlineProps) {
 }
 
 function Line({ line, lit, firstWord }: { line: HeroLine; lit: boolean; firstWord: number }) {
-  // The words light up in reading order as the intro hands over, 70ms apart.
+  // The words light up in reading order as the intro hands over: 30ms apart, 0.4s each, so the whole line is white
+  // about 0.7s after it starts (owner, 2026-10-05; it was 70ms and 0.7s each, about 1.3s).
   const word = (n: number, content: string) => (
     <span
-      className="transition-opacity duration-700 ease-premium motion-reduce:transition-none"
-      style={{ opacity: lit ? 1 : 0.22, transitionDelay: lit ? `${(firstWord + n) * 70}ms` : "0ms" }}
+      className="transition-opacity duration-400 ease-premium motion-reduce:transition-none"
+      style={{ opacity: lit ? 1 : 0.22, transitionDelay: lit ? `${(firstWord + n) * 30}ms` : "0ms" }}
     >
       {content}
     </span>

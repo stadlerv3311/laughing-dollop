@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
 /* Brand tokens — source of truth is docs/ARCHITECTURE.md → Brand / design tokens */
+/*
+ * Headline face (2026-10-03, owner's pick "4" of the type pairings): Archivo at 115% width on everything 22px and up —
+ * headings, the big numbers, card titles, the footer's links, Apply now. Set with `font-semibold` and
+ * `tracking-[-0.03em]` beside it (Geist's -0.045em is too tight for a wide face). Everything else stays Geist.
+ */
+@utility font-display {
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  font-variation-settings: "wdth" 115;
+}
+
 @theme {
   --color-ink: #252525;
   --color-paper: #ffffff;

@@ -5,6 +5,7 @@ export { CountUp } from "./CountUp";
 export { Field, controlClass, errorId } from "./Field";
 export { HalfStar, inkDepthClass } from "./HalfStar";
 export { HeroMedia } from "./HeroMedia";
+export { FlyArrow, RiseLabel } from "./LinkHover";
 export { InteractiveHoverButton } from "./InteractiveHoverButton";
 export { Logo } from "./Logo";
 export { PagePlaceholder } from "./PagePlaceholder";

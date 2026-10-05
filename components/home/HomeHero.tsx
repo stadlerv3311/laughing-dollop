@@ -29,14 +29,14 @@ export function HomeHero() {
   const reduceMotion = useReducedMotion();
   const intro = useIntroProgress();
 
-  // The words light up right after the header logo settles (straight away on every page but the homepage).
+  // The words light up 1.5s into the video, while the block comes down (straight away on every page but the homepage).
   const [lit, setLit] = useState(false);
   useMotionValueEvent(intro, "change", (v) => {
-    if (v >= INTRO.litAt) setLit(true);
+    if (v >= INTRO.headlineAt) setLit(true);
   });
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      if (intro.get() >= INTRO.litAt) setLit(true);
+      if (intro.get() >= INTRO.headlineAt) setLit(true);
     });
     return () => cancelAnimationFrame(frame);
   }, [intro]);
@@ -145,8 +145,13 @@ export function HomeHero() {
             From lg the headline is set large and runs left of the column into the open forest, its right edge on the
             column's right edge, while the supporting line and buttons stay in the column (owner, 2026-09-24: the
             middle of the screen felt empty with the headline at button width). 1.5× since 2026-10-02 (owner): 84px at lg,
-            108px at xl, 120px at 2xl (72px at xl from 2026-09-29, 60 before). On phones it grows only as far as each line
-            still fits on one line (36px at 375px wide, 28px before).
+            108px at xl (72px at xl from 2026-09-29, 60 before). On phones it grows only as far as each line still fits on
+            one line (31px at 375px wide). Archivo since 2026-10-03 (font-display): about 15% wider than Geist, so the
+            phone scale went from 9.6vw to 8.3vw and the 120px size at 2xl came out — it ran past the 1200px column.
+            80px at lg and 92px from xl since 2026-10-05 (owner: the "A" sat on the road; the film's framing stays; then
+            "fit it in this square" — from just right of the road to Apply now's edge): at 84/108px the wider Archivo
+            line reached over the road at every desktop width. 92px is the largest that clears it from 1280 to 1920
+            (about 33px at 1280 and 1536, where the road sits furthest right for the line's width).
           */}
           <motion.div
             className="max-w-[34rem] lg:ml-auto lg:flex lg:max-w-none lg:flex-col lg:items-end"
@@ -154,7 +159,7 @@ export function HomeHero() {
           >
             <HeroHeadline
               lit={lit}
-              className="text-balance text-[clamp(1.75rem,9.6vw,4.125rem)] font-medium leading-[1.08] tracking-[-0.035em] lg:w-max lg:text-[5.25rem] lg:leading-[1.02] lg:tracking-[-0.045em] xl:text-[6.75rem] 2xl:text-[7.5rem]"
+              className="text-balance font-display font-semibold text-[clamp(1.75rem,8.3vw,4.125rem)] leading-[1.08] tracking-[-0.03em] lg:w-max lg:text-[5rem] lg:leading-[1.02] xl:text-[5.75rem]"
             />
             {/* Two 14rem buttons and their gap from lg (2026-10-02), so the dot clears each label; the header's pair
                 width, which they used to match, is too narrow for two side by side at this size. */}

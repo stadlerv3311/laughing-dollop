@@ -38,6 +38,7 @@ export function StoryHeadline({
   inline = false,
   solid = false,
   large = false,
+  sans = false,
   className,
 }: {
   id: string;
@@ -56,18 +57,25 @@ export function StoryHeadline({
   solid?: boolean;
   /** 64px from laptops up instead of 56px (the safety band and Our story, owner 2026-10-02: the safety one looked alone at 56). */
   large?: boolean;
+  /**
+   * Geist instead of the Archivo headline face, at Geist's own tighter tracking (Our story's homepage heading, owner
+   * 2026-10-05: "change it to geist").
+   */
+  sans?: boolean;
   className?: string;
 }) {
   const ref = useRef<HTMLHeadingElement>(null);
   const inView = useInView(ref, { once: true, margin: "0px" });
   const still = useReducedMotion() ?? false;
   const last = lines.length - 1;
+  const size = large ? chapterHeadingClass.replace("lg:text-[3.5rem]", "lg:text-[4rem]") : chapterHeadingClass;
+  const face = sans ? size.replace("font-display", "font-sans").replace("tracking-[-0.03em]", "tracking-[-0.045em]") : size;
 
   return (
     <Tag
       ref={ref}
       id={id}
-      className={cx(large ? chapterHeadingClass.replace("lg:text-[3.5rem]", "lg:text-[4rem]") : chapterHeadingClass, className)}
+      className={cx(face, className)}
     >
       {lines.map((line, i) => (
         <Fragment key={line}>

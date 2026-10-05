@@ -121,7 +121,7 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
                 <li key={entry.year} className="w-[var(--item)] shrink-0 snap-start scroll-ml-5 sm:scroll-ml-8">
                   <p
                     className={cx(
-                      "text-[3.5rem] font-medium leading-none tracking-[-0.05em] tabular-nums transition-colors duration-500",
+                      "font-display font-semibold text-[3.5rem] leading-none tracking-[-0.03em] tabular-nums transition-colors duration-500",
                       on ? "text-ink" : "text-ink/20",
                     )}
                   >

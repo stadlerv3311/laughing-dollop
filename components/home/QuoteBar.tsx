@@ -88,6 +88,8 @@ type QuoteBarProps = {
   onSent: () => void;
   /** Goes up by one when a Get a quote link elsewhere on the site brings the visitor here: the form opens. */
   openRequest: number;
+  /** The button has been pressed and the card is open (or opening or closing): the map stops its demo quotes. */
+  onOpenChange?: (open: boolean) => void;
 };
 
 /**
@@ -111,7 +113,7 @@ type QuoteBarProps = {
  *
  * Until 2026-10-02 this was a three-field bar (Pickup, Delivery, Pickup date) that opened the quote page (`/quote`, now gone) with them filled in.
  */
-export function QuoteBar({ onStates, onSent, openRequest }: QuoteBarProps) {
+export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteBarProps) {
   const baseId = useId();
   const id = (field: FieldName) => `${baseId}-${field}`;
   const still = useReducedMotion() ?? false;
@@ -138,6 +140,7 @@ export function QuoteBar({ onStates, onSent, openRequest }: QuoteBarProps) {
   // Closed, the map lets go of the states; they light again when it opens.
   const shown = phase !== "closed";
   useEffect(() => onStates(shown ? pickup : null, shown ? delivery : null), [shown, pickup, delivery, onStates]);
+  useEffect(() => onOpenChange?.(shown), [shown, onOpenChange]);
 
   // While it's closed or opening, the form is laid out at its open width (so it never reflows as the card grows).
   useLayoutEffect(() => {
@@ -288,7 +291,9 @@ export function QuoteBar({ onStates, onSent, openRequest }: QuoteBarProps) {
           "relative w-full bg-cloud text-left text-ink shadow-[0_30px_60px_-30px_rgb(0_0_0/0.6)]",
           !still && "transition-[max-width,height,padding,border-radius] duration-700 ease-premium",
           closed
-            ? "h-[4.25rem] max-w-full overflow-hidden rounded-full p-0 md:h-20 md:max-w-[25rem]"
+            // The closed pill: 240 × 56px from `md`, 52px tall on phones (owner, 2026-10-05: "a bit smaller" twice —
+            // it was 400 × 80 and 68px, then 288 × 64 and 56px).
+            ? "h-13 max-w-full overflow-hidden rounded-full p-0 md:h-14 md:max-w-[15rem]"
             : cx("rounded-[1.75rem] p-2 md:rounded-[2rem] min-[87.5rem]:rounded-[2.25rem]", sent ? "md:max-w-[46rem]" : "max-w-[75rem]"),
           (phase === "opening" || phase === "closing") && "overflow-hidden",
         )}
@@ -305,7 +310,7 @@ export function QuoteBar({ onStates, onSent, openRequest }: QuoteBarProps) {
           aria-controls={`${baseId}-form`}
           tabIndex={closed ? 0 : -1}
           className={cx(
-            "group/launch absolute inset-0 z-10 flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-cloud text-[1.1875rem] font-semibold tracking-[-0.01em] text-ink md:text-[1.3125rem]",
+            "group/launch absolute inset-0 z-10 flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-cloud text-base font-semibold tracking-[-0.01em] text-ink md:text-[1.0625rem]",
             "duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
             // Shown at once when the card closes (so the cursor can land on it), faded out when it opens.
             closed ? "transition-opacity" : "invisible opacity-0 transition-[opacity,visibility]",
@@ -314,9 +319,9 @@ export function QuoteBar({ onStates, onSent, openRequest }: QuoteBarProps) {
           {/* The site's button move, at this size: the dot grows until it fills the button, and the label turns white. */}
           <span
             aria-hidden
-            className="absolute top-1/2 left-[calc(50%-5.25rem)] size-2.5 -translate-y-1/2 rounded-full bg-ink transition-transform duration-500 ease-premium group-hover/launch:scale-[90] group-focus-visible/launch:scale-[90] motion-reduce:transition-none"
+            className="absolute top-1/2 left-[calc(50%-4.375rem)] size-2 -translate-y-1/2 rounded-full bg-ink transition-transform duration-500 ease-premium group-hover/launch:scale-[100] group-focus-visible/launch:scale-[100] motion-reduce:transition-none"
           />
-          <span className="relative pl-6 transition-colors duration-300 group-hover/launch:text-paper group-focus-visible/launch:text-paper">
+          <span className="relative pl-5 transition-colors duration-300 group-hover/launch:text-paper group-focus-visible/launch:text-paper">
             {quoteLink.label}
           </span>
         </button>

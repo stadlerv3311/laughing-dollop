@@ -13,8 +13,9 @@ import { companyStats, site } from "@/lib/site";
  *
  * Earlier: two groups, years and miles large on the left and the rest smaller on the right (2026-09-23).
  *
- * Since 2026-10-02 it sits inside the safety band, between its two pictures (owner; it was straight under the hero
- * from 2026-09-21), so it has no padding of its own: SafetyBand's `between` slot spaces it.
+ * Since 2026-10-02 it sits inside the safety band (owner; it was straight under the hero from 2026-09-21) — between
+ * its two pictures, at its foot from 2026-10-03 (the shop pair moved to Why work with us), and between the services
+ * and road pairs again since 2026-10-05 — so it has no padding of its own: SafetyBand's `between` slot spaces it.
  */
 export function TrustBar() {
   return (
@@ -34,7 +35,7 @@ export function TrustBar() {
               <dt className="order-2 text-sm text-ink/70 sm:text-base">{stat.label}</dt>
               <dd
                 className={cx(
-                  "order-1 font-medium leading-none tracking-[-0.045em]",
+                  "order-1 font-display font-semibold leading-none tracking-[-0.03em]",
                   stat.main
                     ? "text-[3rem] sm:text-[4rem] lg:text-[clamp(3.5rem,5.2vw,4.75rem)]"
                     : // Sized so "32M+" and "125K+" fit a third of a 320px phone, and a fifth of the row from lg.

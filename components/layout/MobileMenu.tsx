@@ -61,7 +61,7 @@ export function MobileMenu({ open, pathname, onNavigate }: MobileMenuProps) {
                         onClick={onNavigate}
                         aria-current={active ? "page" : undefined}
                         className={cx(
-                          "flex items-center justify-between py-3 text-3xl font-semibold tracking-tight",
+                          "flex items-center justify-between py-3 font-display font-semibold text-3xl tracking-[-0.03em]",
                           active ? "text-ink" : "text-ink/70",
                         )}
                       >

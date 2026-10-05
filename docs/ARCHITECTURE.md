@@ -8,7 +8,7 @@
 - motion (`motion/react`) — UI animation and scroll-linked values
 - Lenis — smooth wheel scrolling (turned off for reduced motion)
 - No 3D library — three.js and React Three Fiber were removed on 2026-09-11; the video intro that replaced them was itself removed on 2026-09-23 (see DECISIONS.md → Hero media)
-- Font: Geist via `next/font/google` as `font-sans`, the only face (chosen 2026-09-24 over the provisional Manrope — see DECISIONS.md → Open → Font)
+- Fonts: Geist via `next/font/google` as `font-sans` for body and UI (chosen 2026-09-24 over the provisional Manrope — see DECISIONS.md → Open → Font), and Archivo with its width axis as `--font-archivo` for headlines (2026-10-03), used through the `font-display` utility
 - Form backend: owned by the backend teammate, not yet decided — see DECISIONS.md
 
 ## Folder structure (App Router)
@@ -29,10 +29,10 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Columns, Container, CountUp, Field, HalfStar (+ inkDepthClass, the dark bands' look), HeroMedia, Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, PagePlaceholder,
+  ui/                        → Button, Columns, Container, CountUp, Field, HalfStar (+ inkDepthClass, the dark bands' look), HeroMedia, LinkHover (RiseLabel + FlyArrow, the arrow links' hover), Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, PagePlaceholder,
                                typography (shared label + section-heading classes)
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
-  home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs
+  home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, CardPair, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs
   about/                     → Timeline (the About page's sideways timeline), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
@@ -54,12 +54,12 @@ scripts/
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
-  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg and home-hero-sierra.jpg are no longer used; safety-fleet.jpg is the safety band's New equipment still
+  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used; ship-truck-side.jpg and home-hero-sierra.jpg are the safety band's services stills; new-equipment-lot.jpg, lease-truck-road.webp and our-shop-tires.jpg are Why work with us's New equipment, Lease to own and Our shop stills; safety-fleet.jpg, the earlier New equipment still, is no longer used
   videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated, upscaled to 1080p; replayed by hand with a 2 s hold between passes)
 ```
 Full component list: NAVIGATION.md → Component library.
 
-Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordion`, `TrustBadge`, `QualificationForm`, `lib/services.ts`.
+Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordion`, `TrustBadge`, `QualificationForm`.
 
 ## Component library conventions
 - Import from the folder barrel: `import { Button, Container } from "@/components/ui"`.
@@ -84,18 +84,19 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 - Never use orange for small body text or links — use near-black
 
 ### Typography (2026-09-24)
-- One face, Geist. Three shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked), `chapterHeadingClass` (the big moments after the hero — the safety band since 2026-09-30, Ship with us, Our story, Why work with us — 40 / 48 / 56px, since 2026-09-29) and `sectionHeadingClass` (the About timeline h2, and the safety band's until 2026-09-30 — medium weight, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
-- Page h1s (inner pages) are `text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale, with its fixed words at `text-paper/60` (large text, so it clears the contrast floor for its size).
+- Two faces since 2026-10-03 (owner's pick "4" of ten type pairings). **Headlines: Archivo at 115% width** (`font-display`, a utility in `app/globals.css`: the family plus `font-variation-settings: "wdth" 115`), always with `font-semibold` and `tracking-[-0.03em]`. It's on all type 22px and up: the hero h1, chapter, section and page headings, the sub-headings beside pictures, card titles, the numbers band, the story marks, the About timeline years, the footer's and mobile menu's big links, Apply now. **Everything else is Geist**: labels, body, buttons, forms (including the application's typed answers), nav. One exception: the homepage story band's heading is Geist semibold at `tracking-[-0.045em]` (owner, 2026-10-05; `StoryHeadline`'s `sans`). Archivo set wide runs about 15% wider than Geist, so check one-line and no-wrap headlines when sizing them up.
+- Three shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked), `chapterHeadingClass` (the big moments after the hero — the safety band since 2026-09-30, Ship with us, Our story, Why work with us — 40 / 48 / 56px, since 2026-09-29) and `sectionHeadingClass` (the About timeline h2, "Why ___ stay." over the homepage's job cards since 2026-10-05, and the safety band's until 2026-09-30 — semibold Archivo since 2026-10-03, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
+- Page h1s (inner pages) are `font-display text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale, with its fixed words at `text-paper/60` (large text, so it clears the contrast floor for its size).
 - Header nav links are all one size (15px); inactive links `text-ink/70`, the contrast floor.
 - Copy rules (case, "and", apostrophes, commas) are in DECISIONS.md → Wording and type.
 - **Line wrapping site-wide (2026-10-01, owner).** `app/globals.css` sets `text-wrap: pretty` on running text (p, li, dt, dd, blockquote, figcaption, label, legend) so a paragraph doesn't end on one lonely word, and `text-wrap: balance` on h1–h6 so headings split into even lines. It's in the base layer, so a component's own `text-pretty` / `text-balance` / `whitespace-nowrap` still wins; the many per-element `text-pretty` classes are now redundant but harmless. Browsers without support (older Firefox) wrap normally.
-- **Greys (2026-09-29, spacing audit point 04; there were six).** Small text that isn't ink — labels, body, meta, captions — is `text-ink/70` on white (5.7:1) and `text-paper/70` on the dark bands, and `text-paper/80` over photos, which are busier. `/60` is only for the grey half of large type (the rolling slogan's tail, the hero's fixed words), where the contrast floor is 3:1. `text-ink/40` is only for decorative text screen readers skip (the 01–05 beside Why work with us's reasons). Don't add another step. Form placeholders are the one leftover (`ink/40`, QuoteBar and Field).
+- **Greys (2026-09-29, spacing audit point 04; there were six).** Small text that isn't ink — labels, body, meta, captions — is `text-ink/70` on white (5.7:1) and `text-paper/70` on the dark bands, and `text-paper/80` over photos, which are busier. `/60` is only for the grey half of large type (the rolling slogan's tail, the hero's fixed words), where the contrast floor is 3:1. `text-ink/40` is left in one place, the About timeline's stops that aren't lit yet (`components/about/Timeline.tsx`); the 01–05 over Why work with us's reasons, the decorative use it was kept for, went to `text-ink/70` on 2026-10-05. Don't add another step. Form placeholders are the one leftover (`ink/40`, QuoteBar and Field).
 
 ### Section spacing (2026-09-29)
 - Three steps for the space around homepage bands, as shared classes in `components/ui/spacing.ts` (phone → `sm` → `lg`): **section** 64 → 80 → 96px (`sectionY`, `sectionTop`, `sectionBottom`) for most bands; **chapter** 80 → 112 → 128px (`chapterY`, `chapterTop`) for Why work with us (the story band had it too, top only, until 2026-10-02 — see the exceptions below), which is the careers half and ends the page; **joined**, no top space, for a band that closes the one above it (the logo row under the safety band).
-- Where two white bands meet, only one of them carries the step, so the gap is one step, not two: the numbers band has no space of its own since it moved inside the safety band (2026-10-02). Why work with us, the last band, carries the chapter step top and bottom.
-- One tuned exception: from `lg`, where Ship with us slides up over the safety band, the logo row keeps 70px under it (owner, 2026-10-02; 40 before) (ToolsBand.tsx). Ship with us itself is the full screen since 2026-10-02, its heading and button centred in it (ShipWithUs.tsx); it was 130px above / 200px below the ask before. Our story's top space is 70px from `sm` (64px on phones) since 2026-10-02 (owner: it had the chapter's 128px), the same as the safety band's foot (StoryTeaser.tsx).
-- Inside the safety band: the numbers band sits between its two pictures, 64px (phones) / 70px (from `sm`) from each, and the band ends 64 / 70px under its last picture, so the logo row is as far below it (owner, 2026-10-02; the band used the section foot before). Until 2026-10-02 the band's top half was ink and the space between the pictures was split either side of the colour change; it's all white now (DECISIONS.md → Safety band).
+- Where two white bands meet, only one of them carries the step, so the gap is one step, not two: the numbers band has no space of its own since it moved inside the safety band (2026-10-02). Why work with us, the last band, carries the chapter step at its foot; its top is tuned so its heading's ink sits as far under the story band's last line as "Tracked trucks." sits under the hero: 75 / 92 / 108.5px (phone / `sm` / `lg`), giving 85 / 102 / 120px ink to ink at 375 / 800 / 1440 (owner, 2026-10-05; the chapter step's top left 90 / 122 / 140).
+- One tuned exception: from `lg`, where Ship with us slides up over the safety band, the logo row keeps 70px under it (owner, 2026-10-02; 40 before) (ToolsBand.tsx). Ship with us itself is the full screen since 2026-10-02, its heading and button centred in it (ShipWithUs.tsx); it was 130px above / 200px below the ask before. Our story's top space is tuned so its headline sits as far under Ship with us as the safety band's "Tracked trucks." sits under the hero, measured to the ink: 63 / 79 / 94px (phone / `sm` / `lg`), which gives 85 / 102 / 120px to the ink at 375 / 800 / 1440 (owner, 2026-10-05; Geist's capitals sit a hair lower than Archivo's, hence 1–2px under the section step). It was 70px from `sm` (64 on phones) from 2026-10-02, and the chapter's 128px before that (StoryTeaser.tsx).
+- Inside the safety band: the numbers band sits between the services pair and the road pair, 64px (phones) / 70px (from `sm`) from each, and the band ends 64 / 70px under the road pair, so the logo row is as far below it (owner, 2026-10-02; the band used the section foot before). From 2026-10-03 to 2026-10-05 the numbers closed the band; the shop pair, which stepped down there before, is now in Why work with us — two pairs since 2026-10-05, 64 / 70px apart — under its heading and 64 → 80 → 112px over the job cards (the step the band had between its pictures; under the cards until 2026-10-05). Until 2026-10-02 the band's top half was ink and the space between the pictures was split either side of the colour change; it's all white now (DECISIONS.md → Safety band).
 - Don't hand-pick a new padding for a homepage band; use one of the three steps.
 
 ### Layout grid (2026-09-23)
@@ -143,7 +144,7 @@ Design references (what we take from each — style and structure only, never th
   - slide the whole bar down from above the screen over `INTRO.headerDrop` (`dropY`, on an inner wrapper, so it doesn't fight the header's own hide-on-scroll `y`);
   - fade in (`logoOpacity`) and settle (`logoScale`, `INTRO.appearScale` 1.06 → 1) its own logo in place — there's no separate flying copy;
   - bring the nav and CTAs from 60% opacity to full once progress passes `INTRO.litAt`.
-- `HomeHero` reads the same progress to bring its text block down from `INTRO.blockDrop` (−20vh) and fade it in over `INTRO.blockIn`, and to light up the h1's words one by one once progress passes `INTRO.litAt`.
+- `HomeHero` reads the same progress to bring its text block down from `INTRO.blockDrop` (−20vh) and fade it in over `INTRO.blockIn`, and to light up the h1's words one by one once progress passes `INTRO.headlineAt` (1.5s into the video; the header brightens later, at `INTRO.litAt`).
 - `IntroProgressProvider` shares progress with both: 0 on `/` until the text lands, 1 on every other page (so everything just renders in place everywhere else).
 - Plays once per visit: a module-level flag in `HomeIntro` marks it played, and it's also skipped when the visit started on another page (progress is already 1). A reload resets the flag.
 - Skipped (everything just appears in place, no animation) for `prefers-reduced-motion` visitors.
@@ -156,8 +157,8 @@ Design references (what we take from each — style and structure only, never th
 
 ## Data model
 
-### Services (`lib/services.ts` — not created yet)
-Array of freight-type entries. Today contains exactly one entry (Dry Van). Adding a future trailer type (Reefer, Flatbed) should be a new array entry, not a page rebuild.
+### Services (`lib/services.ts`)
+Array of service entries, all dry van (since 2026-10-05): dry van truckload, dedicated lanes, drop and hook — owner-confirmed facts only. Adding a future trailer type (Reefer, Flatbed) should be a new array entry, not a page rebuild. Shown in the homepage safety band's words column; `/services` will read the same list. `servicesGroup` holds that column's heading and paragraph and the band's two service stills (`PairCard`s for `CardPair`).
 ```
 { id, name, description }
 ```

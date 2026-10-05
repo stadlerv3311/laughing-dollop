@@ -210,7 +210,7 @@ export const applyRoutes: readonly ApplyRoute[] = [
   },
 ];
 
-/** One job's side of Why work with us: its five reasons and the words beside the Apply now button. */
+/** One job's side of Why work with us: who they are, for "Why ___ stay.", and their five reasons. */
 export type WorkSeat = {
   job: Job;
   /** The people in this job, for "Why ___ stay." above the reasons. */
@@ -225,8 +225,12 @@ export type WorkSeat = {
 // careers reasons above and the owner's copy) and need the owner's OK. The company shop the shop ones speak of is real
 // (owner, 2026-10-03).
 export const whyWorkWithUs = {
-  label: "Why work with us",
+  // No label over the heading since 2026-10-05 (owner: remove "Why work with us").
   heading: ["The person who can fix it", "still answers."],
+  // The job cards left to right (owner, 2026-10-05): the dispatcher, the driver in the middle, the technician.
+  order: ["office", "driver", "shop"] satisfies readonly Job[],
+  // The card that starts open, and whose reasons show first.
+  open: "driver" satisfies Job,
   seats: [
     {
       job: "driver",
@@ -305,7 +309,8 @@ export type SafetySystem = {
   name: string;
   /**
    * What replaces the band's photo while this row is hovered, focused or tapped: a muted clip, or — for a row
-   * with no footage — a still (`image`) plus its alt text. Give one or the other.
+   * with no footage — a still (`image`) plus its alt text. Give one or the other, or neither for a plain grey
+   * stand-in card until a picture exists (Lease to own and Our shop, 2026-10-05).
    */
   video?: string;
   /**
@@ -314,7 +319,8 @@ export type SafetySystem = {
    * `aspect` is the clip's width / height.
    */
   crop?: { x: number; y: number; w: number; h: number; aspect: number };
-  image?: { src: string; alt: string };
+  /** `position` is a CSS object-position, for a still whose subject sits off centre. */
+  image?: { src: string; alt: string; position?: string };
   /**
    * What the system records, shown under the pair's words while the pair is hovered and this card is open (owner,
    * 2026-09-28): a label, one figure with its unit, and a short list. Sample values — never a real unit, position or
@@ -346,30 +352,12 @@ export const safetySystems: readonly SafetySystem[] = [
     // PLACEHOLDER — Pexels stock (5382495, real dash cam footage on a US interstate), until the owner sends our own.
     video: "/videos/safety-dashcam-placeholder.mp4",
   },
-  {
-    name: "Maintenance on record",
-    // PLACEHOLDER — Pexels stock (6685045, Gustavo Fring), until the owner sends our own shop footage.
-    video: "/videos/safety-maintenance-placeholder.mp4",
-    // The work, not the man (owner, 2026-09-28): the wheel he's checking and the clipboard in his hands, 40–76%
-    // across — clear of the headlight on the left, most of his back on the right. 1280 × 720.
-    crop: { x: 0.4, y: 0.05, w: 0.36, h: 0.9, aspect: 1280 / 720 },
-    // No sample readout since 2026-10-02 (owner: the shop pair gets words only, like the road pair).
-  },
-  {
-    name: "New equipment",
-    // PLACEHOLDER — AI-generated line-up standing in for a photo of our own yard; the fleet itself is real (owner,
-    // 2026-09-24). Tractors only, no trailers — swap for a real shot with trailers when one exists.
-    image: {
-      src: "/images/safety-fleet.jpg",
-      alt: "A row of new white Volvo trucks parked side by side on an open lot",
-    },
-    // No sample readout since 2026-10-02 (owner: the shop pair gets words only, like the road pair).
-  },
 ];
 
-// The safety band's zigzag (owner, 2026-09-28): two pairs of the cards above, each beside a short block of words.
-// Draft copy, built only from the systems' own facts. `systems` are indexes into `safetySystems`; `open` is which of
-// the pair starts wide (the first pair on its left card, the second on its right, so the two step down the page).
+// Pairs of the cards above, each beside a short block of words (owner, 2026-09-28). Draft copy, built only from the
+// systems' own facts. `systems` are indexes into `safetySystems`; `open` is which of the pair starts wide. The safety
+// band has the road pair, second since 2026-10-05 after the services pair (lib/services.ts); the shop cards are in
+// Why work with us since 2026-10-03 (owner), now as two pairs (`equipmentGroups`).
 // The safety band's heading and line under it are the owner's (2026-10-02), replacing "We know truck and trailer
 // location and last service." and "Plenty of carriers ask you to take their word for it. We’d rather show you."
 // The line is "Nothing to hide." since later that day (owner); it was "Don’t take our word for it — see the data."
@@ -382,21 +370,97 @@ export type SafetyGroup = {
   open: 0 | 1;
 };
 
+/** A group's two cards, for `Pair` (components/home/CardPair.tsx). */
+export const pairCards = (group: SafetyGroup) =>
+  [safetySystems[group.systems[0]], safetySystems[group.systems[1]]] as const;
+
 export const safetyGroups: readonly SafetyGroup[] = [
   {
     title: "Your load is never out of sight.",
     // The owner's wording (2026-10-02).
     body: "GPS on every truck and trailer. Dash cameras on every windshield. You always know where your freight is — and every mile is on record. No calling dispatch. No guessing.",
     systems: [0, 1],
+    // Dash cameras start wide since 2026-10-05: the pair now steps down on the right, so its open card sits on the
+    // outside edge, as the shop pair's did there.
+    open: 1,
+  },
+];
+
+/** A pair of cards with its own heading and paragraph, for `Pair` (components/home/CardPair.tsx). */
+export type PairGroup = {
+  title: string;
+  body: string;
+  cards: readonly [SafetySystem, SafetySystem];
+  /** Which card starts (and settles back) wide. */
+  open: 0 | 1;
+};
+
+// Why work with us's two rows of shop pictures, between the heading and the job cards (owner, 2026-10-05: the shop
+// pair split in two — Lease to own beside New equipment, then Maintenance on record beside Our shop). They were one
+// pair, "Equipment you don’t have to worry about.", from the safety band (2026-10-03). The second heading is the
+// owner's (2026-10-02); the rest is a draft from owner-confirmed facts (our own shop, trucks bought new), turned
+// toward the people who drive and fix the trucks. Lease to own isn't confirmed yet, and no terms or figures may be
+// added to it (DECISIONS.md → Open). Needs the owner's OK. In each pair the wide card sits on the outside edge, so the narrow one faces the
+// middle of the page, as in the safety band (owner, 2026-10-05): Lease to own wide on the left (owner, same day,
+// with its picture), Maintenance on record wide on the right.
+export const equipmentGroups: readonly [PairGroup, PairGroup] = [
+  {
+    title: "New trucks, and a way to own one.",
+    body: "You drive a late-model truck, bought new, with a brand-new trailer behind it. If you want a truck of your own, ask about lease to own when you apply.",
+    cards: [
+      {
+        name: "Lease to own",
+        // PLACEHOLDER — AI-generated (owner's pick, 2026-10-05), standing in for a photo of our own truck. It shows
+        // the Volvo badge, so it needs Volvo's OK like the other truck pictures (DECISIONS.md → Open). No caption
+        // may call it ours or date it.
+        image: {
+          src: "/images/lease-truck-road.webp",
+          alt: "A white truck and dry van trailer on a desert highway at sunrise",
+          // The cab sits right of centre; this keeps it in the card open or closed.
+          position: "60% 50%",
+        },
+      },
+      {
+        name: "New equipment",
+        // PLACEHOLDER until the owner says whose photo this is (owner's pick, 2026-10-05; it replaced the AI line-up
+        // safety-fleet.jpg). Volvo badges on every grille, so it needs Volvo's OK like the other truck pictures
+        // (DECISIONS.md → Open). Tractors only, no trailers. No caption may call it ours or date it.
+        image: {
+          src: "/images/new-equipment-lot.jpg",
+          alt: "A long row of new white Volvo trucks parked side by side on a lot",
+          // The nearest truck is on the right; this keeps its grille in the narrow card and the row in the open one.
+          position: "75% 50%",
+        },
+      },
+    ],
     open: 0,
   },
   {
     title: "Equipment you don’t have to worry about.",
-    // The owner's wording (2026-10-02).
-    // (Earlier the same day: "New trucks and trailers, serviced on schedule — with every record on file. Your freight
-    // never waits on a repair.")
-    body: "We monitor every truck’s health between services and fix small issues before they become breakdowns. The newest equipment on the road means your freight moves without surprises.",
-    systems: [2, 3],
+    body: "We monitor every truck’s health between services, and our own shop fixes small issues before they become breakdowns. Every repair and inspection is on record.",
+    cards: [
+      {
+        name: "Our shop",
+        // PLACEHOLDER until the owner says whose photo this is (owner's pick, 2026-10-05, replacing a smaller tire-bay
+        // picture the same day): a tire bay with a tire machine, polished wheels and a tire cage. No caption may call
+        // it ours until that's confirmed.
+        image: {
+          src: "/images/our-shop-tires.jpg",
+          alt: "A tire bay with a tire machine, polished truck wheels and a tire in a red safety cage",
+          // On the tire machine and the wheel on its stand, with the hose reel above them, so the narrow card is
+          // full top to bottom (further right it was mostly bare wall).
+          position: "52% 50%",
+        },
+      },
+      {
+        name: "Maintenance on record",
+        // PLACEHOLDER — Pexels stock (6685045, Gustavo Fring), until the owner sends our own shop footage.
+        video: "/videos/safety-maintenance-placeholder.mp4",
+        // The work, not the man (owner, 2026-09-28): the wheel he's checking and the clipboard in his hands, 40–76%
+        // across — clear of the headlight on the left, most of his back on the right. 1280 × 720.
+        crop: { x: 0.4, y: 0.05, w: 0.36, h: 0.9, aspect: 1280 / 720 },
+      },
+    ],
     open: 1,
   },
 ];

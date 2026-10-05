@@ -13,7 +13,7 @@ export const STORY_OPEN = "story-open";
 
 export type Milestone = {
   title: string;
-  /** The big mark over it in the homepage story band ("1", "70+", "30", "48"). */
+  /** The big mark over it in the homepage story band ("1", "70+", "48"). */
   mark: string;
   /** Counts up from this to the mark when the story band's route reaches it ("48" from 1: one truck to 48 states). */
   countFrom?: number;
@@ -33,19 +33,18 @@ type Story = {
   headlineAccent: string;
   /** The About page's closing line. */
   origin: string;
-  /** Short version for the homepage card: the setup that leads into `rule`, so it ends on a colon. */
-  summary: string;
   /**
-   * The rule the orange word points at, set on its own under `summary` on the homepage band (owner, 2026-10-02: "the
+   * The rule the orange word points at, set on its own under the homepage band's headline (owner, 2026-10-02: "the
    * rule is orange but what rule. i can barely see it"). The third part is shortened from "treat drivers the way we’d
-   * want to be treated" (owner's OK, same day).
+   * want to be treated" (owner's OK, same day). The setup line over it ("We started with one truck and a simple
+   * rule:") went on 2026-10-05 (owner: cleaner without it).
    */
   rule: string[];
   /** One line under the About page's headline. */
   lede: string;
   /** The story in a few lines, beside the About page's opening picture (2026-10-01; it was six titled blocks). */
   opening: string;
-  /** The homepage story band's four marks. */
+  /** The homepage story band's three marks. */
   milestones: Milestone[];
   /** The About page's timeline. */
   timeline: TimelineEntry[];
@@ -55,7 +54,6 @@ export const story: Story = {
   headline: ["The map got bigger.", "The rule didn’t."],
   headlineAccent: "rule",
   origin: "It started with one truck.",
-  summary: "We started with one truck and a simple rule:",
   rule: ["Show up when we say we will.", "Keep the freight safe.", "Treat drivers right."],
   lede: "A dry van carrier out of Citrus Heights, California, with one rule: show up when we say we will, keep the freight safe and treat drivers well.",
   opening:
@@ -65,9 +63,8 @@ export const story: Story = {
     // "70+" is the About page's fleet figure (owner, 2026-10-02: 55 trucks on the road and about 30 new ones in the
     // yard, so more than 70 — but 70 is the number kept). It replaced "DOT" (own authority) the same day.
     { title: "The fleet", mark: "70+", text: "Late-model trucks on the road." },
-    // The owner's figure for the yard, same day. It replaced "In-house" (our own office) the same day — owner: every
-    // mark a number.
-    { title: "New trucks", mark: "30", text: "Brand-new trucks in the yard, joining the fleet." },
+    // "30" (New trucks: brand-new trucks in the yard) went on 2026-10-05 (owner: back to three, it was cleaner); the
+    // 30 are already inside the 70+.
     { title: "Today", mark: "48", countFrom: 1, text: "Dry van freight moving across 48 states." },
   ],
   timeline: [
