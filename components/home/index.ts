@@ -1,3 +1,4 @@
+export { ApplyBand } from "./ApplyBand";
 export { HomeHero } from "./HomeHero";
 export { SafetyBand } from "./SafetyBand";
 export { ShipWithUs } from "./ShipWithUs";

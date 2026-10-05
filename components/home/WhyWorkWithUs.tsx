@@ -2,18 +2,10 @@
 
 import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import {
-  Container,
-  Reveal,
-  chapterHeadingClass,
-  FlyArrow,
-  RiseLabel,
-  sectionHeadingClass,
-} from "@/components/ui";
+import { Container, Reveal, chapterHeadingClass, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { applyLink, applyRoutes, equipmentGroups, whyWorkWithUs, type WorkSeat } from "@/lib/site";
+import { applyRoutes, equipmentGroups, whyWorkWithUs, type WorkSeat } from "@/lib/site";
 import { Pair, usePairVideos } from "./CardPair";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -33,13 +25,14 @@ const START = Math.max(
 );
 
 /**
- * Why work with us — the homepage's careers section and the end of the page (owner, 2026-09-30, version "A1" of the
- * careers mock-ups). It took over from Why drive for us, the rolling slogans and the apply cards.
+ * Why work with us — the homepage's careers section (owner, 2026-09-30, version "A1" of the careers mock-ups). It
+ * took over from Why drive for us, the rolling slogans and the apply cards. Its ask is the black band right under it
+ * (ApplyBand, since 2026-10-05); the underlined Apply now that closed this section until then is gone.
  *
  * The heading, centred and with no label over it since 2026-10-05 (owner; the story paragraph beside it came out on
  * 2026-10-01), the two shop rows, then the careers block, centred since 2026-10-05 (owner, "A" of three mock-ups):
- * "Why ___ stay." as a centred heading, the three job cards across the full width under it, the open job's five
- * reasons in a row beneath with every sentence in view, and a centred Apply now (ApplyLink). The dispatcher is on the
+ * "Why ___ stay." as a centred heading, the three job cards across the full width under it, and the open job's five
+ * reasons in a row beneath with every sentence in view. The dispatcher is on the
  * left, the driver in the middle and open first, the technician on the right (owner). The pictures are the apply
  * cards, which don't link anywhere: a card opens on hover, focus or tap, and the sentence and reasons roll to that
  * job. Until then the cards sat on columns 1–7 with the reasons beside them, one sentence open at a time.
@@ -128,7 +121,7 @@ export function WhyWorkWithUs() {
         })}
         {/* The same step as between the safety band's two pictures: the careers block sits under the shop rows, so it
             needs clear space. Centred (owner, 2026-10-05): the sentence, the cards across all twelve columns, the
-            reasons in a row and Apply now, so the page's left-right zigzag ends where the subject turns to people. */}
+            reasons in a row, so the page's left-right zigzag ends where the subject turns to people. */}
         <div className="mt-16 sm:mt-20 lg:mt-28">
           <Reveal>
             <WhyHeading
@@ -146,9 +139,6 @@ export function WhyWorkWithUs() {
 
           <Reveal delay={0.1}>
             <Reasons seat={seat} still={still} />
-            <p className="mt-11 text-center">
-              <ApplyLink />
-            </p>
           </Reveal>
         </div>
       </Container>
@@ -290,24 +280,6 @@ function Reasons({ seat, still }: { seat: WorkSeat; still: boolean }) {
   );
 }
 
-/**
- * The section's call to action: "Apply now", centred under the reasons since 2026-10-05 (owner, with the centred
- * block; from 2026-10-01 it sat at the foot of the reasons column, level with the foot of the cards, "B" of three
- * placements). Underlined, with the site's link hover (the words roll, the arrow flies through; an arrow nudge until 2026-10-05). Just "Apply now" (owner: no "as a driver"); it opens
- * the careers page. Mocked against a row under the section and a button on the open card.
- */
-function ApplyLink() {
-  return (
-    <Link
-      href={applyLink.href}
-      className="group inline-flex items-center gap-[0.3em] font-display font-semibold text-[1.75rem] leading-[1.15] tracking-[-0.03em] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink sm:text-[1.875rem]"
-    >
-      <RiseLabel className="border-b-2">{applyLink.label}</RiseLabel>
-      <FlyArrow className="size-[0.55em]" />
-    </Link>
-  );
-}
-
 /** Content that rolls up out of its slot as the next one rolls in from below, keyed by `id`. */
 function Roll({ id, delay, still, children }: { id: string; delay: number; still: boolean; children: React.ReactNode }) {
   return (
@@ -329,7 +301,7 @@ function Roll({ id, delay, still, children }: { id: string; delay: number; still
 }
 
 /**
- * The odometer word in "Why ___ stay.", underlined like Apply now: the old word rolls up and out as the new one comes
+ * The odometer word in "Why ___ stay.", underlined like the site's arrow links: the old word rolls up and out as the new one comes
  * in from below while the line under it runs out and fills in again, and the slot eases to the new word's width so
  * "stay." slides instead of jumping. `from` is where the picked card sits in the row, 0 (left) to 1 (right), and sets
  * the side the line fills from. Widths are measured from hidden copies
@@ -370,7 +342,8 @@ function RollingWord({ word, words, from, still }: { word: string; words: string
           </span>
         ))}
       </span>
-      {/* The line under the word, as under Apply now (owner, 2026-10-05: "use the same logic as apply now has"): a 2px
+      {/* The line under the word, as under the Apply now link this section then had (owner, 2026-10-05: "use the same
+          logic as apply now has"; RiseLabel's line): a 2px
           line in the text's colour, hung just under the line box so the heading is no taller. On a job change it runs
           out as the old word leaves and fills in under the new one (owner, same day: "make so the line fills out
           too"), following the slot's width as it eases. The fill starts on the side of the card that was picked

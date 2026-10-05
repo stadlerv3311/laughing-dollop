@@ -210,6 +210,14 @@ export const applyRoutes: readonly ApplyRoute[] = [
   },
 ];
 
+// The careers half's closing ask on the homepage, the twin of Ship with us (owner, 2026-10-05). The button's words are
+// `applyLink`'s. Draft copy: the label and the question were written to answer "Ship with us" and "Have a load to
+// move?", and need the owner's OK.
+export const applyBand = {
+  label: "Work with us",
+  heading: "Want to work with us?",
+};
+
 /** One job's side of Why work with us: who they are, for "Why ___ stay.", and their five reasons. */
 export type WorkSeat = {
   job: Job;
