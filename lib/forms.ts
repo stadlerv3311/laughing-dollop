@@ -40,14 +40,15 @@ export type JobApplication = {
   phone: string;
   email: string;
   zip: string;
-  /** Whole years of experience — driving Class A for drivers, that kind of work for office and shop; 0 is allowed. */
-  yearsExperience: number;
+  /**
+   * Whole years of experience — driving Class A for drivers, that kind of work for office and shop; 0 is allowed.
+   * Left out for a driver without a Class A CDL, who isn't asked (owner, 2026-10-05).
+   */
+  yearsExperience?: number;
   driver?: {
     hasClassA: boolean;
     // No license state or number since 2026-10-01 (owner): asking for them needs a terms of service and privacy page
-    // first. HR takes them on the call back.
-    /** Any of "Hazmat", "Tanker", "Doubles"; empty means None. */
-    endorsements: string[];
+    // first. No endorsements since 2026-10-05 (owner). HR takes them on the call back.
   };
 };
 

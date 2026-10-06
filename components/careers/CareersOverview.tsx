@@ -83,9 +83,7 @@ export function CareersOverview() {
                       variant="ink"
                       className="w-full sm:w-56"
                     />
-                    <span className="text-sm text-ink/50">
-                      {route.job === "driver" ? "About two minutes" : "About a minute"}
-                    </span>
+                    <span className="text-sm text-ink/50">About a minute</span>
                   </div>
                 </Reveal>
               </section>

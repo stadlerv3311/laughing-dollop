@@ -13,7 +13,7 @@ export default function HomePage() {
           middle a dark break; on white since 2026-10-02, when Ship with us took the black), and the page ends on Why work with us and its own black ask (ApplyBand, since 2026-10-05). */}
       {/* Ship with us slides up over the safety band on the way down (from lg) — see SlideOverStack. The logo row
           closes the safety band, so it's pinned with it (2026-09-29). Ship with us is the page's dark stop between the
-          hero and the footer since 2026-10-02 (owner: the ask on black, Our story on white), so the sheet is ink. */}
+          hero and the Apply band since 2026-10-02 (owner: the ask on black, Our story on white), so the sheet is ink. */}
       <SlideOverStack
         under={
           <>
@@ -27,7 +27,7 @@ export default function HomePage() {
       <StoryTeaser />
       {/* The careers half: why work with us and the three jobs (2026-09-30), then its ask on a black screen of its own,
           the twin of Ship with us, sliding up over it the same way (2026-10-05). The page goes white for proof and
-          black for the ask twice, then the footer. */}
+          black for the ask twice, then the footer, white since the same day. */}
       <SlideOverStack under={<WhyWorkWithUs />} over={<ApplyBand />} dark />
     </>
   );

@@ -37,9 +37,11 @@ export const fleetMapLink: NavLink = { label: "Fleet map", href: "/fleet-map" };
 export const quoteLink: NavLink = { label: "Get a quote", href: "/#quote" };
 // Every driver-application button on the site uses this label — header, hero, phone menu and the apply cards
 // (2026-09-24 wording pass; it replaced "Apply To Drive", "Drive with us" and "Apply"). The page it opens is
-// still called "Drive for us". Since 2026-09-25 it opens the careers page first (owner: see the jobs before the
-// application); only the careers page's own Apply now buttons go straight into the questions.
-export const applyLink: NavLink = { label: "Apply now", href: "/careers" };
+// still called "Drive for us". It opens the application itself since 2026-10-05 (owner: "open the form for applying,
+// skip the screen"), which starts by asking which job. From 2026-09-25 it opened the careers page first, so people saw
+// the jobs before the questions; that page is still what Careers opens, and its own Apply now buttons open the
+// application with the job already answered.
+export const applyLink: NavLink = { label: "Apply now", href: "/careers/apply" };
 
 export type CompanyStat = {
   /** The number the counter fills up to. */
@@ -121,7 +123,7 @@ export type ApplyRoute = {
   role: string;
   /** One line on what the job actually is. */
   body: string;
-  /** The application, opened on this job. The homepage's Apply now goes to this job's section on /careers instead. */
+  /** The application, opened on this job: where the careers page's Apply now for this job goes. */
   href: string;
   /** The job's name on the careers page ("Class A driver"). */
   title: string;
@@ -143,8 +145,9 @@ export type ApplyRoute = {
 // The homepage's three ways in (requested 2026-09-17). Every role goes to the same short form, so these are
 // routes into one process, not three different applications (docs/DECISIONS.md → Applications).
 //
-// Draft copy. The office and shop cards land on `/careers/staff` with their job already picked (`?job=`); the
-// application itself lets you switch between all three (components/careers/JobApplication.tsx).
+// Draft copy. The office and shop cards land on `/careers/staff` with their job already picked (`?job=`). The site's
+// other Apply now buttons open `/careers/apply`, where the application asks which job first
+// (components/careers/JobApplication.tsx).
 export const applyRoutes: readonly ApplyRoute[] = [
   {
     job: "driver",

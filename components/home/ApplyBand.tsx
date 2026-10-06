@@ -14,11 +14,11 @@ import { applyBand, applyLink } from "@/lib/site";
  * the page's longest white stretch. Where Ship with us has the map in dots, this band has a road in the same dots
  * (ApplyRoad).
  *
- * The pill is the Get a quote pill at its closed size, but a plain link: it opens the careers page, like every Apply
+ * The pill is the Get a quote pill at its closed size, but a plain link: it opens the application, like every Apply
  * now (docs/DECISIONS.md → One label per action). Nothing opens in place.
  *
- * It's the page's last screen, straight on the black footer, and tall enough to read as its own screen before the
- * footer's links. It slides up over Why work with us like Ship with us does over the safety band (SlideOverStack in
+ * It's the page's last screen, straight on the footer, which went white the same day so the page doesn't end on two
+ * black blocks. It slides up over Why work with us like Ship with us does over the safety band (SlideOverStack in
  * app/page.tsx), but it has no landing pause and no wave: those stay Ship with us's own moment. Grey and white only,
  * like the rest of the careers half.
  *

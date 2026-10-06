@@ -65,12 +65,15 @@ export function WhyWorkWithUs() {
   const seat = JOBS[shown].seat;
 
   return (
-    // The top space is set so the heading's ink sits as far under the story band's last line as "Tracked trucks." sits
-    // under the hero (owner, 2026-10-05: "even out this spaces too"; 85, 102 and 120px at phone, tablet and laptop
-    // widths — the chapter step's 80/112/128 left 90, 122 and 140). The foot keeps the chapter step.
+    // One step all the way down the section, 64px on phones and 70px from `sm`, measured to the letters (owner,
+    // 2026-10-05: "fix this spacing", "it has to match other parts"). The top space puts the heading's ink that far
+    // under the story band's last line; earlier the same day it matched "Tracked trucks." under the hero instead (88,
+    // 106 and 123px at phone, tablet and laptop widths), which left the heading nearly twice as far from the story as
+    // from its own pictures. The foot is the same step from the last line of the reasons to the black Apply band, the
+    // space the logo row leaves over Ship with us (the chapter step left 136px there on a laptop).
     <section
       aria-labelledby="why-work-title"
-      className="bg-paper pt-[4.6875rem] pb-20 sm:pt-[5.75rem] sm:pb-28 lg:pt-[6.78125rem] lg:pb-32"
+      className="bg-paper pt-[3.1875rem] pb-[3.625rem] sm:pt-14 sm:pb-[3.875rem] lg:pt-[3.4375rem]"
     >
       <Container>
         {/* The heading alone, centred like the safety band's and Our story's (owner, 2026-10-05: "center this text and
@@ -87,7 +90,8 @@ export function WhyWorkWithUs() {
               key={group.title}
               className={cx(
                 "grid gap-y-10 lg:grid-cols-12 lg:gap-x-6",
-                row === 0 ? "mt-12 lg:mt-16" : "mt-16 sm:mt-[4.375rem]",
+                // Under the heading the step runs from its baseline, so the margin is the step less the line's foot.
+                row === 0 ? "mt-[3.5625rem] sm:mt-[3.8125rem] lg:mt-[3.6875rem]" : "mt-16 sm:mt-[4.375rem]",
               )}
             >
               <Reveal className={cx("lg:row-start-1", flip ? "lg:col-start-6 lg:col-end-13" : "lg:col-start-1 lg:col-end-8")}>
@@ -119,10 +123,12 @@ export function WhyWorkWithUs() {
             </div>
           );
         })}
-        {/* The same step as between the safety band's two pictures: the careers block sits under the shop rows, so it
-            needs clear space. Centred (owner, 2026-10-05): the sentence, the cards across all twelve columns, the
-            reasons in a row, so the page's left-right zigzag ends where the subject turns to people. */}
-        <div className="mt-16 sm:mt-20 lg:mt-28">
+        {/* The step between the two shop rows, measured to the sentence's ink: 64px on phones, 70px from `sm` (owner,
+            2026-10-05: "fix the spacing, it has to match other parts" — it was 112px to the box, 120px to the ink,
+            against 70 everywhere else in the section). Centred (owner, 2026-10-05): the sentence, the cards across all
+            twelve columns, the reasons in a row, so the page's left-right zigzag ends where the subject turns to
+            people. */}
+        <div className="mt-[3.625rem] sm:mt-[3.875rem]">
           <Reveal>
             <WhyHeading
               who={seat.who}
@@ -130,7 +136,9 @@ export function WhyWorkWithUs() {
               from={JOBS.length > 1 ? shown / (JOBS.length - 1) : 0.5}
               still={still}
             />
-            <ul aria-label="Pick a job" className="mt-8 flex h-72 gap-2 sm:h-80 sm:gap-3 md:mt-10 md:h-96">
+            {/* The same step again, from the sentence's baseline to the cards (owner, 2026-10-05: "fix this gap too";
+                it was 40px to the box, 50px to the baseline). */}
+            <ul aria-label="Pick a job" className="mt-14 flex h-72 gap-2 sm:mt-[3.75rem] sm:h-80 sm:gap-3 md:h-96">
               {JOBS.map(({ card }, i) => (
                 <JobCard key={card.job} card={card} isOpen={open === i} onOpen={() => setOpen(i)} />
               ))}

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Jobs at ITrucking Solutions — on the road, in the office or in the shop. A few short questions, then HR calls you back.",
 };
 
-/** Where Careers and Apply now go: the three jobs, what each is and why to take it, each with its own Apply now. */
+/** Where Careers goes: the three jobs, what each is and why to take it, each with its own Apply now. */
 export default function CareersPage() {
   return <CareersOverview />;
 }
