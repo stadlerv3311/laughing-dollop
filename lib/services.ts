@@ -43,18 +43,7 @@ export const servicesGroup: {
   title: "Dry van freight, dock to dock.",
   body: "Palletized goods, packaged products, retail freight and food that doesn’t need a reefer, in 53-foot dry vans. Regional and long-haul lanes out of California, on our own trucks: we’re a carrier, not a broker.",
   cards: [
-    {
-      name: "53-foot dry vans",
-      // PLACEHOLDER — AI-generated, standing in for a photo of our own truck and trailer. The tractor shows the
-      // Volvo badge, so it needs Volvo's OK like the other truck pictures (DECISIONS.md → Open). No caption
-      // may call it ours or date it.
-      image: {
-        src: "/images/ship-truck-side.jpg",
-        alt: "A white truck pulling a 53-foot dry van trailer along a desert highway",
-        // The cab sits in the left third, so a centred crop of the tall card cut it off.
-        position: "25% 50%",
-      },
-    },
+    // Out of California on the left and open, the trailers on the right (owner, 2026-10-05: "swap places").
     {
       // Short, so the closed card holds it on two lines.
       name: "Out of California",
@@ -62,6 +51,21 @@ export const servicesGroup: {
       image: {
         src: "/images/home-hero-sierra.jpg",
         alt: "A white truck and dry van trailer on a mountain highway through pine forest",
+      },
+    },
+    {
+      name: "53-foot dry vans",
+      // PLACEHOLDER — the owner's pick (2026-10-05, "use this for 53 foot dry van trailers"): rows of trailers in a
+      // yard, from above. Its source isn't confirmed and it isn't our yard, so no caption may call it ours or date
+      // it, and it stays out of the public repo until the owner says where it's from. It replaced the AI truck on
+      // a desert highway (ship-truck-side.jpg).
+      image: {
+        src: "/images/dry-van-trailers.jpg",
+        alt: "Rows of white dry van trailers parked in a yard, seen from above",
+        // The card is taller than the picture, so it shows a slice of its width, a narrow one while it's closed.
+        // This one sits between the blue shipping containers at either end of the upper row, so the card shows
+        // dry vans only, open or closed, and the closed card has trailers in both rows.
+        position: "45% 50%",
       },
     },
   ],

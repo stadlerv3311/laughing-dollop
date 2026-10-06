@@ -34,7 +34,7 @@ components/                  → component library, one folder per area, each wi
                                typography (shared label + section-heading classes)
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, CardPair, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs, ApplyBand
-  about/                     → Timeline (the About page's sideways timeline), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
+  about/                     → StoryChapters (the About page's story as a route you scroll, 2026-10-06), Timeline (the sideways timeline it replaced — unused), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll
@@ -55,7 +55,7 @@ scripts/
 public/
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
-  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used; ship-truck-side.jpg and home-hero-sierra.jpg are the safety band's services stills; new-equipment-lot.jpg, lease-truck-road.webp and our-shop-tires.jpg are Why work with us's New equipment, Lease to own and Our shop stills; safety-fleet.jpg, the earlier New equipment still, is no longer used
+  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; home-hero-desert.jpg is no longer used, nor is about-truck-front.jpg, the About opening's picture until 2026-10-06; dry-van-trailers.jpg (the owner's pick, 2026-10-05: source not confirmed, not our yard, kept out of the public repo until it is) and home-hero-sierra.jpg are the safety band's services stills; ship-truck-side.jpg, the earlier 53-foot dry vans still, is no longer used; new-equipment-lot.jpg, lease-handshake.jpg (the owner's pick, 2026-10-05: source not confirmed, kept out of the public repo until it is) and our-shop-tires.jpg are Why work with us's New equipment, Lease to own and Our shop stills; lease-truck-road.webp, the earlier Lease to own still, is no longer used; safety-fleet.jpg, the earlier New equipment still, is no longer used
   videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated, upscaled to 1080p; replayed by hand with a 2 s hold between passes)
 ```
 Full component list: NAVIGATION.md → Component library.

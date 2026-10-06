@@ -20,8 +20,11 @@ export type Milestone = {
   text: string;
 };
 
-/** One row of the About page's timeline. */
-export type TimelineEntry = { year: string; title: string; text: string };
+/**
+ * One stop on the About page's route (components/about/StoryChapters.tsx). `image` is the picture pinned beside the
+ * stop's words; `position` is its `object-position` where the centre crops badly.
+ */
+export type TimelineEntry = { year: string; title: string; text: string; image?: { src: string; position?: string } };
 
 type Story = {
   /** The headline on the homepage story band and the About page, one line each (owner, 2026-09-28). */
@@ -31,7 +34,7 @@ type Story = {
    * summary under it spells out. Must appear in the last line.
    */
   headlineAccent: string;
-  /** The About page's closing line. */
+  /** The About page's story line. Not shown since 2026-10-06, when the route took the story row's place. */
   origin: string;
   /**
    * The rule the orange word points at, set on its own under the homepage band's headline (owner, 2026-10-02: "the
@@ -42,11 +45,11 @@ type Story = {
   rule: string[];
   /** One line under the About page's headline. */
   lede: string;
-  /** The story in a few lines, beside the About page's opening picture (2026-10-01; it was six titled blocks). */
+  /** The story in a few lines (2026-10-01; it was six titled blocks). Not shown since 2026-10-06, like `origin`. */
   opening: string;
   /** The homepage story band's three marks. */
   milestones: Milestone[];
-  /** The About page's timeline. */
+  /** The About page's route: its stops, in order. */
   timeline: TimelineEntry[];
 };
 
@@ -67,13 +70,17 @@ export const story: Story = {
     // 30 are already inside the 70+.
     { title: "Today", mark: "48", countFrom: 1, text: "Dry van freight moving across 48 states." },
   ],
+  // PLACEHOLDER pictures, every one (owner, 2026-10-06: "for now just use any pictures. we will work on this after i
+  // see how it looks"): stand-ins borrowed from other parts of the site so the route can be judged. They sit beside
+  // years, which reads as "a photo from that year", so NONE may go live: the rule is no AI or stock picture next to a
+  // date (DECISIONS.md → Open). They carry no alt text or caption for the same reason.
   timeline: [
-    { year: "2014", title: "One truck.", text: "ITrucking Solutions opens in Citrus Heights with a single truck and a plan to haul dry van freight the right way." },
-    { year: "2016", title: "Owner-operators come on.", text: "The first leased-on drivers join. Growth for the next few years comes from people who bring their own equipment and want a carrier that pays on time." },
-    { year: "2018", title: "Own authority, interstate.", text: "We earn for-hire interstate authority and start running beyond California, building the 48-state coverage we operate under now." },
-    { year: "2020", title: "First company trucks.", text: "We buy our own equipment and put company drivers in it. Owner-operators stay; the company fleet is added capacity, not a replacement." },
-    { year: "2022", title: "The office takes shape.", text: "Dispatch, safety, and accounting move fully in-house, so drivers and customers deal with the same people instead of a patchwork of outside help." },
-    { year: "2024", title: "Yard and fleet desk.", text: "A yard operation and a fleet manager come on as the truck and trailer count climbs. Most new equipment is bought new." },
-    { year: "2026", title: "About 70 trucks and trailers.", text: "The fleet is late-model and dry van, runs all 48 states, and is serviced in our own shop." },
+    { year: "2014", title: "One truck.", text: "ITrucking Solutions opens in Citrus Heights with a single truck and a plan to haul dry van freight the right way.", image: { src: "/images/about-truck-front.jpg", position: "58% 50%" } },
+    { year: "2016", title: "Owner-operators come on.", text: "The first leased-on drivers join. Growth for the next few years comes from people who bring their own equipment and want a carrier that pays on time.", image: { src: "/images/ship-truck-side.jpg", position: "25% 50%" } },
+    { year: "2018", title: "Own authority, interstate.", text: "We earn for-hire interstate authority and start running beyond California, building the 48-state coverage we operate under now.", image: { src: "/images/home-hero-sierra.jpg" } },
+    { year: "2020", title: "First company trucks.", text: "We buy our own equipment and put company drivers in it. Owner-operators stay; the company fleet is added capacity, not a replacement.", image: { src: "/images/new-equipment-lot.jpg", position: "75% 50%" } },
+    { year: "2022", title: "The office takes shape.", text: "Dispatch, safety, and accounting move fully in-house, so drivers and customers deal with the same people instead of a patchwork of outside help.", image: { src: "/images/apply-dispatcher.jpg" } },
+    { year: "2024", title: "Yard and fleet desk.", text: "A yard operation and a fleet manager come on as the truck and trailer count climbs. Most new equipment is bought new.", image: { src: "/images/our-shop-tires.jpg", position: "52% 50%" } },
+    { year: "2026", title: "About 70 trucks and trailers.", text: "The fleet is late-model and dry van, runs all 48 states, and is serviced in our own shop.", image: { src: "/images/safety-fleet.jpg" } },
   ],
 };

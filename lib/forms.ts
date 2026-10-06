@@ -37,6 +37,7 @@ export type JobApplication = {
   job: "driver" | "office" | "shop";
   firstName: string;
   lastName: string;
+  /** Ten digits, set as (555) 555-0123: the form allows no more and writes it that way (owner, 2026-10-05). */
   phone: string;
   email: string;
   zip: string;

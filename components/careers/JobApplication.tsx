@@ -3,9 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLenis } from "lenis/react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion, type Transition } from "motion/react";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { InteractiveHoverButton, errorId } from "@/components/ui";
+import { FlyArrow, InteractiveHoverButton, RiseLabel, errorId } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { submitJobApplication } from "@/lib/forms";
 import { applyRoutes, careersLink, driverSlogans, site, type Job } from "@/lib/site";
@@ -106,6 +106,22 @@ const empty = (job: Job): Values => ({
   years: "",
 });
 
+/**
+ * A US number set the way the box's example shows it, (555) 555-0123, from whatever is in the box: digits only, ten at
+ * most (owner, 2026-10-05). Up to three digits stay bare, so Backspace never lands on a bracket that comes straight
+ * back. A number pasted or filled in whole with the country code in front loses its 1; typed, an eleventh digit is
+ * just ignored.
+ */
+function formatPhone(text: string, before: string) {
+  let digits = text.replace(/\D/g, "");
+  const added = digits.length - before.replace(/\D/g, "").length;
+  if (added > 1 && digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  digits = digits.slice(0, 10);
+  if (digits.length < 4) return digits;
+  if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 function validate(values: Values, picked: boolean): Errors {
   const errors: Errors = {};
   if (!picked) errors.job = "Choose one.";
@@ -152,8 +168,6 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
   // Fields whose errors are on show — a step's, once Continue was pressed on it.
   const [shown, setShown] = useState<FieldName[]>([]);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  // Where the Send application pill sat when it was pressed, so the thank-you screen's tick can start from it.
-  const [sentFrom, setSentFrom] = useState<DOMRect | null>(null);
   // The tick has turned into the T of Thanks, so the rest can come in.
   const [ticked, setTicked] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -171,13 +185,25 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
   const stepImage = status.kind === "sent" ? stepImages.sent : stepImages[step];
   const sent = status.kind === "sent";
   // The thanks shows once the tick has become its T — or at once where nothing animates.
-  const thanked = ticked || !sentFrom || Boolean(reduceMotion);
+  const thanked = ticked || Boolean(reduceMotion);
 
   const set = (field: Exclude<FieldName, "job">, value: string) =>
     setValues((current) => ({ ...current, [field]: value }));
 
   // Each new step: back to the top on phones (the question sits under the photo band), and the cursor in its
   // first box if it has one.
+  // The phone box rewrites what's typed, which would throw the cursor to the end; after a change made mid-number
+  // it goes back to just after the same digit.
+  const phoneCaret = useRef<{ box: HTMLInputElement; digits: number } | null>(null);
+  useLayoutEffect(() => {
+    const pending = phoneCaret.current;
+    phoneCaret.current = null;
+    if (!pending) return;
+    let at = 0;
+    for (let seen = 0; at < values.phone.length && seen < pending.digits; at++) if (/\d/.test(values.phone[at])) seen++;
+    pending.box.setSelectionRange(at, at);
+  }, [values.phone]);
+
   const moved = useRef(false);
   useEffect(() => {
     if (!moved.current) {
@@ -220,7 +246,6 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
     setShown([]);
     setAt(0);
     setStatus({ kind: "idle" });
-    setSentFrom(null);
     setTicked(false);
     if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
     else window.scrollTo(0, 0);
@@ -243,7 +268,6 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
   }, [sent, restart]);
 
   async function send() {
-    setSentFrom(panelRef.current?.querySelector("button[type=submit]")?.getBoundingClientRect() ?? null);
     setStatus({ kind: "sending" });
     const result = await submitJobApplication({
       job: values.job,
@@ -344,23 +368,26 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
 
       <div
         ref={panelRef}
+        data-apply-panel
         className="flex flex-col justify-center px-5 pb-20 pt-10 sm:px-8 md:px-[clamp(2rem,5vw,5.5rem)] md:py-32"
       >
         <h1 className="sr-only">Apply for a job at ITrucking Solutions</h1>
         <div className="w-full max-w-[34rem]">
           {sent ? (
-            // Sending… turns into a tick where the T of Thanks belongs, the tick turns into that T, and the rest of
+            // A tick draws in the middle of the panel, turns into a T, and that T lands as the T of Thanks; the rest of
             // the thanks follows (owner, 2026-10-05). The heading is two pieces so the T can wait for its tick; the
             // label keeps it one phrase for screen readers.
-            <div role="status">
+            // As wide as its words, so the link under it can sit at their right-hand end.
+            <div role="status" className="relative w-fit">
               <p className="sr-only">Sent.</p>
               <h2
                 aria-label={`Thanks, ${values.first.trim()}.`}
                 className="font-display font-semibold text-[2.5rem] leading-[1.02] tracking-[-0.03em] sm:text-[3.25rem]"
               >
                 <span aria-hidden className="relative">
-                  <span className={cx("transition-opacity duration-150", thanked ? "opacity-100" : "opacity-0")}>T</span>
-                  {sentFrom && !reduceMotion && <SentMark from={sentFrom} onDone={() => setTicked(true)} />}
+                  {/* At once, under the drawn T as that fades: a cross-fade would dim the letter for a moment. */}
+                  <span className={thanked ? undefined : "opacity-0"}>T</span>
+                  {!reduceMotion && <SentMark onDone={() => setTicked(true)} />}
                 </span>
                 <motion.span
                   aria-hidden
@@ -379,20 +406,35 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
               >
                 HR will call you back on {values.phone.trim()}. There&rsquo;s nothing else to do.
               </motion.p>
-              {/* For the next person on the same phone or computer, or a second job (owner, 2026-10-05). Quiet, since
-                  nothing more is asked of the one who just applied. */}
+              {/* For the next person on the same phone or computer, or a second job (owner, 2026-10-05). It's the site's
+                  underlined arrow link, at Get a quote's size and with its hover (RiseLabel, FlyArrow), set apart from
+                  the thanks at the block's lower right (owner, same day, drawn on a screenshot): nothing more is asked
+                  of the one who just applied. From `md` it hangs under the block, outside it, so the thanks itself
+                  stays in the middle of the panel. */}
               <motion.p
                 initial={thanked ? false : { opacity: 0 }}
                 animate={{ opacity: thanked ? 1 : 0 }}
                 transition={{ duration: 0.55, delay: 0.5 }}
-                className="mt-9"
+                className="mt-16 flex justify-end md:absolute md:top-full md:right-0 md:mt-32"
               >
                 <button
                   type="button"
                   onClick={restart}
-                  className="font-medium text-paper/70 underline decoration-paper/30 underline-offset-[6px] transition-colors hover:text-paper hover:decoration-paper"
+                  className="group inline-flex items-center gap-1.5 whitespace-nowrap text-[17px] font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
                 >
-                  Start a new application
+                  {/* The link's own line, in place of RiseLabel's border and on the same pixel, so it can draw itself:
+                      from the middle out to both ends as the link arrives (owner, 2026-10-05). */}
+                  <span className="relative pb-[3px]">
+                    <RiseLabel className="block">New application</RiseLabel>
+                    <motion.span
+                      aria-hidden
+                      initial={thanked ? false : { scaleX: 0 }}
+                      animate={{ scaleX: thanked ? 1 : 0 }}
+                      transition={{ duration: 0.7, delay: 0.75, ease: EASE }}
+                      className="absolute inset-x-0 bottom-0 h-px bg-current"
+                    />
+                  </span>
+                  <FlyArrow className="size-3.5" />
                 </button>
               </motion.p>
             </div>
@@ -510,7 +552,13 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
                           autoComplete="tel"
                           placeholder="(555) 555-0123"
                           value={values.phone}
-                          onChange={(event) => set("phone", event.target.value)}
+                          onChange={(event) => {
+                            const box = event.target;
+                            const caret = box.selectionStart ?? box.value.length;
+                            if (caret < box.value.length)
+                              phoneCaret.current = { box, digits: box.value.slice(0, caret).replace(/\D/g, "").length };
+                            set("phone", formatPhone(box.value, values.phone));
+                          }}
                         />
                       </Line>
                     </Question>
@@ -628,102 +676,113 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
 // changes. `x` is the middle of its ink from the letter's left edge, `y` the middle of its cap height from the top of
 // the letter's inline box.
 const T_GLYPH = { x: 368, y: 534, width: 686.5, height: 687.5, bar: 127, stem: 144.5 };
-/** The mark's box once it sits on the T: the 56px pill's height at the heading's 52px, so it scales on phones. */
+/** The mark's box once it sits on the T, in thousandths of an em like the glyph, so it scales with the heading. */
 const MARK = 1080;
 const MID = MARK / 2;
-/** How many times that size the circle is while it shows the tick, in the middle of the screen (168px on a laptop). */
-const BIG = 3;
-// The tick's two strokes and what each becomes: the short one rises to be the T's bar, the long one stands up as its
-// stem.
-const TICK = { short: "M365 553L478 665", long: "M478 665L715 427", width: 56 };
+/** The icon while it plays in the middle of the panel: a 122px disc, drawn on a 122 grid (owner's spec, 2026-10-05). */
+const ICON = 122;
+const line = (x1: number, y1: number, x2: number, y2: number) =>
+  `M${(x1 * MARK) / ICON} ${(y1 * MARK) / ICON}L${(x2 * MARK) / ICON} ${(y2 * MARK) / ICON}`;
+const RING = { r: (59 * MARK) / ICON, width: (1.5 * MARK) / ICON };
+/** The tick's and the disc's T's stroke: 7px on the 122px icon, which is about the real T's weight at the heading's size. */
+const STROKE = (7 * MARK) / ICON;
+// The tick's two strokes and what each becomes in the disc: the short one stands up as the T's stem, the long one
+// levels out as its bar.
+const TICK = { short: line(36, 62, 53, 79), long: line(53, 79, 86, 44) };
+const DISC_T = { stem: line(61, 42, 61, 86), bar: line(37, 42, 85, 42) };
+// The same T with square ends, each half a stroke longer to cover what the round ends covered: where the last move
+// starts from, since the real letter's ends are square.
+const SQUARE_T = { stem: line(61, 38.5, 61, 89.5), bar: line(33.5, 42, 88.5, 42) };
 const LETTER = {
+  stem: `M${MID} ${MID - T_GLYPH.height / 2}L${MID} ${MID + T_GLYPH.height / 2}`,
   bar: `M${MID - T_GLYPH.width / 2} ${MID - T_GLYPH.height / 2 + T_GLYPH.bar / 2}L${MID + T_GLYPH.width / 2} ${MID - T_GLYPH.height / 2 + T_GLYPH.bar / 2}`,
-  stem: `M${MID} ${MID + T_GLYPH.height / 2}L${MID} ${MID - T_GLYPH.height / 2}`,
 };
+/** The spec's curve for the ring and the tick, and its springier one for the T, so the bar snaps into place. */
+const DRAW = [0.65, 0, 0.35, 1] as const;
+const SNAP = [0.34, 1.3, 0.64, 1] as const;
+// How long each beat lasts before the next, in ms: the drawing and its hold, the T forming, the trip to the heading.
+const BEATS = [2300, 550, 520];
+// The disc fills from the middle, a touch past its size and back. Kept out of the component so a re-render never
+// restarts it.
+const DISC_IN = { scale: [0, 1.04, 1] };
+const DISC_IN_TIMING: Transition = { duration: 0.45, delay: 1.1, times: [0, 0.75, 1], ease: [[0.2, 0.8, 0.2, 1], "easeInOut"] };
+const DISC_OUT = { scale: 0 };
+const DISC_OUT_TIMING: Transition = { duration: 0.4, ease: "easeIn" };
 
 /**
- * The thank-you screen's tick, which becomes the T of "Thanks" (owner, 2026-10-05). It lives inside the heading, on the
- * T's own spot and sized in the heading's ems, and is moved and scaled from there. Four beats:
- * 0. the Send application pill, where that sat (`from`) and still saying Sending…, becomes a large circle in the middle
- *    of the thank-you block (owner, same day: a bigger tick, "in to the center");
- * 1. the tick draws in the circle and holds;
- * 2. the circle shrinks away as the mark travels to the T's place, the tick's two strokes swinging and thickening into
- *    the T on the way;
+ * The thank-you screen's tick, which becomes the T of "Thanks" (owner, 2026-10-05; redrawn the same day to the owner's
+ * timeline). It lives inside the heading, on the T's own spot and sized in the heading's ems, and is moved and scaled
+ * from there. Four beats:
+ * 0. in the middle of the panel, at 122px: a thin ring draws from 12 o'clock, the tick draws inside it (short stroke,
+ *    then long), and a white disc fills the ring from its middle;
+ * 1. the tick's two strokes swing into a T on the disc;
+ * 2. the disc shrinks away as the mark travels to the T's place in the heading, the drawn T taking the real letter's
+ *    proportions on the way;
  * 3. the drawn T hands over to the real letter (`onDone`), and the rest of the heading follows.
- * The strokes are white set to "difference", so they read as ink on the white circle and as white on the panel once
- * the circle has gone, with no colour change to time.
+ * The strokes are white set to "difference", so they read as dark on the white disc and as white on the panel, both
+ * while the disc grows under them and once it has gone, with no colour change to time.
  */
-function SentMark({ from, onDone }: { from: DOMRect; onDone: () => void }) {
+function SentMark({ onDone }: { onDone: () => void }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [beat, setBeat] = useState<0 | 1 | 2 | 3>(0);
+  const [beat, setBeat] = useState(0);
 
-  // The two ends of the second move: the big circle in the middle, and the mark's own box on the T.
+  // The two ends of the move: the icon in the middle of the panel, and the mark's own box on the T.
   const stops = useRef<{ big: Keyframe; own: Keyframe } | null>(null);
-  const first = useRef<Animation | null>(null);
-  const easing = `cubic-bezier(${EASE.join(",")})`;
+  const held = useRef<Animation | null>(null);
 
-  // Before the first paint: measure where the mark belongs and where the middle is, then play the pill into the big
-  // circle. Plain web animations, which leave no styles behind when cancelled, so measuring again (React runs effects
-  // twice in development) still finds the mark's true place.
+  // Before the first paint: measure where the mark belongs and where the middle is, and hold it there. Plain web
+  // animations, which leave no styles behind when cancelled, so measuring again (React runs effects twice in
+  // development) still finds the mark's true place.
   useLayoutEffect(() => {
     const mark = ref.current;
-    const block = mark?.closest("[role=status]");
-    if (!mark || !block) return;
+    const panel = mark?.closest("[data-apply-panel]");
+    if (!mark || !panel) return;
     const own = mark.getBoundingClientRect();
-    const around = block.getBoundingClientRect();
-    const size = own.width * BIG;
-    const left = around.left + around.width / 2 - size / 2;
-    const top = around.top + around.height / 2 - size / 2;
+    const around = panel.getBoundingClientRect();
+    const left = around.left + around.width / 2 - ICON / 2;
+    const top = around.top + around.height / 2 - ICON / 2;
     stops.current = {
-      big: { opacity: 1, width: `${size}px`, height: `${size}px`, transform: `translate(${left - own.left}px, ${top - own.top}px)` },
+      big: { opacity: 1, width: `${ICON}px`, height: `${ICON}px`, transform: `translate(${left - own.left}px, ${top - own.top}px)` },
       own: { opacity: 1, width: `${own.width}px`, height: `${own.height}px`, transform: "translate(0, 0)" },
     };
-    const play = mark.animate(
-      [
-        {
-          opacity: 1,
-          width: `${from.width}px`,
-          height: `${from.height}px`,
-          transform: `translate(${from.left - own.left}px, ${from.top - own.top}px)`,
-        },
-        stops.current.big,
-      ],
-      { duration: 600, easing, fill: "both" },
-    );
-    first.current = play;
-    play.finished.then(() => setBeat(1)).catch(() => {});
-    return () => play.cancel();
-    // Once, when the screen arrives.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const hold = mark.animate([stops.current.big, stops.current.big], { duration: 1, fill: "both" });
+    held.current = hold;
+    return () => hold.cancel();
   }, []);
 
-  // The tick is held a moment once drawn; then the mark travels to the T while its strokes become the letter (the same
-  // half second and curve as their swing below), and the T is handed over once formed.
+  // One beat after another. On the third the mark travels to the T (the same half second and curve as its strokes
+  // below), and the T is handed over once it's there.
   useEffect(() => {
-    if (beat === 0 || beat === 3) return;
+    if (beat >= BEATS.length) return;
     if (beat === 2 && ref.current && stops.current) {
-      ref.current.animate([stops.current.big, stops.current.own], { duration: 500, easing, fill: "both" });
-      first.current?.cancel();
+      ref.current.animate([stops.current.big, stops.current.own], {
+        duration: 500,
+        easing: `cubic-bezier(${EASE.join(",")})`,
+        fill: "both",
+      });
+      held.current?.cancel();
     }
-    const id = window.setTimeout(
-      () => {
-        setBeat(beat === 1 ? 2 : 3);
-        if (beat === 2) onDone();
-      },
-      beat === 1 ? 700 : 520,
-    );
+    const id = window.setTimeout(() => {
+      setBeat(beat + 1);
+      if (beat === 2) onDone();
+    }, BEATS[beat]);
     return () => window.clearTimeout(id);
     // `onDone` only sets a flag.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [beat]);
 
-  const lettered = beat >= 2;
+  const travelling = beat >= 2;
   const stroke = {
     fill: "none",
     stroke: "#fff",
-    strokeLinecap: lettered ? ("butt" as const) : ("round" as const),
+    strokeLinecap: travelling ? ("butt" as const) : ("round" as const),
   };
-  const swing = { duration: 0.5, ease: EASE };
+  // Each stroke draws at its own moment, so each has its own delay; the rest of its life is shared.
+  const drawn = (delay: number) => ({
+    pathLength: { duration: 0.28, delay, ease: DRAW },
+    opacity: { duration: 0.01, delay },
+  });
+  const swing = beat === 1 ? { duration: 0.55, ease: SNAP } : { duration: 0.5, ease: EASE };
 
   return (
     <span
@@ -738,20 +797,28 @@ function SentMark({ from, onDone }: { from: DOMRect; onDone: () => void }) {
       }}
       className="absolute isolate block"
     >
+      {/* Under the disc, which covers it once it has filled; gone before the disc shrinks again. */}
+      <svg viewBox={`0 0 ${MARK} ${MARK}`} className="absolute inset-0 size-full">
+        <g transform={`rotate(-90 ${MID} ${MID})`}>
+          <motion.circle
+            cx={MID}
+            cy={MID}
+            r={RING.r}
+            fill="none"
+            stroke="#fff"
+            strokeWidth={RING.width}
+            initial={{ pathLength: 0, opacity: 1 }}
+            animate={{ pathLength: 1, opacity: beat ? 0 : 1 }}
+            transition={{ pathLength: { duration: 0.7, ease: DRAW }, opacity: { duration: 0.01 } }}
+          />
+        </g>
+      </svg>
       <motion.span
         className="absolute inset-0 rounded-full bg-paper"
-        animate={{ scale: lettered ? 0 : 1 }}
-        transition={{ duration: 0.4, ease: "easeIn" }}
+        initial={DISC_OUT}
+        animate={travelling ? DISC_OUT : DISC_IN}
+        transition={travelling ? DISC_OUT_TIMING : DISC_IN_TIMING}
       />
-      <motion.span
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 0 }}
-        transition={{ duration: 0.25 }}
-        style={{ fontVariationSettings: "normal" }}
-        className="absolute inset-0 grid place-items-center whitespace-nowrap font-sans text-base font-semibold tracking-normal text-ink"
-      >
-        Sending…
-      </motion.span>
       <motion.svg
         viewBox={`0 0 ${MARK} ${MARK}`}
         className="absolute inset-0 size-full overflow-visible mix-blend-difference"
@@ -760,27 +827,23 @@ function SentMark({ from, onDone }: { from: DOMRect; onDone: () => void }) {
       >
         <motion.path
           {...stroke}
-          initial={{ d: TICK.short, strokeWidth: TICK.width, pathLength: 0, opacity: 0 }}
+          initial={{ d: TICK.short, strokeWidth: STROKE, pathLength: 0, opacity: 0 }}
           animate={
-            lettered
-              ? { d: LETTER.bar, strokeWidth: T_GLYPH.bar, pathLength: 1, opacity: 1 }
-              : { pathLength: beat ? 1 : 0, opacity: beat ? 1 : 0 }
+            travelling
+              ? { d: [SQUARE_T.stem, LETTER.stem], strokeWidth: [STROKE, T_GLYPH.stem], pathLength: 1, opacity: 1 }
+              : { d: beat ? DISC_T.stem : TICK.short, pathLength: 1, opacity: 1 }
           }
-          transition={lettered ? swing : { pathLength: { duration: 0.12, ease: "easeOut" }, opacity: { duration: 0.01 } }}
+          transition={beat ? swing : drawn(0.6)}
         />
         <motion.path
           {...stroke}
-          initial={{ d: TICK.long, strokeWidth: TICK.width, pathLength: 0, opacity: 0 }}
+          initial={{ d: TICK.long, strokeWidth: STROKE, pathLength: 0, opacity: 0 }}
           animate={
-            lettered
-              ? { d: LETTER.stem, strokeWidth: T_GLYPH.stem, pathLength: 1, opacity: 1 }
-              : { pathLength: beat ? 1 : 0, opacity: beat ? 1 : 0 }
+            travelling
+              ? { d: [SQUARE_T.bar, LETTER.bar], strokeWidth: [STROKE, T_GLYPH.bar], pathLength: 1, opacity: 1 }
+              : { d: beat ? DISC_T.bar : TICK.long, pathLength: 1, opacity: 1 }
           }
-          transition={
-            lettered
-              ? swing
-              : { pathLength: { duration: 0.23, delay: 0.12, ease: "easeOut" }, opacity: { duration: 0.01, delay: 0.12 } }
-          }
+          transition={beat ? swing : drawn(0.85)}
         />
       </motion.svg>
     </span>

@@ -390,9 +390,10 @@ export const safetyGroups: readonly SafetyGroup[] = [
     title: "Your load is never out of sight.",
     // The owner's wording (2026-10-02).
     body: "GPS on every truck and trailer. Dash cameras on every windshield. You always know where your freight is — and every mile is on record. No calling dispatch. No guessing.",
-    systems: [0, 1],
-    // Dash cameras start wide since 2026-10-05: the pair now steps down on the right, so its open card sits on the
-    // outside edge, as the shop pair's did there.
+    // Dash cameras on the left and closed, GPS on the right and open (owner, 2026-10-05: "gps goes in to open one
+    // and dash goes in to closed one"). The pair steps down on the right, so its open card sits on the outside
+    // edge, as the shop pair's did there; GPS was the narrow card on the left before.
+    systems: [1, 0],
     open: 1,
   },
 ];
@@ -412,25 +413,14 @@ export type PairGroup = {
 // owner's (2026-10-02); the rest is a draft from owner-confirmed facts (our own shop, trucks bought new), turned
 // toward the people who drive and fix the trucks. Lease to own isn't confirmed yet, and no terms or figures may be
 // added to it (DECISIONS.md → Open). Needs the owner's OK. In each pair the wide card sits on the outside edge, so the narrow one faces the
-// middle of the page, as in the safety band (owner, 2026-10-05): Lease to own wide on the left (owner, same day,
-// with its picture), Maintenance on record wide on the right.
+// middle of the page, as in the safety band (owner, 2026-10-05): New equipment wide on the left with Lease to own
+// the narrow card beside it (owner, later that day: "lease to own in to small and new equipment in to left side";
+// Lease to own was the wide one before), Maintenance on record wide on the right.
 export const equipmentGroups: readonly [PairGroup, PairGroup] = [
   {
     title: "New trucks, and a way to own one.",
     body: "You drive a late-model truck, bought new, with a brand-new trailer behind it. If you want a truck of your own, ask about lease to own when you apply.",
     cards: [
-      {
-        name: "Lease to own",
-        // PLACEHOLDER — AI-generated (owner's pick, 2026-10-05), standing in for a photo of our own truck. It shows
-        // the Volvo badge, so it needs Volvo's OK like the other truck pictures (DECISIONS.md → Open). No caption
-        // may call it ours or date it.
-        image: {
-          src: "/images/lease-truck-road.webp",
-          alt: "A white truck and dry van trailer on a desert highway at sunrise",
-          // The cab sits right of centre; this keeps it in the card open or closed.
-          position: "60% 50%",
-        },
-      },
       {
         name: "New equipment",
         // PLACEHOLDER until the owner says whose photo this is (owner's pick, 2026-10-05; it replaced the AI line-up
@@ -441,6 +431,20 @@ export const equipmentGroups: readonly [PairGroup, PairGroup] = [
           alt: "A long row of new white Volvo trucks parked side by side on a lot",
           // The nearest truck is on the right; this keeps its grille in the narrow card and the row in the open one.
           position: "75% 50%",
+        },
+      },
+      {
+        name: "Lease to own",
+        // PLACEHOLDER — the owner's pick (2026-10-05, "use this in to lease to own"): a handshake in front of a
+        // white truck, in place of the truck on a desert highway (lease-truck-road.webp). Its source isn't
+        // confirmed, so it stays out of the public repo until the owner says where it's from, and the truck shows
+        // the Volvo badge, so it needs Volvo's OK like the other truck pictures (DECISIONS.md → Open). No caption
+        // may call it ours or date it, and it's no promise of terms: Lease to own isn't confirmed as a program.
+        image: {
+          src: "/images/lease-handshake.jpg",
+          alt: "Two people shaking hands in front of a white truck and trailer",
+          // The hands sit just left of the middle; this keeps them in the card open or closed.
+          position: "49% 50%",
         },
       },
     ],
