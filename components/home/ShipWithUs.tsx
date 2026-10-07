@@ -43,6 +43,8 @@ export function ShipWithUs() {
   const ref = useRef<HTMLElement>(null);
   const [pickup, setPickup] = useState<StateCode | null>(null);
   const [delivery, setDelivery] = useState<StateCode | null>(null);
+  // "City, ST" for each pin, when the ZIP is in the list (lib/zip.ts); the state's name otherwise.
+  const [cities, setCities] = useState<{ pickup: string | null; delivery: string | null }>({ pickup: null, delivery: null });
   const [ride, setRide] = useState(0);
   const [sweep, setSweep] = useState(0);
   const [openRequest, setOpenRequest] = useState(0);
@@ -53,9 +55,10 @@ export function ShipWithUs() {
   const still = useReducedMotion() ?? false;
   const inView = useInView(ref);
 
-  const onStates = useCallback((from: StateCode | null, to: StateCode | null) => {
+  const onStates = useCallback((from: StateCode | null, to: StateCode | null, fromCity: string | null, toCity: string | null) => {
     setPickup(from);
     setDelivery(to);
+    setCities((now) => (now.pickup === fromCity && now.delivery === toCity ? now : { pickup: fromCity, delivery: toCity }));
   }, []);
   const onSent = useCallback(() => setRide((n) => n + 1), []);
   const requestOpen = useCallback(() => setOpenRequest((n) => n + 1), []);
@@ -87,6 +90,8 @@ export function ShipWithUs() {
       <ShipRouteMap
         pickup={pickup}
         delivery={delivery}
+        pickupCity={cities.pickup}
+        deliveryCity={cities.delivery}
         ride={ride}
         sweep={sweep}
         playing={inView}

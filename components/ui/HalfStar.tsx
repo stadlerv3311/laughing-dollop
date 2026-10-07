@@ -1,6 +1,7 @@
 /**
  * The dark bands' look, made for the homepage's safety band and the About page's opening (2026-10-01). The safety
- * band went back to white on 2026-10-02, so only the About opening uses it now.
+ * band went back to white on 2026-10-02 and the About opening on 2026-10-06, so nothing uses it now; kept in case a
+ * dark band comes back.
  */
 
 /**

@@ -23,6 +23,9 @@ function arc(from: StateCode, to: StateCode) {
 type ShipRouteMapProps = {
   pickup: StateCode | null;
   delivery: StateCode | null;
+  /** "City, ST" for each pin's label, when the ZIP is in the list; the state's name is used without it. */
+  pickupCity?: string | null;
+  deliveryCity?: string | null;
   /** Goes up by one each time a quote is sent: the load rides the route once. */
   ride: number;
   /** Goes up by one to start the wave over from the left edge (the scroll stop). */
@@ -51,7 +54,7 @@ type ShipRouteMapProps = {
  *
  * Under reduced motion there's no wave, pulse, draw, ride or demo trip: the states and pins just appear.
  */
-export function ShipRouteMap({ pickup, delivery, ride, sweep, playing, demo, className }: ShipRouteMapProps) {
+export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride, sweep, playing, demo, className }: ShipRouteMapProps) {
   const still = useReducedMotion() ?? false;
   const svgRef = useRef<SVGSVGElement>(null);
   const solidRef = useRef<SVGPathElement>(null);
@@ -74,6 +77,8 @@ export function ShipRouteMap({ pickup, delivery, ride, sweep, playing, demo, cla
   }, []);
 
   const route = pickup && delivery && pickup !== delivery ? arc(pickup, delivery) : null;
+  // Both ZIPs in one state, in two cities: one pin, so the two labels go one over the other.
+  const apart = Boolean(pickup && pickup === delivery && (pickupCity ?? null) !== (deliveryCity ?? null));
 
   // The ride: the dot follows the arc and the solid line grows behind it. Eased in and out, 1.5s.
   useEffect(() => {
@@ -137,8 +142,10 @@ export function ShipRouteMap({ pickup, delivery, ride, sweep, playing, demo, cla
         {route && <Route key={route} d={route} still={still} solidRef={solidRef} />}
         <circle ref={loadRef} r={5} className="fill-brand" style={{ opacity: 0 }} />
 
-        {pickup && <Pin key={`p-${pickup}`} code={pickup} kind="pickup" unit={unit} still={still} />}
-        {delivery && <Pin key={`d-${delivery}-${arrived}`} code={delivery} kind="delivery" unit={unit} still={still} />}
+        {pickup && <Pin key={`p-${pickup}`} code={pickup} kind="pickup" label={pickupCity} shift={apart ? -1 : 0} unit={unit} still={still} />}
+        {delivery && (
+          <Pin key={`d-${delivery}-${arrived}`} code={delivery} kind="delivery" label={deliveryCity} shift={apart ? 1 : 0} unit={unit} still={still} />
+        )}
       </svg>
     </div>
   );
@@ -172,8 +179,27 @@ function Route({ d, still, solidRef }: { d: string; still: boolean; solidRef: Re
   );
 }
 
-/** A state's pin: hollow white for pickup, solid orange for delivery, a pulse as it lands, and the state's name. */
-function Pin({ code, kind, unit, still }: { code: StateCode; kind: "pickup" | "delivery"; unit: number; still: boolean }) {
+/**
+ * A state's pin: hollow white for pickup, solid orange for delivery, a pulse as it lands, and beside it the city and
+ * state the ZIP belongs to (owner, 2026-10-06: "can we show on the map city and state instead of just state"), or the
+ * state's name when the ZIP isn't in the list. The pin itself stays on the state. `shift` moves the label a line up
+ * (-1) or down (1): two ZIPs in one state share a pin, and their two cities would sit on top of each other.
+ */
+function Pin({
+  code,
+  kind,
+  label,
+  shift,
+  unit,
+  still,
+}: {
+  code: StateCode;
+  kind: "pickup" | "delivery";
+  label?: string | null;
+  shift: -1 | 0 | 1;
+  unit: number;
+  still: boolean;
+}) {
   const state = byCode.get(code)!;
   // The name goes on the side with more room, so it never runs off the map.
   const right = state.cx < US_MAP_WIDTH * 0.8;
@@ -200,12 +226,12 @@ function Pin({ code, kind, unit, still }: { code: StateCode; kind: "pickup" | "d
       <text
         x={right ? state.cx + 16 : state.cx - 16}
         y={state.cy}
-        dy={5}
+        dy={5 + shift * 9 * unit}
         textAnchor={right ? "start" : "end"}
         className="fill-paper/90 stroke-ink font-medium [paint-order:stroke] [stroke-linejoin:round]"
         style={{ fontSize: 14 * unit, strokeWidth: 5 * unit }}
       >
-        {state.name}
+        {label ?? state.name}
       </text>
     </g>
   );

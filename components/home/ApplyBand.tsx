@@ -64,6 +64,12 @@ export function ApplyBand() {
           <span className="relative pl-5 transition-colors duration-300 group-hover/launch:text-paper group-focus-visible/launch:text-paper">
             {applyLink.label}
           </span>
+          {/* The orange line round the pill while it's hovered or focused, as on Get a quote's (owner, 2026-10-06:
+              "add this to the driver section too"): the pill fills black on the black band. The band's one orange. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full border-2 border-brand opacity-0 transition-opacity duration-300 group-hover/launch:opacity-100 group-focus-visible/launch:opacity-100 motion-reduce:transition-none"
+          />
         </Link>
       </div>
     </section>

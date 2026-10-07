@@ -148,7 +148,7 @@
 }
 
 /* Card-into-page transition (2026-09-24; names and types in lib/story.ts): "Read our full story" — the homepage
-   story band grows and rises into the About page's dark opening. (Ship with us's card grew into the Quote page the
+   story band grows and rises into the About page's opening (white, like the band, since 2026-10-06). (Ship with us's card grew into the Quote page the
    same way until 2026-10-02, when the quote moved into the band and the page went.)
    The box morphs; the old words fade out fast and the new page's fade in, pinned to the top-left so they don't
    stretch with the box. The rest of the page crossfades. */
@@ -160,7 +160,7 @@
 /* A backing in the box's own colour, so it never goes see-through between the old words leaving and the new
    ones arriving. */
 ::view-transition-group(.story-open) {
-  background: var(--color-ink);
+  background: var(--color-paper);
 }
 ::view-transition-old(.story-open),
 ::view-transition-new(.story-open) {

@@ -12,7 +12,10 @@ import { cx } from "@/lib/cx";
  *
  * Sizes: `sm` is the snippet's original fixed 8rem pill; `lg` matches `Button`'s lg height and padding and leaves
  * the width to `className`, so it can line up with other buttons; `md` is the header's 40px pair, with the dot a
- * fixed 12px in and a little more room left of the label, so the dot never touches the label.
+ * fixed 12px in and a little more room left of the label, so the dot never touches the label. `lgFit` is `lg` for a
+ * button as wide as its label (2026-10-06, Get another quote): `lg` puts the dot a fifth of the way in, which is
+ * clear of the label only in a button given a width, and landed on the first letter here; `lgFit` has the dot a
+ * fixed 24px in and the label 20px after it.
  *
  * Variants: `solid` is white with an ink dot that fills it ink (the hero's Get a quote). `ghostLight` is a thin
  * white ring with no fill whose white dot fills it and brings the label back in ink (the hero's Apply now).
@@ -29,6 +32,7 @@ const sizes = {
   sm: { shell: "w-32 p-2", dot: "left-[20%]" },
   md: { shell: "h-10 pl-6 pr-5 text-[15px]", dot: "left-3" },
   lg: { shell: "h-14 px-7 text-base", dot: "left-[20%]" },
+  lgFit: { shell: "h-14 pl-12 pr-8 text-base", dot: "left-6" },
 };
 type Size = keyof typeof sizes;
 

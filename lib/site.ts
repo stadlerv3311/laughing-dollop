@@ -221,7 +221,7 @@ export const applyBand = {
   heading: "Want to work with us?",
 };
 
-/** One job's side of Why work with us: who they are, for "Why ___ stay.", and their five reasons. */
+/** One job's side of Why work with us: who they are, for "Why ___ stay.", and their four reasons. */
 export type WorkSeat = {
   job: Job;
   /** The people in this job, for "Why ___ stay." above the reasons. */
@@ -235,6 +235,9 @@ export type WorkSeat = {
 // Draft copy: the office and shop reasons were written from facts already on the site (the
 // careers reasons above and the owner's copy) and need the owner's OK. The company shop the shop ones speak of is real
 // (owner, 2026-10-03).
+// Four reasons a job since 2026-10-06 (owner, from a screenshot of the technicians' five: "to much text there. lets
+// make it 4 reasons"). Which one went is OUR pick, the same in all three lists: "New trucks and trailers", because the
+// New equipment row a screen above says it already. Its three sentences are in DECISIONS.md if one should come back.
 export const whyWorkWithUs = {
   // No label over the heading since 2026-10-05 (owner: remove "Why work with us").
   heading: ["The person who can fix it", "still answers."],
@@ -254,10 +257,6 @@ export const whyWorkWithUs = {
         {
           title: "A yard in Sacramento",
           body: "The yard is in Sacramento, California. Drop a trailer, grab a truck, and deal with people who are on the lot.",
-        },
-        {
-          title: "New trucks and trailers",
-          body: "The fleet is late-model, bought new, dry van trucks and trailers. Less time waiting on a shop that is not yours.",
         },
         {
           title: "Pay that shows up, with a bonus on top",
@@ -280,10 +279,6 @@ export const whyWorkWithUs = {
         { title: "A fleet you can see", body: "GPS on every truck and trailer, so you are never guessing where one is." },
         { title: "One kind of freight", body: "Dry van truckload only, so every load plays by the same rules." },
         {
-          title: "New trucks and trailers",
-          body: "Late-model, bought new. Fewer breakdowns to plan around, and fewer calls you did not see coming.",
-        },
-        {
           title: "You know the drivers",
           body: "We know who is in which truck. You work with the same drivers, by name, not a list of truck numbers.",
         },
@@ -294,10 +289,6 @@ export const whyWorkWithUs = {
       who: "technicians",
       reasons: [
         { title: "Our own fleet", body: "You work on our trucks, not a line of strangers’ trucks." },
-        {
-          title: "New trucks and trailers",
-          body: "Late-model, bought new, dry van only. You learn one fleet well instead of every make that rolls in.",
-        },
         {
           title: "Maintenance on record",
           body: "Every repair and inspection is logged, so each truck’s history is on file.",
@@ -426,8 +417,10 @@ export const equipmentGroups: readonly [PairGroup, PairGroup] = [
         // PLACEHOLDER until the owner says whose photo this is (owner's pick, 2026-10-05; it replaced the AI line-up
         // safety-fleet.jpg). Volvo badges on every grille, so it needs Volvo's OK like the other truck pictures
         // (DECISIONS.md → Open). Tractors only, no trailers. No caption may call it ours or date it.
+        // Since 2026-10-06 it's the owner's copy of the same view under a clear blue sky (sent with "use this for new
+        // equipment"): new-equipment-row.jpg. new-equipment-lot.jpg, the overcast one, is no longer used.
         image: {
-          src: "/images/new-equipment-lot.jpg",
+          src: "/images/new-equipment-row.jpg",
           alt: "A long row of new white Volvo trucks parked side by side on a lot",
           // The nearest truck is on the right; this keeps its grille in the narrow card and the row in the open one.
           position: "75% 50%",

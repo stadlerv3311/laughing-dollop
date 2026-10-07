@@ -58,9 +58,11 @@ export const servicesGroup: {
       // PLACEHOLDER — the owner's pick (2026-10-05, "use this for 53 foot dry van trailers"): rows of trailers in a
       // yard, from above. Its source isn't confirmed and it isn't our yard, so no caption may call it ours or date
       // it, and it stays out of the public repo until the owner says where it's from. It replaced the AI truck on
-      // a desert highway (ship-truck-side.jpg).
+      // a desert highway (ship-truck-side.jpg). Since 2026-10-06 it's the owner's cleaner copy of the same view
+      // (smooth roofs; sent with "use this for 53 ft vans", the dark frame around it cut off): dry-van-yard.jpg.
+      // dry-van-trailers.jpg, the first copy, is no longer used.
       image: {
-        src: "/images/dry-van-trailers.jpg",
+        src: "/images/dry-van-yard.jpg",
         alt: "Rows of white dry van trailers parked in a yard, seen from above",
         // The card is taller than the picture, so it shows a slice of its width, a narrow one while it's closed.
         // This one sits between the blue shipping containers at either end of the upper row, so the card shows

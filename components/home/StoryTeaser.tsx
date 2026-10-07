@@ -23,7 +23,7 @@ import { StoryRoute } from "./StoryRoute";
  */
 export function StoryTeaser() {
   return (
-    // Shares its name with the About page's dark opening: following "Read our full story" morphs this band up
+    // Shares its name with the About page's opening: following "Read our full story" morphs this band up
     // into it (2026-09-24). Only that link's `story-open` navigation plays it — see STORY_BAND in lib/story.ts.
     <ViewTransition name={STORY_BAND} share={{ [STORY_OPEN]: "story-open", default: "none" }} default="none">
     <section
@@ -44,7 +44,7 @@ export function StoryTeaser() {
           <div className="flex flex-col items-center text-center">
             <div>
               {/* In Geist, not the Archivo headline face, since 2026-10-05 (owner: "change it to geist"); the About page's
-                  copy of it stays Archivo. No "Our story" label over it since 2026-10-02 (owner: remove), like the safety band. Both lines full ink, like the safety band's heading (owner, 2026-10-02: the grey looked washed out);
+                  copy of it follows since 2026-10-06. No "Our story" label over it since 2026-10-02 (owner: remove), like the safety band. Both lines full ink, like the safety band's heading (owner, 2026-10-02: the grey looked washed out);
                   "rule" still lights orange. */}
               <StoryHeadline
                 id="story-teaser-title"

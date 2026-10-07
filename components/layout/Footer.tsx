@@ -79,6 +79,13 @@ export function Footer() {
             </span>
             <span>USDOT {company.usdot}</span>
             <span>{company.mc}</span>
+            {/* The credit GeoNames' licence asks for (CC BY 4.0): the quote form's ZIP → city list is theirs (public/zip). */}
+            <span>
+              ZIP code data:{" "}
+              <a href="https://www.geonames.org" rel="noreferrer" className="underline underline-offset-2 transition-colors duration-300 hover:text-ink">
+                GeoNames
+              </a>
+            </span>
           </p>
         </div>
       </Container>

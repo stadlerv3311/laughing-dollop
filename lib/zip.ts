@@ -17,6 +17,37 @@ const PREFIXES: Array<[from: number, to: number, code: StateCode | "AK" | "HI"]>
   [889, 898, "NV"], [900, 961, "CA"], [967, 968, "HI"], [970, 979, "OR"], [980, 994, "WA"], [995, 999, "AK"],
 ];
 
+/** Each first digit's file of cities (public/zip, built by scripts/build-zip-cities.mjs), fetched once. */
+const cityFiles = new Map<string, Promise<Record<string, string>>>();
+
+/**
+ * "City, ST" for a 5-digit ZIP in the lower 48 (owner, 2026-10-06: "when we type zip code. we literally know the city
+ * too. can we show on the map city and state"), or null when the ZIP isn't in the list or the list can't be had, in
+ * which case the state's name does. The list is GeoNames' (CC BY 4.0, credited in the footer), ten files on our own
+ * site, one for each first digit, so nothing typed leaves the site. Called with a ZIP that's still being typed, it
+ * fetches the file its first digit needs and returns null, so the city is ready by the fifth digit.
+ */
+export async function cityForZip(text: string): Promise<string | null> {
+  const digits = text.trim().match(/^\d{1,5}/)?.[0];
+  if (!digits) return null;
+  let file = cityFiles.get(digits[0]);
+  if (!file) {
+    file = fetch(`/zip/${digits[0]}.json`).then((response) => {
+      if (!response.ok) throw new Error(`ZIP cities: ${response.status}`);
+      return response.json() as Promise<Record<string, string>>;
+    });
+    cityFiles.set(digits[0], file);
+  }
+  try {
+    const cities = await file;
+    return digits.length === 5 ? (cities[digits.slice(1)] ?? null) : null;
+  } catch {
+    // Try again the next time a ZIP is typed.
+    cityFiles.delete(digits[0]);
+    return null;
+  }
+}
+
 /**
  * The state a 5-digit ZIP belongs to. `"outside"` means Alaska or Hawaii (we don't run there);
  * `null` means the text isn't a ZIP we recognize — e.g. a city name.

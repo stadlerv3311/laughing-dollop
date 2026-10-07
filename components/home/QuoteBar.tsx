@@ -7,7 +7,7 @@ import { cx } from "@/lib/cx";
 import { submitQuote, type QuoteRequest } from "@/lib/forms";
 import { quoteLink } from "@/lib/site";
 import { usStates, type StateCode } from "@/lib/us-states";
-import { stateForZip } from "@/lib/zip";
+import { cityForZip, stateForZip } from "@/lib/zip";
 
 type Values = { pickup: string; delivery: string; date: string; name: string; contact: string };
 const FIELDS = ["pickup", "delivery", "date", "name", "contact"] as const;
@@ -22,6 +22,25 @@ const stateName = (code: StateCode) => usStates.find((state) => state.code === c
 function zipState(zip: string): StateCode | null {
   const state = stateForZip(zip);
   return state && state !== "outside" ? state : null;
+}
+
+/**
+ * "City, ST" for the ZIP in a field, once it's all there and in the list (lib/zip.ts → cityForZip); null until then.
+ * The list's file is asked for from the first digit, so the city is usually there with the fifth.
+ */
+function useZipCity(zip: string) {
+  const [found, setFound] = useState<{ zip: string; city: string | null } | null>(null);
+  useEffect(() => {
+    if (!zip) return;
+    let live = true;
+    cityForZip(zip).then((city) => {
+      if (live) setFound({ zip, city });
+    });
+    return () => {
+      live = false;
+    };
+  }, [zip]);
+  return found?.zip === zip ? found.city : null;
 }
 
 /** Today in the visitor's own time zone, as `YYYY-MM-DD`. */
@@ -83,7 +102,8 @@ type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent"; text: str
 
 type QuoteBarProps = {
   /** The states the two ZIPs are in, as they're typed, for the map. */
-  onStates: (pickup: StateCode | null, delivery: StateCode | null) => void;
+  /** The two states the ZIPs light, and each one's "City, ST" for its pin when the ZIP is in the list. */
+  onStates: (pickup: StateCode | null, delivery: StateCode | null, pickupCity: string | null, deliveryCity: string | null) => void;
   /** The quote went through: the map plays the ride. */
   onSent: () => void;
   /** Goes up by one when a Get a quote link elsewhere on the site brings the visitor here: the form opens. */
@@ -139,7 +159,12 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   const delivery = zipState(values.delivery);
   // Closed, the map lets go of the states; they light again when it opens.
   const shown = phase !== "closed";
-  useEffect(() => onStates(shown ? pickup : null, shown ? delivery : null), [shown, pickup, delivery, onStates]);
+  const pickupCity = useZipCity(values.pickup);
+  const deliveryCity = useZipCity(values.delivery);
+  useEffect(
+    () => onStates(shown ? pickup : null, shown ? delivery : null, pickupCity, deliveryCity),
+    [shown, pickup, delivery, pickupCity, deliveryCity, onStates],
+  );
   useEffect(() => onOpenChange?.(shown), [shown, onOpenChange]);
 
   // While it's closed or opening, the form is laid out at its open width (so it never reflows as the card grows).
@@ -256,8 +281,8 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
     setStatus({
       kind: "sent",
       text:
-        `Thanks, ${values.name.trim().split(/\s+/)[0]}. ${values.pickup} (${stateName(pickup!)}) to ${values.delivery} ` +
-        `(${stateName(delivery!)}), pickup ${longDate(values.date)}. We’ll get back to you by ${by} with a quote.`,
+        `Thanks, ${values.name.trim().split(/\s+/)[0]}. ${values.pickup} (${pickupCity ?? stateName(pickup!)}) to ${values.delivery} ` +
+        `(${deliveryCity ?? stateName(delivery!)}), pickup ${longDate(values.date)}. We’ll get back to you by ${by} with a quote.`,
     });
     onSent();
   }
@@ -311,7 +336,7 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
           tabIndex={closed ? 0 : -1}
           className={cx(
             "group/launch absolute inset-0 z-10 flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-cloud text-base font-semibold tracking-[-0.01em] text-ink md:text-[1.0625rem]",
-            "duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+            "outline-none duration-200",
             // Shown at once when the card closes (so the cursor can land on it), faded out when it opens.
             closed ? "transition-opacity" : "invisible opacity-0 transition-[opacity,visibility]",
           )}
@@ -324,6 +349,14 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
           <span className="relative pl-5 transition-colors duration-300 group-hover/launch:text-paper group-focus-visible/launch:text-paper">
             {quoteLink.label}
           </span>
+          {/* An orange line round the pill while it's hovered or focused (owner, 2026-10-06: the pill fills black on
+              the black band, "lets add it an company orange outline. so it is more evident"). It's a box of its own
+              inside the edge and over the fill: the growing dot covers an outline, and the card clips anything
+              outside it, which is what hid the focus ring before. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full border-2 border-brand opacity-0 transition-opacity duration-300 group-hover/launch:opacity-100 group-focus-visible/launch:opacity-100 motion-reduce:transition-none"
+          />
         </button>
 
         <form
@@ -343,7 +376,7 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
           )}
           style={phase !== "open" ? { width: formWidth } : undefined}
         >
-          <Cell id={id("pickup")} label="Pickup" state={pickup} error={errors.pickup} icon="start" className={enter} style={delay(0)} key={`pickup-${entrance}`}>
+          <Cell id={id("pickup")} label="Pickup" state={pickup} place={pickupCity} error={errors.pickup} icon="start" className={enter} style={delay(0)} key={`pickup-${entrance}`}>
             <input
               id={id("pickup")}
               name="pickup"
@@ -364,7 +397,7 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
               </svg>
             </span>
           </span>
-          <Cell id={id("delivery")} label="Delivery" state={delivery} error={errors.delivery} icon="end" className={enter} style={delay(2)} key={`delivery-${entrance}`}>
+          <Cell id={id("delivery")} label="Delivery" state={delivery} place={deliveryCity} error={errors.delivery} icon="end" className={enter} style={delay(2)} key={`delivery-${entrance}`}>
             <input
               id={id("delivery")}
               name="delivery"
@@ -457,7 +490,7 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
                   type="button"
                   onClick={another}
                   text="Get another quote"
-                  size="lg"
+                  size="lgFit"
                   variant="ghostDark"
                   className="w-full md:w-auto"
                 />
@@ -484,6 +517,7 @@ function Cell({
   id,
   label,
   state,
+  place,
   error,
   icon,
   className,
@@ -493,6 +527,8 @@ function Cell({
   id: string;
   label: string;
   state?: StateCode | null;
+  /** "City, ST" for the ZIP, shown in the state's place when the ZIP is in the list. */
+  place?: string | null;
   error?: string;
   icon: "start" | "end" | "date" | "person" | "phone";
   className?: string;
@@ -518,7 +554,9 @@ function Cell({
         ) : (
           <span className="flex items-baseline gap-2 text-sm font-medium whitespace-nowrap">
             {label}
-            {state && <span className="truncate font-normal text-ink/70 min-[87.5rem]:hidden">{usStates.find((s) => s.code === state)?.name}</span>}
+            {state && (
+              <span className="truncate font-normal text-ink/70 min-[87.5rem]:hidden">{place ?? usStates.find((s) => s.code === state)?.name}</span>
+            )}
           </span>
         )}
         {children}

@@ -31,14 +31,14 @@ const START = Math.max(
  *
  * The heading, centred and with no label over it since 2026-10-05 (owner; the story paragraph beside it came out on
  * 2026-10-01), the two shop rows, then the careers block, centred since 2026-10-05 (owner, "A" of three mock-ups):
- * "Why ___ stay." as a centred heading, the three job cards across the full width under it, and the open job's five
+ * "Why ___ stay." as a centred heading, the three job cards across the full width under it, and the open job's four
  * reasons in a row beneath with every sentence in view. The dispatcher is on the
  * left, the driver in the middle and open first, the technician on the right (owner). The pictures are the apply
  * cards, which don't link anywhere: a card opens on hover, focus or tap, and the sentence and reasons roll to that
  * job. Until then the cards sat on columns 1–7 with the reasons beside them, one sentence open at a time.
  *
  * Grey and black only — orange stays with Our story (owner, 2026-09-30). The heading rises in, and on a job change
- * only "Why ___ stay." and the reasons move. The reasons are five columns from `xl`, three and two from `md`, and one
+ * only "Why ___ stay." and the reasons move. The reasons are four columns from `xl`, two by two from `md`, and one
  * column on phones, where the cards are a short row and only the open one is captioned. Copy in lib/site.ts →
  * `whyWorkWithUs` (draft for the office and shop).
  *
@@ -65,15 +65,17 @@ export function WhyWorkWithUs() {
   const seat = JOBS[shown].seat;
 
   return (
-    // One step all the way down the section, 64px on phones and 70px from `sm`, measured to the letters (owner,
-    // 2026-10-05: "fix this spacing", "it has to match other parts"). The top space puts the heading's ink that far
-    // under the story band's last line; earlier the same day it matched "Tracked trucks." under the hero instead (88,
-    // 106 and 123px at phone, tablet and laptop widths), which left the heading nearly twice as far from the story as
-    // from its own pictures. The foot is the same step from the last line of the reasons to the black Apply band, the
+    // One step all the way down inside the section, 64px on phones and 70px from `sm`, measured to the letters (owner,
+    // 2026-10-05: "fix this spacing", "it has to match other parts"). The top space is the one exception since
+    // 2026-10-06 (owner: "we need to separate this block from about us block. increase distance to 120 or what is the
+    // distance between the blocks?"): it's the distance between blocks, the heading's ink 85, 102 and 120px under the
+    // story band's last line at phone, tablet and laptop widths, which is how far Our story's headline sits under Ship
+    // with us and "Tracked trucks." under the hero. For a day it was the inner step (51 / 56 / 55px of padding), which
+    // ran the story band into this one. The foot is the same step from the last line of the reasons to the black Apply band, the
     // space the logo row leaves over Ship with us (the chapter step left 136px there on a laptop).
     <section
       aria-labelledby="why-work-title"
-      className="bg-paper pt-[3.1875rem] pb-[3.625rem] sm:pt-14 sm:pb-[3.875rem] lg:pt-[3.4375rem]"
+      className="bg-paper pt-[4.5rem] pb-[3.625rem] sm:pt-[5.5rem] sm:pb-[3.875rem] lg:pt-[6.5625rem]"
     >
       <Container>
         {/* The heading alone, centred like the safety band's and Our story's (owner, 2026-10-05: "center this text and
@@ -262,25 +264,27 @@ function WhyHeading({ who, words, from, still }: { who: string; words: string[];
 }
 
 /**
- * The open job's five reasons in a row under the cards, each with its sentence in view (owner, 2026-10-05; they were
- * rows beside the cards with one sentence open at a time, so four of five were behind a hover or a tap). Five columns
- * from `xl`, three and then two centred under them from `md`, one column on phones. The words stay left-aligned: the
- * block is centred, the sentences aren't. On a job change each column rolls over, one after another.
+ * The open job's reasons in a row under the cards, each with its sentence in view (owner, 2026-10-05; they were rows
+ * beside the cards with one sentence open at a time, so four of five were behind a hover or a tap). Four of them, with
+ * more room, since 2026-10-06 (owner: "to much text there. lets make it 4 reasons and lets give it a bi more space";
+ * there were five in columns 24px apart): four columns 48px apart from `xl`, two by two from `md`, one column on
+ * phones, and a little more air over the row and inside each reason. The words stay left-aligned. On a job change
+ * each column rolls over, one after another.
  */
 function Reasons({ seat, still }: { seat: WorkSeat; still: boolean }) {
   return (
-    <ul className="mt-8 grid gap-x-6 gap-y-7 md:grid-cols-6 xl:mt-9 xl:grid-cols-5">
+    <ul className="mt-10 grid gap-x-10 gap-y-9 md:grid-cols-2 xl:mt-12 xl:grid-cols-4 xl:gap-x-12">
       {seat.reasons.map((reason, i) => (
-        <li key={i} className={cx("md:col-span-2 xl:col-span-1", i === 3 && "md:col-start-2 xl:col-start-auto")}>
+        <li key={i}>
           {/* The site's small-text grey (ink/70, 5.7:1); the numbers were ink/40 beside closed rows. */}
           <span aria-hidden className="block text-[13px] tabular-nums text-ink/70">
             {String(i + 1).padStart(2, "0")}
           </span>
           <Roll id={`${seat.job}-t${i}`} delay={i * 0.07} still={still}>
-            <span className="mt-2 block text-lg font-medium leading-snug tracking-[-0.02em]">{reason.title}</span>
+            <span className="mt-3 block text-lg font-medium leading-snug tracking-[-0.02em]">{reason.title}</span>
           </Roll>
           <Roll id={`${seat.job}-b${i}`} delay={i * 0.07} still={still}>
-            <span className="block pt-2 text-[15px] leading-relaxed text-ink/70">{reason.body}</span>
+            <span className="block pt-2.5 text-[15px] leading-relaxed text-ink/70">{reason.body}</span>
           </Roll>
         </li>
       ))}
