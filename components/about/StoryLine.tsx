@@ -423,9 +423,15 @@ export function StoryLine({ entries, landing = false }: { entries: TimelineEntry
                                 className={cx(
                                   "transition-[opacity,translate] duration-500 ease-premium motion-reduce:transition-none",
                                   lit ? "max-lg:translate-y-0 max-lg:opacity-100" : "max-lg:translate-y-2 max-lg:opacity-30",
+                                  // One chapter at a time from `lg`, where they share one spot: the one leaving is gone in
+                                  // 150ms, and the one arriving waits those 150ms before it starts. Fading both at once left
+                                  // two headlines ghosted over each other on a fast scroll (2026-10-07).
                                   onShow
-                                    ? cx("lg:translate-y-0", lit ? "lg:opacity-100" : "lg:opacity-30")
-                                    : cx("lg:pointer-events-none lg:opacity-0", stop.index < showing ? "lg:-translate-y-3" : "lg:translate-y-3"),
+                                    ? cx("lg:translate-y-0 lg:delay-150 lg:duration-350", lit ? "lg:opacity-100" : "lg:opacity-30")
+                                    : cx(
+                                        "lg:pointer-events-none lg:opacity-0 lg:duration-150",
+                                        stop.index < showing ? "lg:-translate-y-3" : "lg:translate-y-3",
+                                      ),
                                 )}
                               >
                                 <p className={cx("text-sm font-semibold tabular-nums", dark ? "text-paper/70" : "text-ink/70")}>{stop.year}</p>

@@ -8,7 +8,7 @@
 | `/services` | `app/services/page.tsx` | Placeholder |
 | `/quote` | `app/quote/page.tsx` | Redirects to `/#quote` — the quote form lives in the homepage's Ship with us band since 2026-10-02 |
 | `/fleet-map` | `app/fleet-map/page.tsx` | Placeholder (Fleet Map — formerly Track a Load) |
-| `/news` | `app/news/page.tsx` | Placeholder |
+| `/news` | `app/news/page.tsx` | The shared opening, then the newest post big on a black panel (`components/news/NewsLead.tsx`) and the next six as square grey cards, three across from 1024px (`NewsCard`); any older posts open as a list, "Earlier", from a See more pill under the cards (`NewsMore`, `NewsRow`; how many cards: `CARDS` in the page); a hairline closes it over the footer. Sample posts only for now, so a production build shows the "being built" placeholder |
 | `/careers` | `app/careers/page.tsx` | The careers page: the three jobs, what each is and why to take it, each with its own Apply now (an underlined arrow link since 2026-10-07, `RiseLabel` and `FlyArrow`). Where Careers goes |
 | `/careers/apply` | `app/careers/apply/page.tsx` | The job application with no job set, so it asks "Which job?" as its fifth question, after the contact ones. Where every Apply now outside the careers page goes (since 2026-10-05) |
 | `/careers/drivers` | `app/careers/drivers/page.tsx` | The job application, opened on the driver job (the careers page's driver Apply now); sends to a stub until the backend exists |
@@ -28,7 +28,7 @@
 | Change how the header logo fades/settles in | `components/layout/Header.tsx` → `logoOpacity`, `logoScale` |
 | Change how Ship with us slides over the safety band, or the Apply band over Why work with us (sheet height, pin, shadow) | `components/home/SlideOverStack.tsx` — `OVER_SHARE`; both wired in `app/page.tsx` |
 | Change the homepage's black Apply now band (label, question, the pill, the dot road) | Copy: `lib/site.ts` → `applyBand` (the pill's words and link are `applyLink`); layout and the road (`ApplyRoad`): `components/home/ApplyBand.tsx` |
-| Add, change or approve a news post on the homepage | `lib/news.ts` → `newsPosts` (remove `draft` once the owner has approved a post); layout: `components/home/NewsBand.tsx` |
+| Add, change or approve a news post (homepage block and `/news`) | `lib/news.ts` → `newsPosts` (remove `draft` once the owner has approved a post); layouts: `components/home/NewsBand.tsx`, `app/news/page.tsx`; the card and the big panel: `components/news/` |
 | Change the story band → About opening animation | Names: `lib/story.ts` → `STORY_BAND` / `STORY_OPEN`; the two `<ViewTransition>`s in `components/home/StoryTeaser.tsx` and `app/about/page.tsx`; timing in `app/globals.css` → `.story-open` |
 | Change the Ship with us band (copy, the quote form, the landing pause) | `components/home/ShipWithUs.tsx` — full screen, heading and button centred; the one-time landing pause is `useLandingPause` (`HOLD_MS`, the `itr-ship-landed` session flag); every Get a quote link gliding here and opening the form is `useQuoteLinks` (the link itself: `lib/site.ts` → `quoteLink`, `/#quote`). The button, form, checks and receipt are `components/home/QuoteBar.tsx`; the map, pins, route ride and white wave `components/home/ShipRouteMap.tsx` (wave timing: `app/globals.css` → `ship-wave`) |
 | Change the Ship with us button and form's grey | `app/globals.css` → `--color-cloud` |
@@ -79,6 +79,7 @@ flowchart TD
   SlideOverStack --> ApplyBand["home/ApplyBand"]
   Page --> NewsBand["home/NewsBand"]
   NewsBand -. "posts" .-> News["lib/news"]
+  NewsBand --> NewsCard["news/NewsCard"]
   Page --> SlideOverStack["home/SlideOverStack"]
   SlideOverStack --> SafetyBand["home/SafetyBand"]
   SlideOverStack --> ToolsBand["home/ToolsBand"]
@@ -127,6 +128,8 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `ToolsBand` | The five tool companies' logos, centred (no line over them since 2026-10-02), closing the safety band inside the same pinned section | Server |
 | `home/` | `ApplyBand` | The careers half's closing ask, the twin of Ship with us (2026-10-05): a full black screen with a label, a 72px question and one Apply now pill (a link to the application, `/careers/apply`), over a road drawn in the map's dots on a canvas (`ApplyRoad`, moving only while on screen, still under reduced motion). Last on the page, straight on the white footer; slides up over Why work with us | Client (canvas) |
 | `home/` | `NewsBand` | The news block between the Apply band and the footer: heading, All news link, the three newest posts as square grey cards; renders nothing when there are no posts to show | Server |
+| `news/` | `NewsLead`, `NewsCard`, `NewsRow` | The newest post big on a black panel; one post as a square grey card (the news page and `NewsBand` share it, `as` sets the headline level); one post as a line of the "Earlier" list | Server |
+| `news/` | `NewsMore` | The See more pill under the news page's cards; pressing it swaps it for the "Earlier" heading and the list passed as children | Client |
 | `home/` | `SlideOverStack` | Pins the safety band from `lg` while Ship with us slides up over it as a sheet (70% of the band's height), once, on the way down; used a second time for the Apply band over Why work with us; `useCovered()` tells the band when it's covered so its timer pauses (2026-09-24) | Client (scroll) |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set on white with no box or lines, inside the safety band, between the services pair and the road pair (`companyStats` in `lib/site.ts`, `main` marks the two big ones); one centred row from `lg`, big pair over the small three below it | Server |
 | `careers/` | `JobApplication` | One application for all three jobs, as a dark split: the picked job's photo on the left half (a band on phones), one question at a time on ink on the right under "Applying for" and the job's title, the picture changing with the question where one is set (`STEP_IMAGES`), always opening on the name; where the URL doesn't say the job (`/careers/apply`, against `/careers/drivers` and `/careers/staff?job=office|shop`) "Which job?", three photo cards, is the fifth question, over a picture of loading docks until then; Back from the first question goes to `/careers`. Tap answers move on, Enter goes on, number keys pick. Sent: a 122px icon plays in the middle of the panel (a ring draws, a tick draws in it, a white disc fills it, the tick turns into a T), then that T travels to the spot of the T of "Thanks" and becomes the letter (`SentMark`, sized by `T_GLYPH`), and the rest of the thanks comes in | Client |

@@ -21,7 +21,7 @@ app/
   services/page.tsx          → Services (/services)
   quote/page.tsx             → redirects to /#quote (the quote form is in Ship with us since 2026-10-02)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
-  news/page.tsx              → News (/news)
+  news/page.tsx              → News (/news) — the newest post big on a black panel (NewsLead), the next six as grey cards (NewsCard), any older behind See more as a list (NewsMore, NewsRow); the "being built" placeholder while there are no posts to show
   careers/
     page.tsx                 → Careers (/careers) — the three jobs and why to take each; where Careers goes
     apply/page.tsx           → The job application with no job set, so it asks "Which job?" (/careers/apply); where Apply now goes
@@ -35,6 +35,7 @@ components/                  → component library, one folder per area, each wi
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, CardPair, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs, ApplyBand, NewsBand (the news block over the footer)
   about/                     → SplitCard (the two closing cards on the black band, each cut on a slant, white above and black below, the underlined arrow link under the words on the white; the black wedge is a road whose dashed lane line rolls toward you), StoryLine (the About page's story down one line that bends from side to side around the pictures, one picture frame to a chapter, the next stop's words and picture taking the last one's place in it as the chapter passes the middle of the screen, a chapter's second dot half way down its picture, nothing standing still, every second chapter on a full-width black band, 2026-10-06), StoryChapters (the pinned route it replaced the same day — unused), Timeline (the sideways timeline before that — unused), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
+  news/                      → NewsLead (the newest post, big, on a black panel), NewsCard (one post as a square grey card; the news page and the homepage's NewsBand both use it), NewsMore (the See more pill that opens the "Earlier" list; client), NewsRow (one post as a line of that list)
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll
@@ -46,7 +47,7 @@ lib/
                                phone, address, USDOT, MC)
   cx.ts                      → className join helper
   forms.ts                   → QuoteRequest type + submitQuote stub (backend contract goes here)
-  news.ts                    → NewsPost type + newsPosts (three SAMPLE posts, drafts) + visibleNewsPosts (drafts are left out of production)
+  news.ts                    → NewsPost type + newsPosts (twelve SAMPLE posts, drafts) + visibleNewsPosts (drafts are left out of production) + formatNewsDate
   us-states.ts               → generated lower-48 state shapes for the quote map — don't edit by hand
   zip.ts                     → ZIP → state lookup (USPS 3-digit prefixes) and ZIP → "City, ST" (`cityForZip`, from public/zip)
 
@@ -178,7 +179,7 @@ QuoteRequest { pickup: { zip, state }, delivery: { zip, state }, pickupDate, con
 ```
 NewsPost { date (YYYY-MM-DD), title, summary, draft? }
 ```
-The homepage block shows the three newest. A `draft` post shows while developing and is left out of a production build; the three in the file are samples, so the block is off the live site until a real post replaces them.
+The homepage block shows the three newest and `/news` lists them all. A `draft` post shows while developing and is left out of a production build; the twelve in the file are samples, so the block is off the live site, and `/news` stays its placeholder there, until a real post replaces them.
 
 ### Qualification form (Drive For Us + staff roles)
 5–6 short questions only. Submits into an HR contact flow, not a document/e-signature pipeline. See DECISIONS.md → Applications.
