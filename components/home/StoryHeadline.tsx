@@ -2,7 +2,7 @@
 
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { Fragment, useRef } from "react";
-import { chapterHeadingClass } from "@/components/ui";
+import { chapterHeadingClass } from "@/components/ui/typography";
 import { cx } from "@/lib/cx";
 
 /** Seconds for each line's rise, and after the first line's start, how long until the next one starts. */

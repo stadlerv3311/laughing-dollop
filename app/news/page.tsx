@@ -6,7 +6,6 @@ export const metadata: Metadata = { title: "News" };
 export default function NewsPage() {
   return (
     <PagePlaceholder
-      eyebrow="News"
       title="News"
       description="This page is being built. Company news and updates will go here."
     />

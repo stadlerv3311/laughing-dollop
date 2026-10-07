@@ -30,7 +30,7 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Columns, Container, CountUp, Field, HalfStar (+ inkDepthClass, the dark bands' look; unused since the About opening went white on 2026-10-06), HeroMedia, LinkHover (RiseLabel + FlyArrow, the arrow links' hover), Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, PagePlaceholder,
+  ui/                        → Button, Columns, Container, CountUp, Field, HalfStar (+ inkDepthClass, the dark bands' look; unused since the About opening went white on 2026-10-06), HeroMedia, LinkHover (RiseLabel + FlyArrow, the arrow links' hover), Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, PageOpening (the centred headline and lede that careers, Fleet map, Services and News open with), PagePlaceholder,
                                typography (shared label + section-heading classes)
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, CardPair, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs, ApplyBand

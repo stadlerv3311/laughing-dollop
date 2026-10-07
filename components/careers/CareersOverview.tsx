@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { StoryHeadline } from "@/components/home/StoryHeadline";
-import { Container, FlyArrow, Reveal, RiseLabel, labelClass } from "@/components/ui";
+import { Container, FlyArrow, PageOpening, Reveal, RiseLabel, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { applyLink, applyRoutes } from "@/lib/site";
 
@@ -26,25 +25,16 @@ export function CareersOverview() {
           screenshot): the header's own Careers is underlined right above it. The headline is the About page's size
           since the same day (owner: "please match the header size to about page"): 40px on phones, 48px from `sm`,
           64px from `lg`; it was 44, 60 and 80px (StoryHeadline's `large`). It keeps the Archivo headline face; About's
-          is in Geist. */}
-      <section className="bg-paper pt-[7.1875rem] text-ink sm:pt-[7.5625rem] lg:pt-[7.25rem]">
-        <Container>
-          <div className="text-center">
-            {/* "Come work with us." until 2026-10-06 (owner: "change header line to want to work with us ?"). It comes
-                in the way the About headline does (owner, 2026-10-07: "give it the same animation"): StoryHeadline,
-                each line rising from behind its own edge, the second just after the first. No orange word here: the
-                careers pages are ink and grey only. */}
-            <StoryHeadline as="h1" id="careers-heading" lines={CAREERS_HEADLINE} light solid large />
-            {/* The lede still fades up as it did; the About page's simply stands there. */}
-            <Reveal>
-              <p className="mx-auto mt-6 max-w-[36rem] text-pretty text-lg leading-relaxed text-ink/70">
-                On the road, in the office or in the shop. Pick the job that fits, answer a few short questions, and HR
-                calls you back. No résumé, no uploads.
-              </p>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
+          is in Geist. "Come work with us." until 2026-10-06 (owner: "change header line to want to work with us ?"). It
+          comes in the way the About headline does (owner, 2026-10-07: "give it the same animation"): each line rising
+          from behind its own edge, the second just after the first, and the lede fading up after. No orange word
+          here: the careers pages are ink and grey only. The markup is PageOpening, which Fleet map, Services and News
+          share since the same day. */}
+      <PageOpening
+        id="careers-heading"
+        lines={CAREERS_HEADLINE}
+        lede="On the road, in the office or in the shop. Pick the job that fits, answer a few short questions, and HR calls you back. No résumé, no uploads."
+      />
 
       <div className="bg-paper pt-16 pb-20 sm:pt-[4.375rem] sm:pb-28">
         <Container>
