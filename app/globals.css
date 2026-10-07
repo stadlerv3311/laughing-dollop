@@ -48,6 +48,23 @@
   --animate-ship-cell-in: ship-cell-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-ship-pulse: ship-pulse 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
 
+  /*
+   * About page (2026-10-07, StoryLine.tsx): the dot the story's line lands on, at the top edge of the closing black
+   * band. It stands there orange for a moment, then fades out where it is. It doesn't move or shrink: the first go
+   * dropped into the band, and the owner didn't want that ("it doesnt need to collapse inside").
+   */
+  --animate-story-land: story-land 1.2s both;
+
+  @keyframes story-land {
+    0%,
+    40% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
   @keyframes ship-wave {
     0% {
       transform: translateX(-100%);

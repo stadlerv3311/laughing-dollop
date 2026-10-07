@@ -18,7 +18,7 @@ const WIDE = "(width >= 64rem)";
  * states. Three since 2026-10-05 (owner: cleaner); four from 2026-10-02, when "DOT" made way for the fleet and the new
  * trucks in the yard. The hairline over the row is the road, with a stop at each mark. When the row scrolls into
  * view, the line draws from the first stop to the last, a small orange dot rides it, and each mark lights up as the
- * dot reaches it; at the last one "48" counts up from 1. The road ends at the last stop, and from `lg` each mark is
+ * dot reaches it; "70+" and "48" count up from 1 as it gets to them. The road ends at the last stop, and from `lg` each mark is
  * centred in its column with its stop over its middle, so the road sits centred under the band's heading (owner,
  * 2026-10-05: no grey line past the end; it used to run on, faint, to the row's edge). It plays once and then stays finished. Orange is only the
  * rider and the last stop (the marks are ink and light, one step under the band's heading; white until the band went
@@ -41,7 +41,6 @@ export function StoryRoute({ milestones }: { milestones: Milestone[] }) {
   // mid-ride (text reflowing, a resize) moves the road under it instead of restarting or cutting the ride short.
   const progress = useMotionValue(0);
   const [lit, setLit] = useState(0);
-  const done = still || lit === milestones.length;
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -172,8 +171,17 @@ export function StoryRoute({ milestones }: { milestones: Milestone[] }) {
                   on ? "opacity-100" : "translate-y-2.5 opacity-20",
                 )}
               >
+                {/* A mark with `countFrom` counts up as the rider reaches its stop, keeping what follows its number
+                    ("70+"). Until 2026-10-07 only the last one did, once the ride was over (owner, of the middle
+                    one: "70 doesnt have the animation. please check"). */}
                 {milestone.countFrom !== undefined ? (
-                  <CountUp value={Number(milestone.mark)} from={milestone.countFrom} play={done} duration={1} />
+                  <CountUp
+                    value={parseInt(milestone.mark, 10)}
+                    suffix={milestone.mark.replace(/^\d+/, "")}
+                    from={milestone.countFrom}
+                    play={still || i < lit}
+                    duration={1}
+                  />
                 ) : (
                   milestone.mark
                 )}

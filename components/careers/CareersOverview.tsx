@@ -1,8 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { StoryHeadline } from "@/components/home/StoryHeadline";
 import { Container, FlyArrow, Reveal, RiseLabel, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { applyLink, applyRoutes } from "@/lib/site";
+
+/** The headline's two lines, broken where the 14-character measure used to break them. */
+const CAREERS_HEADLINE = ["Want to work", "with us?"];
 
 /**
  * The careers page (owner, 2026-09-25: Careers and Apply now should show the jobs, what each one is and why to take
@@ -19,20 +23,26 @@ export function CareersOverview() {
           from `sm`) under the header's buttons, and the jobs start the same step under the lede. Centred since the
           same day (owner: "move the want to work with us to the center"), the lede with the headline so the two read
           as one block. The small "Careers" label over the headline went on 2026-10-07 (owner, crossed out on a
-          screenshot): the header's own Careers is underlined right above it. */}
-      <section className="bg-paper pt-[7.1875rem] text-ink sm:pt-[7.4375rem] lg:pt-[7.125rem]">
+          screenshot): the header's own Careers is underlined right above it. The headline is the About page's size
+          since the same day (owner: "please match the header size to about page"): 40px on phones, 48px from `sm`,
+          64px from `lg`; it was 44, 60 and 80px (StoryHeadline's `large`). It keeps the Archivo headline face; About's
+          is in Geist. */}
+      <section className="bg-paper pt-[7.1875rem] text-ink sm:pt-[7.5625rem] lg:pt-[7.25rem]">
         <Container>
-          <Reveal className="text-center">
-            <h1 className="mx-auto max-w-[14ch] text-balance font-display font-semibold text-[2.75rem] leading-[1.02] tracking-[-0.03em] sm:text-6xl lg:text-[5rem]">
-              {/* "Come work with us." until 2026-10-06 (owner: "change header line to want to work with us ?"). */}
-              Want to work with us?
-            </h1>
-            <p className="mx-auto mt-6 max-w-[36rem] text-pretty text-lg leading-relaxed text-ink/70">
-              On the road, in the office or in the shop. Pick the job that fits, answer a few short questions, and HR
-              calls you back. No résumé, no uploads.
-            </p>
-          </Reveal>
-
+          <div className="text-center">
+            {/* "Come work with us." until 2026-10-06 (owner: "change header line to want to work with us ?"). It comes
+                in the way the About headline does (owner, 2026-10-07: "give it the same animation"): StoryHeadline,
+                each line rising from behind its own edge, the second just after the first. No orange word here: the
+                careers pages are ink and grey only. */}
+            <StoryHeadline as="h1" id="careers-heading" lines={CAREERS_HEADLINE} light solid large />
+            {/* The lede still fades up as it did; the About page's simply stands there. */}
+            <Reveal>
+              <p className="mx-auto mt-6 max-w-[36rem] text-pretty text-lg leading-relaxed text-ink/70">
+                On the road, in the office or in the shop. Pick the job that fits, answer a few short questions, and HR
+                calls you back. No résumé, no uploads.
+              </p>
+            </Reveal>
+          </div>
         </Container>
       </section>
 

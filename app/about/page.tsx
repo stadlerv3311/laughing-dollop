@@ -61,7 +61,7 @@ export default function AboutPage() {
       </section>
 
       {/* The story down one line: a dot for each stop, a picture frame for each chapter, sides swapping (StoryLine). */}
-      {story.timeline.length > 0 && <StoryLine entries={story.timeline} />}
+      {story.timeline.length > 0 && <StoryLine entries={story.timeline} landing />}
 
       {/* The close, on a black band since 2026-10-07 (owner, a red box drawn round the two cards from one edge of the
           screen to the other: "i want this in a black band. to balance black in the middle. but it doesnt need an

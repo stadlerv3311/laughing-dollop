@@ -15,7 +15,10 @@ export type Milestone = {
   title: string;
   /** The big mark over it in the homepage story band ("1", "70+", "48"). */
   mark: string;
-  /** Counts up from this to the mark when the story band's route reaches it ("48" from 1: one truck to 48 states). */
+  /**
+   * Counts up from this to the mark's number when the story band's route reaches it ("48" from 1: one truck to 48
+   * states). Whatever follows the number in the mark, like the "+" of "70+", stays after it while it counts.
+   */
   countFrom?: number;
   text: string;
 };
@@ -78,7 +81,8 @@ export const story: Story = {
     { title: "Where it started", mark: "1", text: "One truck and one driver out of California." },
     // "70+" is the About page's fleet figure (owner, 2026-10-02: 55 trucks on the road and about 30 new ones in the
     // yard, so more than 70 — but 70 is the number kept). It replaced "DOT" (own authority) the same day.
-    { title: "The fleet", mark: "70+", text: "Late-model trucks on the road." },
+    // It counts up from 1 like "48" since 2026-10-07 (owner: "70 doesnt have the animation"): one truck to 70+.
+    { title: "The fleet", mark: "70+", countFrom: 1, text: "Late-model trucks on the road." },
     // "30" (New trucks: brand-new trucks in the yard) went on 2026-10-05 (owner: back to three, it was cleaner); the
     // 30 are already inside the 70+.
     { title: "Today", mark: "48", countFrom: 1, text: "Dry van freight moving across 48 states." },

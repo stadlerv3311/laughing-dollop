@@ -84,11 +84,19 @@ const onBlack = (chapter: number) => chapter % 2 === 1;
  * Below `lg` the line runs straight down the left edge, every stop listed with its picture over its words and
  * lighting up as it crosses a point a little under the middle of the screen.
  *
+ * With `landing` the line doesn't stop at the last stop: it runs on down the last chapter and ends in a dot of its own
+ * on the foot of the story, where the page's closing black band starts (owner, 2026-10-07, drawn on a screenshot: the
+ * line carried on from the last dot, round under the picture to a ring on the band's top edge, in the middle; "can we
+ * extend the line. so the last dot lands on action call"). From `lg` it bends across to the middle of the page, over
+ * the gap between the band's two cards; below `lg` it goes straight down. That dot turns orange as it crosses the
+ * reading line, and the last stop's dot goes black then like any stop behind the reader. A moment later it fades out
+ * where it stands, so the line ends on the band itself.
+ *
  * The pictures are simply there (owner, same day: "remove the animations of appearing pictures. just let them be there
  * on the screen"). The rest follows the reader's own scrolling, so reduced motion keeps the line and the stops and
  * loses only the fades.
  */
-export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
+export function StoryLine({ entries, landing = false }: { entries: TimelineEntry[]; landing?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<SVGSVGElement>(null);
   const drawnRef = useRef<SVGRectElement>(null);
@@ -99,6 +107,8 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
   /** Each chapter's row: its picture and its words. */
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  /** The dot the line ends on when it runs on past the last stop (`landing`). */
+  const endRef = useRef<HTMLSpanElement>(null);
   /** How many stops the line has reached. */
   const [reached, setReached] = useState(0);
   const chapters = toChapters(entries);
@@ -133,6 +143,9 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
         points.push({ x: box.left + box.width / 2, y: box.top + box.height / 2 });
       }
       if (points.length === 0) return;
+      // The line's own last dot, past the last stop, counts as one more point for it to reach.
+      const end = endRef.current?.getBoundingClientRect();
+      if (end) points.push({ x: end.left + end.width / 2, y: end.top + end.height / 2 });
 
       // How far down the page the story starts, which is what a picture's height has to leave room for on the screen
       // the page opens on.
@@ -155,7 +168,21 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
         const reach = (toY - from) * BEND_PULL;
         next += `V${px(from)}C${px(x)} ${px(from + reach)} ${px(toX)} ${px(toY - reach)} ${px(toX)} ${px(toY)}`;
       }
-      next += `V${px(points[points.length - 1].y - rootBox.top)}`;
+      const lastStop = points[entries.length - 1];
+      next += `V${px(lastStop.y - rootBox.top)}`;
+      if (points.length > entries.length) {
+        // On from the last stop to the line's own last dot: down its chapter and, where that dot is off to the side,
+        // across in the same slow bend.
+        const x = lastStop.x - rootBox.left;
+        const toX = points[entries.length].x - rootBox.left;
+        const toY = points[entries.length].y - rootBox.top;
+        if (Math.abs(toX - x) < 1) next += `V${px(toY)}`;
+        else {
+          const from = Math.max(lastStop.y - rootBox.top, Math.min(toY, rows[parts.length - 1].bottom - BEND_LEAD - rootBox.top));
+          const reach = (toY - from) * BEND_PULL;
+          next += `V${px(from)}C${px(x)} ${px(from + reach)} ${px(toX)} ${px(toY - reach)} ${px(toX)} ${px(toY)}`;
+        }
+      }
       if (next !== path) {
         path = next;
         line.querySelectorAll("path").forEach((copy) => copy.setAttribute("d", path));
@@ -190,6 +217,8 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
             left[stop.index] = row.top - (enter + (leave - enter) * share);
           });
         });
+        // The line's own last dot is reached as it crosses the reading line, and never before the last stop.
+        if (points.length > entries.length) left[entries.length] = Math.max(left[entries.length - 1] + 1, points[entries.length].y - at);
       } else {
         // Every stop is listed: each is reached as its own dot crosses the reading line.
         left = points.map((point) => point.y - at);
@@ -200,12 +229,12 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
       let along = 0;
       if (passed === left.length) along = passed - 1;
       else if (passed > 0) along = passed - 1 + Math.max(0, -left[passed - 1]) / Math.max(1, left[passed] - left[passed - 1]);
-      const lit = Math.min(entries.length, Math.floor(along + 0.001) + 1);
+      const lit = Math.min(points.length, Math.floor(along + 0.001) + 1);
       setReached((current) => (current === lit ? current : lit));
 
       // The dark copy of the path shows through a box that reaches down to where the reader is.
-      const whole = Math.min(entries.length - 1, Math.max(0, Math.floor(along)));
-      const onward = points[Math.min(entries.length - 1, whole + 1)];
+      const whole = Math.min(points.length - 1, Math.max(0, Math.floor(along)));
+      const onward = points[Math.min(points.length - 1, whole + 1)];
       const drawn = points[whole].y + (onward.y - points[whole].y) * (along - whole) - rootBox.top;
       drawnRef.current?.setAttribute("width", px(rootBox.width + 40));
       drawnRef.current?.setAttribute("height", px(Math.max(0, drawn + 20)));
@@ -305,7 +334,7 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
                     rowRefs.current[c] = node;
                   }}
                   className={cx(
-                    "flex flex-col gap-8 pl-8 lg:grid lg:gap-x-28 lg:pl-0",
+                    "relative flex flex-col gap-8 pl-8 lg:grid lg:gap-x-28 lg:pl-0",
                     // The words keep a column of their own width; the picture has the rest.
                     wordsLeft ? "lg:grid-cols-[22rem_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_22rem]",
                   )}
@@ -425,6 +454,34 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
                       );
                     })}
                   </ol>
+
+                  {/* Where the line lands: on the foot of the story, which is the top edge of the page's closing band.
+                      It's the chapter's space under its row away (the band's `pb` above), in the middle of the page
+                      from `lg` and straight under the line below that. Orange once the line is there, like a stop,
+                      and then it fades out where it stands (`story-land` in app/globals.css; owner, same day: "do
+                      some animation so the dot vanishes in the black band", then, of a first go that dropped into
+                      the band and shrank: "it doesnt need to collapse inside"). Scrolling back up brings it back,
+                      hollow. Reduced motion leaves it standing orange on the edge.
+                      The outer box is the point itself, with no size, and it's what the line is drawn to: the dot
+                      inside can change size or be moved by an animation without pulling the line's end off the
+                      middle (owner, same day: "please center the dot" — the drop had carried the line's end 44px
+                      into the band with it). */}
+                  {landing && c === chapters.length - 1 && (
+                    <span
+                      ref={endRef}
+                      aria-hidden
+                      className="absolute top-[calc(100%+4rem)] left-[5.5px] size-0 sm:top-[calc(100%+4.375rem)] lg:top-[calc(100%+6.25rem)] lg:left-1/2"
+                    >
+                      <span
+                        className={cx(
+                          "absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full transition-[width,height,background-color,box-shadow] duration-300 motion-reduce:transition-none",
+                          reached > entries.length
+                            ? "size-[17px] animate-story-land bg-brand motion-reduce:animate-none"
+                            : "size-[9px] bg-paper shadow-[inset_0_0_0_1.5px_rgb(37_37_37/0.35)]",
+                        )}
+                      />
+                    </span>
+                  )}
                 </div>
               </Container>
             </div>
