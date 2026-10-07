@@ -1,4 +1,4 @@
-import { ApplyBand, HomeHero, SafetyBand, ShipWithUs, SlideOverStack, StoryTeaser, ToolsBand, TrustBar, WhyWorkWithUs } from "@/components/home";
+import { ApplyBand, HomeHero, NewsBand, SafetyBand, ShipWithUs, SlideOverStack, StoryTeaser, ToolsBand, TrustBar, WhyWorkWithUs } from "@/components/home";
 import { HomeIntro } from "@/components/intro";
 
 export default function HomePage() {
@@ -29,6 +29,9 @@ export default function HomePage() {
           the twin of Ship with us, sliding up over it the same way (2026-10-05). The page goes white for proof and
           black for the ask twice, then the footer, white since the same day. */}
       <SlideOverStack under={<WhyWorkWithUs />} over={<ApplyBand />} dark />
+      {/* News, between the ask and the footer (owner, 2026-10-07). Sample posts for now, so it renders nothing in a
+          production build until there is a real one (lib/news.ts). */}
+      <NewsBand />
     </>
   );
 }

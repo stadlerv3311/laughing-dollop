@@ -1,5 +1,6 @@
 export { ApplyBand } from "./ApplyBand";
 export { HomeHero } from "./HomeHero";
+export { NewsBand } from "./NewsBand";
 export { SafetyBand } from "./SafetyBand";
 export { ShipWithUs } from "./ShipWithUs";
 export { SlideOverStack, useCovered } from "./SlideOverStack";

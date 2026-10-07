@@ -5,12 +5,14 @@ import { cx } from "@/lib/cx";
  * The hover for the site's underlined arrow links — Get a quote, Read our full story, Apply now (owner, 2026-10-05,
  * "E" of the link-hover mock-ups, after the text-rise and arrow moves on 21st.dev's animated links): the words roll
  * up and a copy rolls in from below, while the ↗ flies out up and right and a fresh one comes in from down and left.
- * The underline stays put. Both pieces run off the link's `group` hover and keyboard focus. Plain CSS, so they work
+ * The underline stays put. Both pieces run off the link's `group` hover and keyboard focus. Where the `group` is a
+ * card around the link (the About page's SplitCard), focus on the link inside it plays them too. Plain CSS, so they work
  * in server components. Reduced motion swaps each copy for its twin instantly, which looks like nothing moved.
  */
 
 const roll = "block transition-transform duration-500 ease-premium motion-reduce:transition-none";
-const rolled = "group-hover:-translate-y-full group-focus-visible:-translate-y-full";
+const rolled =
+  "group-hover:-translate-y-full group-focus-visible:-translate-y-full group-has-[a:focus-visible]:-translate-y-full";
 
 /**
  * The link's words with its underline (`className` replaces the default 1px line and its 2px gap). The window is
@@ -42,7 +44,7 @@ export function FlyArrow({ className }: { className?: string }) {
         fill="none"
         className={cx(
           fly,
-          "group-hover:translate-x-[110%] group-hover:-translate-y-[110%] group-focus-visible:translate-x-[110%] group-focus-visible:-translate-y-[110%]",
+          "group-hover:translate-x-[110%] group-hover:-translate-y-[110%] group-focus-visible:translate-x-[110%] group-focus-visible:-translate-y-[110%] group-has-[a:focus-visible]:translate-x-[110%] group-has-[a:focus-visible]:-translate-y-[110%]",
         )}
       >
         {ARROW}
@@ -52,7 +54,7 @@ export function FlyArrow({ className }: { className?: string }) {
         fill="none"
         className={cx(
           fly,
-          "-translate-x-[110%] translate-y-[110%] group-hover:translate-x-0 group-hover:translate-y-0 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0",
+          "-translate-x-[110%] translate-y-[110%] group-hover:translate-x-0 group-hover:translate-y-0 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-has-[a:focus-visible]:translate-x-0 group-has-[a:focus-visible]:translate-y-0",
         )}
       >
         {ARROW}

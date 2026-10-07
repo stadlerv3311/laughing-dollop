@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import { ViewTransition } from "react";
-import { StoryLine } from "@/components/about";
+import { SplitCard, StoryLine } from "@/components/about";
 import { StoryHeadline } from "@/components/home/StoryHeadline";
-import { Container, InteractiveHoverButton, Reveal, labelClass } from "@/components/ui";
-import { cx } from "@/lib/cx";
+import { Container, Reveal } from "@/components/ui";
 import { applyLink, quoteLink } from "@/lib/site";
 import { STORY_BAND, STORY_OPEN, story } from "@/lib/story";
 
 export const metadata: Metadata = { title: "About" };
-
-/** Quiet label on the close's cards. */
-const sideLabelClass = cx(labelClass, "text-ink/70");
 
 /**
  * About page. The opening is the headline and the lede on white, set like the homepage's story band (owner,
@@ -72,32 +68,23 @@ export default function AboutPage() {
       <section aria-label="Ship or drive with us" data-header-theme="dark" className="bg-ink py-16 sm:py-[4.375rem] lg:py-[6.25rem]">
         <Container>
           {/*
-            One door for each audience (2026-09-28, from the Samsara review), side by side from md: shippers on a white
-            card, jobs on a black one, which on the black band is drawn with a thin white line where the white card
-            had a thin grey one on white. It used to be the two buttons in a row, with nothing saying who each was for.
+            One door for each audience (2026-09-28, from the Samsara review), side by side from lg: shippers and jobs.
+            Each card is cut on a slant, white above and black below, the two mirrored, with the underlined arrow
+            link under its words and a road in its black wedge (owner, 2026-10-07: SplitCard). Until then a white card and an outlined black one,
+            each with a pill; square corners since earlier the same day.
           */}
-          <Reveal className="grid gap-4 md:grid-cols-2">
-            <div className="flex flex-col rounded-3xl bg-paper p-8 text-ink sm:p-10">
-              <p className={sideLabelClass}>Shippers</p>
-              <h3 className="mt-3 font-display font-semibold text-[1.75rem] leading-[1.1] tracking-[-0.03em] sm:text-4xl">Have a load to move?</h3>
-              <p className="mt-4 max-w-[24rem] text-pretty leading-relaxed text-ink/70">
-                Tell us where it&rsquo;s going and what it weighs, and we&rsquo;ll come back with a price.
-              </p>
-              {/* Pinned to the card's foot, so the two buttons line up whatever the copy above them runs to. */}
-              <div className="mt-10 md:mt-auto md:pt-12">
-                <InteractiveHoverButton href={quoteLink.href} text={quoteLink.label} size="lg" variant="ink" className="w-full sm:w-56" />
-              </div>
-            </div>
-            <div className="flex flex-col rounded-3xl border border-paper/25 p-8 text-paper sm:p-10">
-              <p className={cx(labelClass, "text-paper/70")}>Careers</p>
-              <h3 className="mt-3 font-display font-semibold text-[1.75rem] leading-[1.1] tracking-[-0.03em] sm:text-4xl">Come work with us.</h3>
-              <p className="mt-4 max-w-[24rem] text-pretty leading-relaxed text-paper/70">
-                On the road, in the office or in the shop. Answer a few short questions, and HR calls you back.
-              </p>
-              <div className="mt-10 md:mt-auto md:pt-12">
-                <InteractiveHoverButton href={applyLink.href} text={applyLink.label} size="lg" variant="ghostLight" className="w-full sm:w-56" />
-              </div>
-            </div>
+          <Reveal className="grid gap-4 lg:grid-cols-2">
+            <SplitCard
+              title="Have a load to move?"
+              text="Tell us where it’s going and what it weighs, and we’ll come back with a price."
+              link={quoteLink}
+            />
+            <SplitCard
+              title="Come work with us."
+              text="On the road, in the office or in the shop. Answer a few short questions, and HR calls you back."
+              link={applyLink}
+              flip
+            />
           </Reveal>
         </Container>
       </section>

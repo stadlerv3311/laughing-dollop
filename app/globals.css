@@ -65,6 +65,22 @@
     }
   }
 
+  /*
+   * The About page's closing cards: the lane lines in the black wedge roll toward you (SplitCard). Each line is one
+   * long dashed strip laid flat on the ground (rotateX) under the card's `perspective`, so the dashes grow and speed
+   * up as they come, the way a road does. It moves one dash and one gap, so the loop has no seam.
+   */
+  --animate-road-drive: road-drive 1.6s linear infinite;
+
+  @keyframes road-drive {
+    from {
+      transform: translateZ(0) rotateX(-90deg);
+    }
+    to {
+      transform: translateZ(120px) rotateX(-90deg);
+    }
+  }
+
   @keyframes ship-wave {
     0% {
       transform: translateX(-100%);

@@ -80,6 +80,12 @@ export function ApplyBand() {
 const DOT = "rgb(218 218 218)";
 
 /**
+ * How fast the lane marks come: marks passing a given spot each second. 0.2 until 2026-10-07 (owner: "please increase
+ * a bit the speed of the road"), so a mark now takes about 3.6s to reach where the one ahead of it was, not 5s.
+ */
+const ROAD_SPEED = 0.28;
+
+/**
  * A road in the map's dots, behind the band's words: the same grid and grey as Ship with us's map, cut to the shape of
  * a road that runs from a point near the top of the band out past its bottom corners. The surface is as faint as the
  * map (13%), the two edges a little brighter, and the lane marks down the middle are lit dots that travel towards the
@@ -123,7 +129,7 @@ function ApplyRoad({ playing }: { playing: boolean }) {
         // The far end fades in instead of starting on a hard point.
         const near = Math.min(1, depth * 4);
         // Marks are evenly spaced along the road, so they bunch up towards the horizon.
-        const marked = ((1 / (depth + 0.14)) * 1.5 + seconds * 0.2) % 1 < 0.5;
+        const marked = ((1 / (depth + 0.14)) * 1.5 + seconds * ROAD_SPEED) % 1 < 0.5;
         const reach = Math.ceil(Math.min(half, centre + step) / step);
         for (let column = -reach; column <= reach; column++) {
           const offset = Math.abs(column * step);
