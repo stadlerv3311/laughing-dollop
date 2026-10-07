@@ -88,12 +88,14 @@ export const story: Story = {
   // stops to a picture frame (owner, same day: "we need even out the number of facts per picture. and even out the
   // time on every picture"), which is the owner's own scheme: three frames, two dots beside each.
   // That takes six stops and the draft had seven, so ONE IS LEFT OUT, and which one is OUR pick: 2024, "Yard and fleet
-  // desk", kept below as a comment. To bring it back, another stop has to come out. Which stops carry the pictures is
+  // desk", kept below as a comment. To bring it back, another stop has to come out. Which stops open a chapter is
   // ours too (2014, 2018 and 2022, every other one): the owner hasn't named them.
   // PLACEHOLDER pictures, every one (owner, same day: "you can just add place holders to the pictures. i need to see
   // what we have and then i will change the picture"): stand-ins borrowed from other parts of the site. They sit
   // beside years, which reads as "a photo from that year", so NONE may go live: the rule is no AI or stock picture
   // next to a date (DECISIONS.md → Open). They carry no alt text or caption for the same reason.
+  // (The notes below name the stops by the years they had on 2026-10-06. The last two swapped places the day after,
+  // so "2022's" picture, the dock doors, is now beside 2026 and "2026's", the row of Volvos, beside 2022.)
   // 2022's is the one picture the owner picked (2026-10-06, sent with "use this for office take shapes"): a row of
   // orange dock doors, about-dock-doors.jpg; safety-fleet.jpg stood there before. Where it comes from wasn't said (it
   // isn't our building), so it's a stand-in like the rest and is NOT in the public repo until the owner says it's
@@ -122,8 +124,19 @@ export const story: Story = {
     // are ours. "Own authority, interstate." stood here before, so the story no longer says when the authority came.
     { year: "2018", title: "First contract lanes.", text: "A few shippers stopped tendering one load at a time and gave the company weekly freight. Those lanes ran past California, which is what turned a local truck into an interstate carrier in practice.", image: { src: "/images/about-contract-lanes.jpg" } },
     { year: "2020", title: "First company trucks.", text: "We buy our own equipment and put company drivers in it. Owner-operators stay; the company fleet is added capacity, not a replacement.", image: { src: "/images/about-company-trucks.jpg", position: "60% 50%", inPlace: true } },
-    { year: "2022", title: "The office takes shape.", text: "Dispatch, safety, and accounting move fully in-house, so drivers and customers deal with the same people instead of a patchwork of outside help.", image: { src: "/images/about-dock-doors.jpg" } },
+    // The last two swapped places on 2026-10-07 (owner, on screenshots of both: "lets switch places for the ofice takes
+    // shape with About 70 trucks. And chage it name for Fleet of 70+ trucks and trailers"): the fleet opens the last
+    // chapter with its picture and the office closes the story, its picture going in place. The title is the owner's
+    // (the full stop is ours); it was "About 70 trucks and trailers.". THE YEARS STAYED WHERE THEY WERE, so the line
+    // still runs forward: that puts 2022 on the fleet and 2026 on the office, which is OUR doing and nobody's
+    // fact. The owner has to say which year each one is.
+    // The fleet's picture is the owner's pick (same day, "use this for fleet of 70+"): a yard seen from straight above,
+    // white trucks and trailers parked on the slant with one orange cab among them, about-fleet.jpg. The row of new
+    // Volvos (new-equipment-row.jpg) stood here until then and is still the homepage's New equipment card. Its source
+    // wasn't given and it isn't our yard, so it's a stand-in like the rest: no caption, and NOT in the public repo
+    // until the owner says it's licensed or AI-made.
+    { year: "2022", title: "Fleet of 70+ trucks and trailers.", text: "The fleet is late-model and dry van, runs all 48 states, and is serviced in our own shop.", image: { src: "/images/about-fleet.jpg" } },
     // { year: "2024", title: "Yard and fleet desk.", text: "A yard operation and a fleet manager come on as the truck and trailer count climbs. Most new equipment is bought new." },
-    { year: "2026", title: "About 70 trucks and trailers.", text: "The fleet is late-model and dry van, runs all 48 states, and is serviced in our own shop.", image: { src: "/images/new-equipment-row.jpg", position: "75% 50%", inPlace: true } },
+    { year: "2026", title: "The office takes shape.", text: "Dispatch, safety, and accounting move fully in-house, so drivers and customers deal with the same people instead of a patchwork of outside help.", image: { src: "/images/about-dock-doors.jpg", inPlace: true } },
   ],
 };

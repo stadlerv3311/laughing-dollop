@@ -51,10 +51,16 @@ const onBlack = (chapter: number) => chapter % 2 === 1;
  * first dot to the last (owner, same day, of the line showing above the first dot: "line goes up too. is a bug").
  *
  * From `lg` a chapter has one frame and shows one stop at a time (owner, same day, a third drawing: "text on the side
- * of the picture is only the text that corresponds to the year you scrolled"). Its dots are spread down the line
- * beside the picture; the line fills from one to the next as the chapter comes up the screen, and when it reaches a
- * dot that stop's words take the place of the last one's, half way up the picture (owner: "center the text"), and its
- * picture, if it has one, fades in over the one before in the same frame.
+ * of the picture is only the text that corresponds to the year you scrolled"). Its dots are on the line beside the
+ * picture; the line fills from one to the next as the chapter comes up the screen, and when it reaches a dot that
+ * stop's words take the place of the last one's, half way up the picture (owner: "center the text"), and its picture,
+ * if it has one, fades in over the one before in the same frame.
+ *
+ * The dots share the picture's height evenly from its top, so a chapter of two has its second half way down, beside
+ * the words, and not at the foot (owner, 2026-10-06, the foot dot crossed out on a screenshot and a ring drawn half
+ * way up: "can we move the dot higher"). When a stop is reached doesn't depend on where its dot is, so that stays as
+ * it was (owner: "we need the same time as now"); the line has half as far to go to the second dot and that much
+ * further from there to the next chapter, which evens out its pace.
  *
  * Nothing stands still (owner, same day: "lets remove that animation that it makes it so long to scroll. it has an
  * feeling that it extend the screen", then, shown every stop as a row of its own: "it was better when i had only one
@@ -334,8 +340,8 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
                     <div aria-hidden className={cx("hidden lg:block", wordsLeft && "lg:order-last")} />
                   )}
 
-                  {/* From `lg` the list is the height of the picture: the dots are spread down it and the words sit
-                      half way up, one stop's on show at a time. */}
+                  {/* From `lg` the list is the height of the picture: the dots share it evenly from the top and the
+                      words sit half way up, one stop's on show at a time. */}
                   <ol start={first + 1} className={cx("relative flex flex-col gap-10 lg:block", wordsLeft && "lg:text-right")}>
                     {chapter.stops.map((stop, i) => {
                       const milestone = i === 0 && Boolean(chapter.image);
@@ -343,7 +349,7 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
                       const here = stop.index === reached - 1;
                       const onShow = stop.index === showing;
                       return (
-                        <li key={stop.year} style={{ "--at": chapter.stops.length > 1 ? i / (chapter.stops.length - 1) : 0 } as CSSProperties}>
+                        <li key={stop.year} style={{ "--at": i / chapter.stops.length } as CSSProperties}>
                           {/* Below `lg` a later stop's own picture sits over its words, as the chapter's does. */}
                           {i > 0 && stop.image && (
                             <div className="relative mb-8 aspect-[4/3] overflow-hidden bg-cloud lg:hidden">
