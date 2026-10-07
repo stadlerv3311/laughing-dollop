@@ -292,7 +292,10 @@ export function StoryLine({ entries }: { entries: TimelineEntry[] }) {
                   ? "bg-ink py-16 text-paper sm:py-[4.375rem] lg:py-[6.25rem]"
                   : cx(
                       c > 0 && "pt-16 sm:pt-[4.375rem] lg:pt-[6.25rem]",
-                      c < chapters.length - 1 && "pb-16 sm:pb-[4.375rem] lg:pb-[6.25rem]",
+                      // The last chapter has the same space under it: the page's closing black band comes next
+                      // (app/about/page.tsx, 2026-10-07), with the same on white and on black at its edge as the
+                      // story's own band has (owner, same day).
+                      "pb-16 sm:pb-[4.375rem] lg:pb-[6.25rem]",
                     ),
               )}
             >

@@ -63,15 +63,21 @@ export default function AboutPage() {
       {/* The story down one line: a dot for each stop, a picture frame for each chapter, sides swapping (StoryLine). */}
       {story.timeline.length > 0 && <StoryLine entries={story.timeline} />}
 
-      {/* The close, on white: one door for each audience, the site's step under the story's last picture. */}
-      <section aria-label="Ship or drive with us" className="pt-16 pb-24 sm:pt-[4.375rem] sm:pb-32">
+      {/* The close, on a black band since 2026-10-07 (owner, a red box drawn round the two cards from one edge of the
+          screen to the other: "i want this in a black band. to balance black in the middle. but it doesnt need an
+          full page band"): the story's second chapter is on black, so the page now goes white, black, white, black
+          and ends on the white footer. It's as tall as the cards and its own space, not a screen like the homepage's
+          black bands, with the story band's space inside it (100px from `lg`, the site's step below). The header
+          goes light over it. On white until then. */}
+      <section aria-label="Ship or drive with us" data-header-theme="dark" className="bg-ink py-16 sm:py-[4.375rem] lg:py-[6.25rem]">
         <Container>
           {/*
-            One door for each audience (2026-09-28, from the Samsara review): shippers on white, jobs on ink, side by
-            side from md. It used to be the two buttons in a row, with nothing saying who each was for.
+            One door for each audience (2026-09-28, from the Samsara review), side by side from md: shippers on a white
+            card, jobs on a black one, which on the black band is drawn with a thin white line where the white card
+            had a thin grey one on white. It used to be the two buttons in a row, with nothing saying who each was for.
           */}
           <Reveal className="grid gap-4 md:grid-cols-2">
-            <div className="flex flex-col rounded-3xl border border-ink/10 p-8 sm:p-10">
+            <div className="flex flex-col rounded-3xl bg-paper p-8 text-ink sm:p-10">
               <p className={sideLabelClass}>Shippers</p>
               <h3 className="mt-3 font-display font-semibold text-[1.75rem] leading-[1.1] tracking-[-0.03em] sm:text-4xl">Have a load to move?</h3>
               <p className="mt-4 max-w-[24rem] text-pretty leading-relaxed text-ink/70">
@@ -82,7 +88,7 @@ export default function AboutPage() {
                 <InteractiveHoverButton href={quoteLink.href} text={quoteLink.label} size="lg" variant="ink" className="w-full sm:w-56" />
               </div>
             </div>
-            <div className="flex flex-col rounded-3xl bg-ink p-8 text-paper sm:p-10">
+            <div className="flex flex-col rounded-3xl border border-paper/25 p-8 text-paper sm:p-10">
               <p className={cx(labelClass, "text-paper/70")}>Careers</p>
               <h3 className="mt-3 font-display font-semibold text-[1.75rem] leading-[1.1] tracking-[-0.03em] sm:text-4xl">Come work with us.</h3>
               <p className="mt-4 max-w-[24rem] text-pretty leading-relaxed text-paper/70">
@@ -95,6 +101,10 @@ export default function AboutPage() {
           </Reveal>
         </Container>
       </section>
+      {/* From `lg` the band's lower edge gets what its upper edge has: 100px of black under the cards and 100px of
+          white over the footer's labels (owner, 2026-10-07: "and the same on the footer"). The footer brings 70px of
+          its own on every page, so this adds the other 30. Below `lg` the band's step and the footer's already match. */}
+      <div aria-hidden className="hidden h-[1.875rem] bg-paper lg:block" />
     </>
   );
 }
