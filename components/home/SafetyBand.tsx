@@ -6,7 +6,17 @@ import { Fragment, useRef, useState, type ReactNode } from "react";
 import { Container, FlyArrow, Reveal, RiseLabel, sectionTop } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { services, servicesGroup } from "@/lib/services";
-import { pairCards, quoteLink, safetyGroups, safetyPitch, safetySystems, type SafetySystem } from "@/lib/site";
+import {
+  fleetMapLink,
+  pairCards,
+  quoteLink,
+  safetyGroups,
+  safetyPitch,
+  safetySystems,
+  servicesLink,
+  type NavLink,
+  type SafetySystem,
+} from "@/lib/site";
 import { Pair, usePairVideos } from "./CardPair";
 import { StoryHeadline } from "./StoryHeadline";
 
@@ -91,7 +101,13 @@ export function SafetyBand({ between }: { between?: ReactNode }) {
                   </li>
                 ))}
               </ul>
-              <QuoteLink />
+              {/* Get a quote, then the way to the services page beside it (the builder, 2026-10-08: "i also need an
+                  link on the main page to services tab"): this column is where the homepage names the services, so
+                  the page about them is one step from here. */}
+              <div className="mt-9 flex flex-wrap gap-x-8 gap-y-3">
+                <PairLink link={quoteLink} />
+                <PairLink link={servicesLink} />
+              </div>
             </div>
           </Reveal>
         </div>
@@ -120,6 +136,11 @@ export function SafetyBand({ between }: { between?: ReactNode }) {
               <h3 className={pairHeadingClass}>{road.title}</h3>
               <p className="mt-5 text-pretty text-[17px] leading-relaxed text-ink/70">{road.body}</p>
               {hasReadout && <Readout system={safetySystems[road.systems[open]]} active={active} />}
+              {/* Under the words about GPS, the map that shows it (the builder, 2026-10-08, a box drawn there on a
+                  screenshot: "fleet map link"). */}
+              <div className="mt-9">
+                <PairLink link={fleetMapLink} />
+              </div>
             </div>
           </Reveal>
         </div>
@@ -132,18 +153,18 @@ const pairHeadingClass =
   "text-balance font-display font-semibold text-[1.5rem] leading-[1.12] tracking-[-0.03em] sm:text-[1.75rem]";
 
 /**
- * Get a quote at the foot of the services column (2026-10-05): a plain underlined link with an arrow and the shared
- * link hover (RiseLabel, FlyArrow), set at body size so it doesn't outshout the pair's heading — Ship with us,
- * straight after the band, has the form. On the homepage Ship with us catches the click and glides down to it
- * (useQuoteLinks).
+ * A link at the foot of a pair's words: a plain underlined link with an arrow and the shared link hover (RiseLabel,
+ * FlyArrow), set at body size so it doesn't outshout the pair's heading. Get a quote was the first (2026-10-05) —
+ * Ship with us, straight after the band, has the form, and on the homepage it catches the click and glides down to it
+ * (useQuoteLinks). Services beside it and Fleet map under the road pair's words followed on 2026-10-08.
  */
-function QuoteLink() {
+function PairLink({ link }: { link: NavLink }) {
   return (
     <Link
-      href={quoteLink.href}
-      className="group mt-9 inline-flex items-center gap-1.5 text-[17px] font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+      href={link.href}
+      className="group inline-flex items-center gap-1.5 text-[17px] font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
     >
-      <RiseLabel>{quoteLink.label}</RiseLabel>
+      <RiseLabel>{link.label}</RiseLabel>
       <FlyArrow className="size-3.5" />
     </Link>
   );

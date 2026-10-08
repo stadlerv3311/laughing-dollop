@@ -1,9 +1,12 @@
 // News posts: the homepage's news block shows the three newest, and /news lists them all.
 //
-// PLACEHOLDERS: the twelve posts below are samples written to try the layout, not news. Who writes the posts and where
-// they live (files here or a CMS) isn't decided (docs/DECISIONS.md → Open items → News content). Until real posts
-// replace them they are marked `draft`, and drafts are left out of a production build, so the block stays off the
-// live site. Don't write a real-sounding post here without the owner's words for it.
+// NOT CONFIRMED, NOT FOR THE LIVE SITE: the eight posts below are stand-in copy the site's builder supplied on
+// 2026-10-07 to fill the layout ("use this ... to fill out news section"). It was drafted with an AI assistant from
+// the company's story; the events, the numbers and the dates in it have not been confirmed by the owner, and some
+// run against what the owner has said or decided (see docs/DECISIONS.md → News copy). Every post is marked `draft`,
+// and drafts are left out of a production build, so none of it reaches the live site. A post loses `draft` only when
+// the owner has confirmed it happened, on that date, in those words.
+// (Ten at first; the bonus and the hiring posts were taken out the same day, crossed out by the builder on a screenshot.)
 
 export type NewsPost = {
   /** The day it was posted, as YYYY-MM-DD. */
@@ -11,83 +14,75 @@ export type NewsPost = {
   title: string;
   /** One or two sentences. */
   summary: string;
-  /** A sample or an unapproved post: shown while developing, never in a production build. */
+  /**
+   * A picture for the post, as a path under /public: across half of the news page's big panel while the post is the
+   * newest (NewsLead), then beside its words in the news page's rows (NewsZigzag) and on its
+   * card in the homepage's block (NewsCards). The "Earlier" list shows none.
+   */
+  image?: string;
+  /** An unconfirmed post: shown while developing, never in a production build. */
   draft?: boolean;
 };
 
 export const newsPosts: NewsPost[] = [
   {
     date: "2026-10-01",
-    title: "Sample post: the headline goes here",
-    summary: "Placeholder text. A sentence or two about the update will go here once the first posts are written.",
+    title: "Twelve new trucks are on the Sacramento lot",
+    summary: "The latest order arrived this week and goes into service this month. Trailers from the same buy are already paired with them.",
+    // STAND-IN picture (owner's builder, 2026-10-07): an aerial of a truck yard, source not confirmed, and not known to
+    // be our yard or these trucks. Like the post, it must not go live. The file is kept out of the public repo.
+    image: "/images/news-truck-yard.jpg",
     draft: true,
   },
   {
     date: "2026-09-15",
-    title: "Sample post: a longer headline that runs onto a second line",
-    summary: "Placeholder text. This one is longer, to show how a card holds a headline of two lines and a few more words under it.",
+    title: "Shop build starts at the Sacramento yard",
+    summary: "Maintenance is moving in-house. The building is underway, so trucks spend less time waiting on an outside vendor.",
+    // Stock picture (Unsplash licence): a workshop, not our shop. Photo by Quilia, unsplash.com/photos/ZSz1m4JPDqU
+    image: "/images/news-shop.jpg",
     draft: true,
   },
-  {
-    date: "2026-09-01",
-    title: "Sample post: a short one",
-    summary: "Placeholder text. A single short sentence.",
-    draft: true,
-  },
-  // Four more, so the news page has two full rows of cards under the newest one to look at.
   {
     date: "2026-06-12",
-    title: "Sample post: a headline of ordinary length",
-    summary: "Placeholder text. Two sentences of ordinary length sit here. This is the second one.",
+    title: "Drop-and-hook added on two lanes",
+    summary: "Trailers stay at the dock. We pull the loaded van and leave an empty, instead of waiting on a live unload.",
+    // Stock picture (Unsplash licence): dock doors, not a customer's. Photo by Matthew Jackson, unsplash.com/photos/SJGC3NNOqU4
+    image: "/images/news-dock-doors.jpg",
     draft: true,
   },
   {
     date: "2025-11-20",
-    title: "Sample post: an older one",
-    summary: "Placeholder text. A sentence or two about the update.",
+    title: "Fleet passes 70 trucks and trailers",
+    summary: "Most of the equipment was bought new. Dry van truckload, company trucks, all 48 states.",
+    // Stock picture (Unsplash licence): a truck park from the air, not our yard. Photo by Marcin Jozwiak, unsplash.com/photos/kGoPcmpPT7c
+    image: "/images/news-fleet-aerial.jpg",
     draft: true,
   },
   {
     date: "2025-08-04",
-    title: "Sample post: another short one",
-    summary: "Placeholder text. A single short sentence.",
+    title: "Dispatch stays in the United States",
+    summary: "The board is covered here, on the same clock as the driver.",
+    // Stock picture (Unsplash licence): a control desk, not our office. Photo by ThisisEngineering, unsplash.com/photos/yhCHx8Mc-Kc
+    image: "/images/news-dispatch-desk.jpg",
     draft: true,
   },
-  {
-    date: "2025-03-03",
-    title: "Sample post: the last of the cards",
-    summary: "Placeholder text. A sentence or two about the update will go here.",
-    draft: true,
-  },
-  // Five more, older than the cards, so the news page's See more has a list to open.
-  {
-    date: "2024-12-09",
-    title: "Sample post: the first line of the list",
-    summary: "Placeholder text. A sentence or two about the update.",
-    draft: true,
-  },
+  // Older than the news page's row of four: these open from See more, as the list.
   {
     date: "2024-09-18",
-    title: "Sample post: a longer headline that runs onto a second line",
-    summary: "Placeholder text. This one is longer, to show how a line holds a headline of two lines and a few more words beside it.",
+    title: "Sacramento yard takes the truck parking",
+    summary: "Drop a trailer, grab a truck, and deal with people on the lot. The yard sits near the Citrus Heights office.",
     draft: true,
   },
   {
     date: "2024-06-03",
-    title: "Sample post: a short one",
-    summary: "Placeholder text. A single short sentence.",
+    title: "Safety desk moves fully in-house",
+    summary: "Onboarding, driver files, and compliance sit with our own safety team, not an outside service.",
     draft: true,
   },
   {
     date: "2024-03-21",
-    title: "Sample post: a headline of ordinary length",
-    summary: "Placeholder text. Two sentences of ordinary length sit here. This is the second one.",
-    draft: true,
-  },
-  {
-    date: "2024-01-15",
-    title: "Sample post: the oldest one shown",
-    summary: "Placeholder text. A sentence or two about the update will go here.",
+    title: "First dedicated lanes renewed for another year",
+    summary: "Weekly freight that started as contract lanes is still running. Same trucks, same shippers.",
     draft: true,
   },
 ];

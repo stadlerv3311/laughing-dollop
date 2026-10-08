@@ -10,15 +10,20 @@ import { Reveal } from "./Reveal";
  * (StoryHeadline), the lede fading up after it. The top space puts the headline's letters one site step (64px on
  * phones, 70px from `sm`) under the header's buttons. The About page's opening is its own: same size and rise, in
  * Geist, with an orange word.
+ *
+ * `lede` can be left out: the news page opens on the headline alone (owner, 2026-10-07, the line crossed out on a
+ * screenshot), since the posts under it say what the page is.
  */
-export function PageOpening({ id, lines, lede }: { id: string; lines: string[]; lede: string }) {
+export function PageOpening({ id, lines, lede }: { id: string; lines: string[]; lede?: string }) {
   return (
     <div className="bg-paper pt-[7.1875rem] text-center text-ink sm:pt-[7.5625rem] lg:pt-[7.25rem]">
       <Container>
         <StoryHeadline as="h1" id={id} lines={lines} light solid large />
-        <Reveal>
-          <p className="mx-auto mt-6 max-w-[36rem] text-pretty text-lg leading-relaxed text-ink/70">{lede}</p>
-        </Reveal>
+        {lede && (
+          <Reveal>
+            <p className="mx-auto mt-6 max-w-[36rem] text-pretty text-lg leading-relaxed text-ink/70">{lede}</p>
+          </Reveal>
+        )}
       </Container>
     </div>
   );

@@ -25,13 +25,14 @@ export default function HomePage() {
         dark
       />
       <StoryTeaser />
+      {/* News, straight after the story (owner, 2026-10-07: "maybe after about us part ?"): where we come from, then
+          what is new. It was the page's last block, after the ask, and read as an afterthought there. Unconfirmed
+          draft posts for now, so it renders nothing in a production build until there is a real one (lib/news.ts). */}
+      <NewsBand />
       {/* The careers half: why work with us and the three jobs (2026-09-30), then its ask on a black screen of its own,
           the twin of Ship with us, sliding up over it the same way (2026-10-05). The page goes white for proof and
           black for the ask twice, then the footer, white since the same day. */}
       <SlideOverStack under={<WhyWorkWithUs />} over={<ApplyBand />} dark />
-      {/* News, between the ask and the footer (owner, 2026-10-07). Sample posts for now, so it renders nothing in a
-          production build until there is a real one (lib/news.ts). */}
-      <NewsBand />
     </>
   );
 }

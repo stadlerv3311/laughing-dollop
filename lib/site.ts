@@ -17,9 +17,11 @@ export type NavLink = {
 export const aboutLink: NavLink = { label: "About", href: "/about" };
 export const newsLink: NavLink = { label: "News", href: "/news" };
 
+export const servicesLink: NavLink = { label: "Services", href: "/services" };
+
 // No Home item (owner, 2026-09-24): the logo is the way home, in the header and the phone menu's bar alike.
 export const primaryNav: NavLink[] = [
-  { label: "Services", href: "/services" },
+  servicesLink,
   aboutLink,
   newsLink,
 ];
@@ -87,8 +89,12 @@ export const heroLines: readonly [HeroLine, HeroLine] = [
   { noun: "load", verb: "see" },
 ];
 
-// The line under the h1 (2026-09-24). Draft copy — the facts are the safety band's rows.
-export const homeSupport = "GPS and cameras on every truck. Service on record.";
+// The line under the h1 (2026-09-24), in parts that each stay whole, so it breaks between them and never inside one.
+// Since 2026-10-08 it says what we are (the builder: "we need a better slogan here ... i need it to also make clear
+// that we are carrier"; it was "GPS and cameras on every truck. Service on record.", which the band under the hero
+// says anyway). Not a broker and about 70 units are the owner's; "every mile" is the builder's pick and has not been
+// put to the owner: it holds only if no load moves on anyone else's truck (DECISIONS.md → Homepage hero).
+export const homeSupport: readonly string[] = ["An asset-based carrier.", "Our trucks, our drivers, every mile."];
 
 // The line under the h1 (from the owner's "2a" hero reference, 2026-09-18). Draft copy: like the rolling slogans,
 // these are promises — answered on the first ring, agreed routes, home on time — and need sign-off before launch.

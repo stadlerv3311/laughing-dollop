@@ -2,7 +2,7 @@
 
 import { easeOut, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useLenis } from "lenis/react";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
 import { Container, InteractiveHoverButton } from "@/components/ui";
@@ -167,7 +167,14 @@ export function HomeHero() {
               {/* Headline, line and buttons as one tight block (owner, 2026-10-02): 16 / 20px apart, 24 / 20 before
                   the 1.5× headline (32px under the headline from lg). */}
               {/* Full white with the headline since 2026-10-02 (owner: "go white on the hero"; it was at 80%). */}
-              <p className="mt-4 text-pretty leading-relaxed text-paper lg:mt-5">{homeSupport}</p>
+              <p className="mt-4 text-pretty leading-relaxed text-paper lg:mt-5">
+                {homeSupport.map((part, i) => (
+                  <Fragment key={part}>
+                    {i > 0 && " "}
+                    <span className="inline-block">{part}</span>
+                  </Fragment>
+                ))}
+              </p>
               {/*
                 Get a quote solid, Apply now as a thin white ring beside it — one row at every size since 2026-10-02
                 (owner; from lg they were stacked). From sm a fixed 14rem each, so the dot, 20% in, clears the label;
