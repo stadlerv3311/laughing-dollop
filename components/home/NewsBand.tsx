@@ -38,7 +38,12 @@ export function NewsBand() {
   if (posts.length === 0) return null;
 
   return (
-    <section aria-labelledby="news-title" className="bg-paper pt-[4.5rem] text-ink sm:pt-[5.5rem] lg:pt-[6.5625rem]">
+    <section
+      aria-labelledby="news-title"
+      // News's section for the header's filling line (Header → `data-nav-section`).
+      data-nav-section={newsLink.href}
+      className="bg-paper pt-[4.5rem] text-ink sm:pt-[5.5rem] lg:pt-[6.5625rem]"
+    >
       <Container>
         <div>
           <Reveal>

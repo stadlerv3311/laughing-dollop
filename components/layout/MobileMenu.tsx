@@ -6,10 +6,10 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { Button, Container } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { applyLink, careersLink, primaryNav, quoteLink, fleetMapLink } from "@/lib/site";
+import { applyLink, primaryNav, quoteLink } from "@/lib/site";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const links = [...primaryNav, careersLink, fleetMapLink];
+const links = primaryNav;
 
 type MobileMenuProps = {
   open: boolean;

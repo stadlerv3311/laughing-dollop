@@ -83,6 +83,9 @@ export function ShipWithUs() {
       id="quote"
       aria-labelledby="ship-with-us"
       data-header-theme="dark"
+      // No nav link's section: the empty mark takes the header's filling line off the safety band's items as this
+      // sheet slides over them (Header → `data-nav-section`).
+      data-nav-section=""
       // No scroll anchoring: as the form opens, the centred heading moves up, and the browser would scroll the page
       // up after it (180px on a phone), pulling the band's top off the screen's.
       className="relative isolate flex min-h-svh [overflow-anchor:none] flex-col items-center justify-center overflow-hidden bg-ink px-5 pt-26 pb-8 text-center text-paper sm:px-8 md:pt-22 md:pb-12"

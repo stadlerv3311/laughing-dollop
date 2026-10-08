@@ -1,14 +1,23 @@
 "use client";
 
-import { easeOut, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
+import {
+  AnimatePresence,
+  easeOut,
+  motion,
+  motionValue,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { INTRO } from "@/components/intro/timeline";
 import { useIntroProgress } from "@/components/providers";
 import { Container, InteractiveHoverButton, Logo } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { applyLink, careersLink, primaryNav, quoteLink, site, fleetMapLink } from "@/lib/site";
+import { applyLink, primaryNav, quoteLink, site } from "@/lib/site";
 import { MenuToggle, MobileMenu } from "./MobileMenu";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -27,6 +36,28 @@ function darkBandUnder() {
     const { top, bottom } = band.getBoundingClientRect();
     return top <= HEADER_MID && bottom >= HEADER_MID;
   });
+}
+
+/** How far down the screen the reading line sits, as a share of its height: the section crossing it is the one you're on. */
+const READING_LINE = 0.5;
+
+/**
+ * The homepage section on the reading line, as the nav link it belongs to, and how far each marked section has been
+ * read. Sections are marked `data-nav-section="/services"` with their nav link's href; one marked with an empty value
+ * (Ship with us) belongs to no link. A later section wins where two overlap, since that is the one on top: Ship with
+ * us slides up over the pinned safety band (SlideOverStack), whose own box stays put underneath.
+ */
+function sectionOnReadingLine(fills: Map<string, MotionValue<number>>) {
+  const line = window.innerHeight * READING_LINE;
+  let current: string | null = null;
+  document.querySelectorAll<HTMLElement>("[data-nav-section]").forEach((section) => {
+    const { top, height } = section.getBoundingClientRect();
+    if (height === 0) return;
+    const href = section.dataset.navSection ?? "";
+    fills.get(href)?.set(Math.min(1, Math.max(0, (line - top) / height)));
+    if (top <= line && line < top + height) current = href || null;
+  });
+  return current;
 }
 
 function isActive(pathname: string, href: string) {
@@ -73,15 +104,53 @@ function ActiveMark({ light }: { light: boolean }) {
   );
 }
 
-type NavItemProps = { href: string; active: boolean; light: boolean; children: ReactNode } & Omit<
-  ComponentPropsWithoutRef<typeof Link>,
-  "href" | "className" | "children"
->;
-
-function NavItem({ href, active, light, children, ...rest }: NavItemProps) {
+/**
+ * The same line on the homepage, under the item whose section you're reading, filling from the left as you scroll
+ * through it (the builder, 2026-10-08: "when you are on services block services on nav bar has a filling line
+ * underneath then for every section it does the same"). A faint line the full width of the label shows how far there
+ * is to go. It fades in and out as the page passes from one section to the next.
+ */
+function SectionMark({ fill, light }: { fill: MotionValue<number>; light: boolean }) {
   return (
-    <Link href={href} aria-current={active ? "page" : undefined} className={navItemClass(active, light)} {...rest}>
+    <motion.span
+      aria-hidden
+      className={cx(
+        "absolute inset-x-3 bottom-0.5 h-px transition-colors duration-300 xl:inset-x-4",
+        light ? "bg-paper/25" : "bg-ink/15",
+      )}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.span
+        className={cx("absolute inset-0 transition-colors duration-300", light ? "bg-paper" : "bg-ink")}
+        style={{ scaleX: fill, originX: 0 }}
+      />
+    </motion.span>
+  );
+}
+
+type NavItemProps = {
+  href: string;
+  active: boolean;
+  /** How far its homepage section has been read, while that section is the one on screen. */
+  fill?: MotionValue<number>;
+  light: boolean;
+  children: ReactNode;
+} & Omit<ComponentPropsWithoutRef<typeof Link>, "href" | "className" | "children">;
+
+function NavItem({ href, active, fill, light, children, ...rest }: NavItemProps) {
+  const reading = Boolean(fill);
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={navItemClass(active || reading, light)}
+      {...rest}
+    >
       {active && <ActiveMark light={light} />}
+      <AnimatePresence>{fill && !active && <SectionMark fill={fill} light={light} />}</AnimatePresence>
       <span className="relative">{children}</span>
     </Link>
   );
@@ -89,7 +158,8 @@ function NavItem({ href, active, light, children, ...rest }: NavItemProps) {
 
 /**
  * Fixed site header, type only (2026-09-24, after Lightship on Mobbin; it replaced the frosted-glass pills): the
- * logo top-left, plain text links in the middle with a thin line under the current page, and the two CTAs on the
+ * logo top-left, plain text links in the middle with a thin line under the current page (on the homepage, under the
+ * section you're reading, filling as you scroll through it: SectionMark), and the two CTAs on the
  * right as a matched pair of interactive hover buttons. Over dark bands everything is white — on the hero's film with
  * no bar, on the others over an ink frosted bar once the page has scrolled (2026-10-01); over light sections a white
  * frosted bar fades in (no hairline under it since 2026-10-02) and everything turns ink — Get a quote outlined, Apply now solid. It stays in view as you scroll
@@ -112,6 +182,9 @@ export function Header() {
   const [onDark, setOnDark] = useState(isHome);
   const [glassOff, setGlassOff] = useState(isHome);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // The homepage section being read, as its nav link's href, and how far through each one the page is.
+  const [reading, setReading] = useState<string | null>(null);
+  const fills = useMemo(() => new Map(primaryNav.map((link) => [link.href, motionValue(0)])), []);
 
   // On the homepage's first open the whole bar slides down from above the screen with the hero's truck, easing to a
   // stop (see HomeIntro). The logo fades in as it comes and keeps settling to its resting size for the rest.
@@ -121,12 +194,16 @@ export function Header() {
 
   useMotionValueEvent(intro, "change", (p) => setIntroDone(p >= INTRO.litAt));
 
-  /** What's under the header right now: dark or light, the hero's film, and whether the page has scrolled. */
+  /**
+   * What's under the header right now: dark or light, the hero's film, and whether the page has scrolled. And which
+   * marked section is on the reading line, for the line under its nav item.
+   */
   function checkBand() {
     const band = darkBandUnder();
     setOnDark(Boolean(band));
     setGlassOff(band?.dataset.headerGlass === "none");
     setSolid(intro.get() >= 1 && window.scrollY > 12);
+    setReading(sectionOnReadingLine(fills));
   }
 
   useMotionValueEvent(scrollY, "change", (y) => {
@@ -245,11 +322,12 @@ export function Header() {
 
             <div className={cx("hidden flex-1 justify-center lg:flex", dimClass)}>
               <nav aria-label="Main" className="flex items-center">
-                {[...primaryNav, careersLink, fleetMapLink].map((link) => (
+                {primaryNav.map((link) => (
                   <NavItem
                     key={link.href}
                     href={link.href}
                     active={isActive(pathname, link.href)}
+                    fill={reading === link.href ? fills.get(link.href) : undefined}
                     light={light}
                     onClick={closeAll}
                   >

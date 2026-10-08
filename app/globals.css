@@ -72,6 +72,21 @@
    */
   --animate-road-drive: road-drive 1.6s linear infinite;
 
+  /*
+   * Services page (2026-10-08, ServiceStage.tsx): the line on the small card of the service that has the stage, filling
+   * for as long as it holds it. The component sets the real duration, its `CYCLE`.
+   */
+  --animate-service-fill: service-fill 5s linear both;
+
+  @keyframes service-fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
   @keyframes road-drive {
     from {
       transform: translateZ(0) rotateX(-90deg);
@@ -210,6 +225,17 @@
 @keyframes card-open-fade {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+/* Services page (2026-10-08, ServiceStage.tsx): a chosen small card grows into the stage. The card and the stage's
+   layer share the name for the length of it. The rest of the page must switch at once, so the old picture of it is
+   dropped: the rule below stops the page's crossfade, and with both pictures still there for 750ms they would sit
+   one on the other. */
+::view-transition-group(service-stage) {
+  animation-duration: 750ms;
+  animation-timing-function: var(--ease-premium);
+}
+:root.service-staging::view-transition-old(root) {
+  display: none;
 }
 /* Every other navigation stays instant, as before: React starts a view transition for any navigation once a page
    has <ViewTransition>s, and the browser's default is a whole-page crossfade. */

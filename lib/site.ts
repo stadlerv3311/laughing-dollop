@@ -19,18 +19,16 @@ export const newsLink: NavLink = { label: "News", href: "/news" };
 
 export const servicesLink: NavLink = { label: "Services", href: "/services" };
 
-// No Home item (owner, 2026-09-24): the logo is the way home, in the header and the phone menu's bar alike.
-export const primaryNav: NavLink[] = [
-  servicesLink,
-  aboutLink,
-  newsLink,
-];
-
 // A plain link since 2026-09-25 (owner: remove the Careers dropdown). It opens the careers page — the three jobs,
 // what each one is and why to take it here — whose Apply now buttons open the application on that job.
 export const careersLink: NavLink = { label: "Careers", href: "/careers" };
 
 export const fleetMapLink: NavLink = { label: "Fleet map", href: "/fleet-map" };
+
+// The header's links and the phone menu's, in this order since 2026-10-08 (owner: "lets change the nav bar order to
+// this", of Services, Careers, About, Fleet map, News; it was Services, About, News, Careers, Fleet map). No Home
+// item (owner, 2026-09-24): the logo is the way home, in the header and the phone menu's bar alike.
+export const primaryNav: NavLink[] = [servicesLink, careersLink, aboutLink, fleetMapLink, newsLink];
 /**
  * Every Get a quote button goes to the homepage's Ship with us band and opens its form there (owner, 2026-10-02: no
  * separate quote page). On the homepage the band catches the click and glides down; from another page it opens
@@ -92,8 +90,9 @@ export const heroLines: readonly [HeroLine, HeroLine] = [
 // The line under the h1 (2026-09-24), in parts that each stay whole, so it breaks between them and never inside one.
 // Since 2026-10-08 it says what we are (the builder: "we need a better slogan here ... i need it to also make clear
 // that we are carrier"; it was "GPS and cameras on every truck. Service on record.", which the band under the hero
-// says anyway). Not a broker and about 70 units are the owner's; "every mile" is the builder's pick and has not been
-// put to the owner: it holds only if no load moves on anyone else's truck (DECISIONS.md → Homepage hero).
+// says anyway). Not a broker and about 70 units are the owner's; "every mile" is the builder's pick, and it holds:
+// the two owner-operators lease their trucks from the company, so no load moves on anyone else's truck (the builder,
+// same day; DECISIONS.md → Homepage hero).
 export const homeSupport: readonly string[] = ["An asset-based carrier.", "Our trucks, our drivers, every mile."];
 
 // The line under the h1 (from the owner's "2a" hero reference, 2026-09-18). Draft copy: like the rolling slogans,
@@ -493,7 +492,7 @@ export const tools = [
 // The footer's two groups of links ("F2b", owner, 2026-10-01). Get a quote and Apply now are its buttons, so they're
 // not repeated in the lists.
 export const footerGroups: { label: string; links: NavLink[] }[] = [
-  { label: "Shipping", links: [primaryNav[0], fleetMapLink] },
+  { label: "Shipping", links: [servicesLink, fleetMapLink] },
   { label: "Company", links: [aboutLink, newsLink, careersLink] },
 ];
 

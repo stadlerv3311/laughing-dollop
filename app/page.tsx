@@ -1,5 +1,6 @@
 import { ApplyBand, HomeHero, NewsBand, SafetyBand, ShipWithUs, SlideOverStack, StoryTeaser, ToolsBand, TrustBar, WhyWorkWithUs } from "@/components/home";
 import { HomeIntro } from "@/components/intro";
+import { careersLink } from "@/lib/site";
 
 export default function HomePage() {
   return (
@@ -32,7 +33,10 @@ export default function HomePage() {
       {/* The careers half: why work with us and the three jobs (2026-09-30), then its ask on a black screen of its own,
           the twin of Ship with us, sliding up over it the same way (2026-10-05). The page goes white for proof and
           black for the ask twice, then the footer, white since the same day. */}
-      <SlideOverStack under={<WhyWorkWithUs />} over={<ApplyBand />} dark />
+      {/* One section for the header's filling line under Careers (Header → `data-nav-section`). */}
+      <div data-nav-section={careersLink.href}>
+        <SlideOverStack under={<WhyWorkWithUs />} over={<ApplyBand />} dark />
+      </div>
     </>
   );
 }

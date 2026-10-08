@@ -28,6 +28,8 @@ export function StoryTeaser() {
     <ViewTransition name={STORY_BAND} share={{ [STORY_OPEN]: "story-open", default: "none" }} default="none">
     <section
       aria-labelledby="story-teaser-title"
+      // About's section for the header's filling line (Header → `data-nav-section`).
+      data-nav-section={aboutLink.href}
       // No bottom space of its own since it went white (2026-10-02): Why work with us follows on the same white, and its
       // top space alone keeps them apart — both together left about 256px of blank page. The top space is 70px from
       // tablets up since the same day (owner: move it up to about 70px; it had the chapter openers' 128px), the same as
