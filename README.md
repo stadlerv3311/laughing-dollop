@@ -33,5 +33,6 @@ Other scripts: `npm run build` (production build), `npm run lint`.
 - **docs/DECISIONS.md** — locked scope decisions and open items — check before adding anything new
 - **docs/NAVIGATION.md** — map of the project: task → file, and the full component library
 - **docs/site-map.md** — the original page-by-page plan, kept for reference; no longer the current state
+- **docs/AUDIT_REPORT.md** — the cleanup audit of 2026-10-09: what was found, fixed and removed, and what is still open
 
 Docs are updated in the same commit as the code they describe — if something here looks stale, that's a bug, flag it.
