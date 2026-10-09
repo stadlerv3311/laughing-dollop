@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { NewsRow } from "@/components/news";
 import { Container, PageOpening, PagePlaceholder, PictureStage, Reveal, sectionBottom, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { formatNewsDate, visibleNewsPosts } from "@/lib/news";
+import { formatNewsDate, newsHref, visibleNewsPosts } from "@/lib/news";
 
 export const metadata: Metadata = { title: "News" };
 
@@ -14,8 +14,11 @@ const STAGED = 3;
  * screen. all news after that are just a list"): the three newest posts on the Services page's stage (PictureStage),
  * one big with its picture and its day, headline and sentence on a white panel in the picture's corner, and the three
  * as smaller cards under it, each going up to the stage when it is chosen. Every older post is a line of the list
- * under that, "Earlier" (NewsRow): a day, a headline and a sentence, no picture. Every post is read here in full;
- * there are no pages for single posts.
+ * under that, "Earlier" (NewsRow): a day, a headline and a sentence, no picture.
+ *
+ * Every post opens its own page (the builder, the same day: "if you press on article it opens the article page"):
+ * the post on the stage when the stage is pressed, under a Read article link, and a line of the list when the line is
+ * pressed (app/news/[slug]/page.tsx). The small cards under the stage still only choose who has it.
  *
  * Before that (owner, 2026-10-07) the newest post was big on a black panel, the next four a row each with the picture
  * changing sides, and the rest behind a See more link. The list is open now: it is all that follows the stage.
@@ -44,8 +47,10 @@ export default function NewsPage() {
           <Reveal>
             <PictureStage
               headlines
+              linkLabel="Read article"
               items={staged.map((post) => ({
-                id: `${post.date}-${post.title}`,
+                id: post.slug,
+                href: newsHref(post),
                 name: post.title,
                 detail: post.summary,
                 label: <time dateTime={post.date}>{formatNewsDate(post.date)}</time>,
@@ -60,7 +65,7 @@ export default function NewsPage() {
               <h2 className={sectionHeadingClass}>Earlier</h2>
               <ul className="mt-7 lg:mt-10">
                 {earlier.map((post) => (
-                  <li key={`${post.date}-${post.title}`}>
+                  <li key={post.slug}>
                     <NewsRow post={post} />
                   </li>
                 ))}

@@ -14,7 +14,7 @@ A Next.js (App Router) + Tailwind + TypeScript site serving two audiences: shipp
 - Homepage "Why work with us" and a black Apply now screen: the careers half
 - Services page (Dry Van today, extensible for future trailer types) — built; *draft copy, stand-in pictures*
 - Fleet Map (roughly where our trucks are, refreshed about hourly, no login) — *real map, sample positions until the Samsara feed exists*
-- News (company news and updates) — built; *draft posts only, so a production build shows a "being built" placeholder*
+- News (company news and updates) — built, with a page for each post and a list beside it to choose another; *draft posts only, so a production build shows a "being built" placeholder and has no post pages*
 - Careers: a page for the three jobs (driver, dispatcher, tire and shop technician) and one short application for all of them, HR follows up directly — built; *sends to a stub until the backend exists*
 - About: the company story down one line, with a picture for each stop — built; *draft copy, stand-in pictures*
 

@@ -2,9 +2,11 @@
 
 import { useInView, useReducedMotion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { cx } from "@/lib/cx";
+import { FlyArrow, RiseLabel } from "./LinkHover";
 import { labelClass } from "./typography";
 
 /** One thing the stage can show: a service on the Services page, a post on the news page. */
@@ -18,6 +20,8 @@ export type StageItem = {
   label?: ReactNode;
   /** Its picture, on the stage and on its card; black without one. `position` keeps the right part in view. */
   image?: { src: string; position?: string };
+  /** A page of its own, a news post's: the whole stage opens it while the item has it. */
+  href?: string;
 };
 
 /** How long an item holds the stage before the next takes it. The fill's keyframes run for as long (inline below). */
@@ -52,8 +56,20 @@ const subscribePointer = (onChange: () => void) => {
  *
  * `headlines` is for names that are sentences, a news post's: the heading and the cards' words a size down, and the
  * cards taller below `lg`, so three lines fit on them.
+ *
+ * An item with an `href` has a page of its own (a news post, since 2026-10-09): while it has the stage, pressing
+ * anywhere on the stage opens that page, and `linkLabel` is the underlined arrow link under its words that says so.
+ * The small cards still only choose who has the stage.
  */
-export function PictureStage({ items, headlines = false }: { items: readonly StageItem[]; headlines?: boolean }) {
+export function PictureStage({
+  items,
+  headlines = false,
+  linkLabel = "Read more",
+}: {
+  items: readonly StageItem[];
+  headlines?: boolean;
+  linkLabel?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const layers = useRef<(HTMLElement | null)[]>([]);
   const cards = useRef<(HTMLButtonElement | null)[]>([]);
@@ -123,7 +139,7 @@ export function PictureStage({ items, headlines = false }: { items: readonly Sta
               }}
               inert={!active}
               className={cx(
-                "col-start-1 row-start-1 transition-[opacity,visibility] duration-500 lg:absolute lg:inset-0 lg:duration-700 lg:ease-premium motion-reduce:transition-none",
+                "group relative col-start-1 row-start-1 transition-[opacity,visibility] duration-500 lg:absolute lg:inset-0 lg:duration-700 lg:ease-premium motion-reduce:transition-none",
                 active ? "opacity-100" : "invisible opacity-0",
               )}
             >
@@ -159,6 +175,7 @@ export function PictureStage({ items, headlines = false }: { items: readonly Sta
               >
                 {service.label && <p className={cx(labelClass, "mb-2 text-ink/70 lg:mb-2.5")}>{service.label}</p>}
                 <h2
+                  id={service.href ? `stage-${service.id}` : undefined}
                   className={cx(
                     "font-display font-semibold tracking-[-0.03em] text-balance",
                     headlines
@@ -171,7 +188,22 @@ export function PictureStage({ items, headlines = false }: { items: readonly Sta
                 <p className="mt-3 text-pretty text-[17px] leading-relaxed text-ink/70 lg:mt-3.5">
                   {service.detail}
                 </p>
+                {service.href && (
+                  <span className="mt-4 inline-flex items-center gap-1.5 font-medium lg:mt-5">
+                    <RiseLabel>{linkLabel}</RiseLabel>
+                    <FlyArrow className="size-3" />
+                  </span>
+                )}
               </div>
+              {/* One link over the whole of it, picture and words, named by the heading; the arrow link above is
+                  what it looks like, and plays when this is pointed at or tabbed to. */}
+              {service.href && (
+                <Link
+                  href={service.href}
+                  aria-labelledby={`stage-${service.id}`}
+                  className="absolute inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink lg:focus-visible:-outline-offset-4 lg:focus-visible:outline-paper"
+                />
+              )}
             </article>
           );
         })}

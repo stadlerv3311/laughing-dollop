@@ -23,7 +23,8 @@ app/
   services/page.tsx          → Services (/services)
   quote/page.tsx             → redirects to /#quote (the quote form is in Ship with us since 2026-10-02)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are on a real map (FleetMap); formerly Track a Load
-  news/page.tsx              → News (/news) — the three newest posts on the Services page's stage (PictureStage: one big with its picture and its day, headline and sentence on a white corner panel, the three as small cards under it), every older post a line of the "Earlier" list under that (NewsRow); the "being built" placeholder while there are no posts to show
+  news/page.tsx              → News (/news) — the three newest posts on the Services page's stage (PictureStage: one big with its picture and its day, headline and sentence on a white corner panel, the three as small cards under it), every older post a line of the "Earlier" list under that (NewsRow), and both open the post's own page; the "being built" placeholder while there are no posts to show
+  news/[slug]/page.tsx       → One news post (/news/<slug>) — the article on the left (day, headline, picture, the summary as opening lines, the body's paragraphs), the list of every post on the right (NewsChooser), sticky from 1024px and under the article below that; only visible posts have a page
   careers/
     page.tsx                 → Careers (/careers) — the three jobs and why to take each; where Careers goes
     apply/page.tsx           → The job application with no job set, so it asks "Which job?" (/careers/apply); where Apply now goes
@@ -37,7 +38,7 @@ components/                  → component library, one folder per area, each wi
   layout/                    → Header, MobileMenu, Footer (+ CopyrightYear, its year) — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, CardPair (exports `Pair` and `usePairVideos`), ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs, ApplyBand, NewsBand (the news block after the story: the three newest posts as a row of opening picture cards)
   about/                     → SplitCard (the two closing cards on the black band, each cut on a slant, white above and black below, the underlined arrow link under the words on the white; the black wedge is a road whose dashed lane line rolls toward you), StoryLine (the About page's story down one line that bends from side to side around the pictures, one picture frame to a chapter, the next stop's words and picture taking the last one's place in it as the chapter passes the middle of the screen, a chapter's second dot half way down its picture, nothing standing still, every second chapter on a full-width black band, 2026-10-06); StoryChapters (the pinned route it replaced the same day), Timeline (the sideways timeline before that) and StoryMilestones (the story band's old dot timeline) were deleted on 2026-10-09, unused: they are in git history
-  news/                      → NewsCards (the homepage block's three posts as a row of pictures that open one at a time, the words sliding out on white beside the open one; stacked and all open below 1024px; client), NewsRow (one post as a line of the news page's "Earlier" list)
+  news/                      → NewsCards (the homepage block's three posts as a row of pictures that open one at a time, the words sliding out on white beside the open one; stacked and all open below 1024px; client), NewsRow (one post as a line of the news page's "Earlier" list, a link to the post's page), NewsChooser (the list of every post on the right of a post's page, the one being read marked)
   services/                  → QuoteCard (the page's closing card: cut on a slant, the question on white beside the homepage's live dot map; its link grows it into the homepage's quote band, a shared view transition)
   fleet/                     → FleetMap (the Fleet map's street map: trucks as dots, bunched into counted circles; zoom capped)
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
@@ -55,7 +56,7 @@ lib/
   services.ts                → the three services, the Services page's words (`servicesPage`) and the safety band's services pair (`servicesGroup`)
   story.ts                   → the company story (draft): the homepage band's headline, rule and marks, the About page's stops (`timeline`), and the story band → About transition's names
   fleet.ts                   → FleetSnapshot type + getFleetSnapshot stub with sample positions (the Samsara contract goes here)
-  news.ts                    → NewsPost type + newsPosts (eight UNCONFIRMED stand-in posts, drafts) + visibleNewsPosts (drafts are left out of production) + formatNewsDate
+  news.ts                    → NewsPost type + newsPosts (eight UNCONFIRMED stand-in posts, drafts) + visibleNewsPosts (drafts are left out of production) + formatNewsDate + newsHref and findNewsPost (a post's own page)
   us-states.ts               → generated lower-48 state shapes for the quote map — don't edit by hand
   zip.ts                     → ZIP → state lookup (USPS 3-digit prefixes) and ZIP → "City, ST" (`cityForZip`, from public/zip)
 
@@ -188,9 +189,9 @@ QuoteRequest { pickup: { zip, state }, delivery: { zip, state }, pickupDate, con
 
 ### News (`lib/news.ts`)
 ```
-NewsPost { date (YYYY-MM-DD), title, summary, image?, draft? }
+NewsPost { slug, date (YYYY-MM-DD), title, summary, body? (paragraphs), image?, draft? }
 ```
-The homepage block shows the three newest and `/news` lists them all. A `draft` post shows while developing and is left out of a production build; the eight in the file are unconfirmed stand-in copy (DECISIONS.md → News copy), so the block is off the live site, and `/news` stays its placeholder there, until a real post replaces them.
+The homepage block shows the three newest, `/news` lists them all, and each has a page at `/news/<slug>` (statically generated from the visible posts; any other address there is the 404 page). `body` is the article under the summary on that page; none is written yet, and a draft without one shows marked placeholder lines. A `draft` post shows while developing and is left out of a production build; the eight in the file are unconfirmed stand-in copy (DECISIONS.md → News copy), so the block is off the live site, and `/news` stays its placeholder there, until a real post replaces them.
 
 ### Fleet map (`lib/fleet.ts`)
 What the backend teammate's Samsara endpoint should return, about hourly. Rough positions only: no driver, load, speed or truck number.

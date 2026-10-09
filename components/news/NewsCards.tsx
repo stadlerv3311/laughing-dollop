@@ -37,7 +37,8 @@ function subscribe(onChange: () => void) {
  *
  * A closed panel is taken out of the accessibility tree and its picture's button carries the day and the headline, so
  * a screen reader hears each post once. No alt text on the pictures: they are stock or stand-ins, not pictures of the
- * events (see lib/news.ts). Nothing is a link, since there are no pages for single posts.
+ * events (see lib/news.ts). Nothing is a link: the posts have had their own pages since 2026-10-09
+ * (app/news/[slug]/page.tsx), but these cards open and close, and All news under them is the way on.
  */
 export function NewsCards({ posts }: { posts: NewsPost[] }) {
   const shown = posts.slice(0, 3);

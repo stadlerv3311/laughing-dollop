@@ -1,4 +1,5 @@
-// News posts: the homepage's news block shows the three newest, and /news lists them all.
+// News posts: the homepage's news block shows the three newest, /news lists them all, and each has a page of its
+// own at /news/<slug>.
 //
 // NOT CONFIRMED, NOT FOR THE LIVE SITE: the eight posts below are stand-in copy the site's builder supplied on
 // 2026-10-07 to fill the layout ("use this ... to fill out news section"). It was drafted with an AI assistant from
@@ -9,15 +10,22 @@
 // (Ten at first; the bonus and the hiring posts were taken out the same day, crossed out by the builder on a screenshot.)
 
 export type NewsPost = {
+  /** Its address under /news: lowercase words and hyphens. Kept when the headline is reworded, so links don't break. */
+  slug: string;
   /** The day it was posted, as YYYY-MM-DD. */
   date: string;
   title: string;
-  /** One or two sentences. */
+  /** One or two sentences: all of the post on a card, and the opening lines on its own page. */
   summary: string;
   /**
+   * The article itself, a paragraph to a string, shown on the post's own page under the summary. None is written
+   * yet: a draft without one gets marked placeholder lines there, so the page's layout can be judged (NewsArticle).
+   */
+  body?: string[];
+  /**
    * A picture for the post, as a path under /public: on the news page's stage and its small card while the post is
-   * one of the three newest (PictureStage), and on its card in the homepage's block (NewsCards). The "Earlier" list
-   * shows none.
+   * one of the three newest (PictureStage), on its card in the homepage's block (NewsCards), and under the headline
+   * on its own page. The "Earlier" list shows none.
    */
   image?: string;
   /** An unconfirmed post: shown while developing, never in a production build. */
@@ -26,6 +34,7 @@ export type NewsPost = {
 
 export const newsPosts: NewsPost[] = [
   {
+    slug: "twelve-new-trucks-on-the-sacramento-lot",
     date: "2026-10-01",
     title: "Twelve new trucks are on the Sacramento lot",
     summary: "The latest order arrived this week and goes into service this month. Trailers from the same buy are already paired with them.",
@@ -35,6 +44,7 @@ export const newsPosts: NewsPost[] = [
     draft: true,
   },
   {
+    slug: "shop-build-starts-at-the-sacramento-yard",
     date: "2026-09-15",
     title: "Shop build starts at the Sacramento yard",
     summary: "Maintenance is moving in-house. The building is underway, so trucks spend less time waiting on an outside vendor.",
@@ -43,6 +53,7 @@ export const newsPosts: NewsPost[] = [
     draft: true,
   },
   {
+    slug: "drop-and-hook-added-on-two-lanes",
     date: "2026-06-12",
     title: "Drop-and-hook added on two lanes",
     summary: "Trailers stay at the dock. We pull the loaded van and leave an empty, instead of waiting on a live unload.",
@@ -51,6 +62,7 @@ export const newsPosts: NewsPost[] = [
     draft: true,
   },
   {
+    slug: "fleet-passes-70-trucks-and-trailers",
     date: "2025-11-20",
     title: "Fleet passes 70 trucks and trailers",
     summary: "Most of the equipment was bought new. Dry van truckload, company trucks, all 48 states.",
@@ -59,6 +71,7 @@ export const newsPosts: NewsPost[] = [
     draft: true,
   },
   {
+    slug: "dispatch-stays-in-the-united-states",
     date: "2025-08-04",
     title: "Dispatch stays in the United States",
     summary: "The board is covered here, on the same clock as the driver.",
@@ -69,18 +82,21 @@ export const newsPosts: NewsPost[] = [
   // The news page's stage takes the three newest; every older post is a line of the list under it, the two above
   // this line as well (without their pictures). These three never had one.
   {
+    slug: "sacramento-yard-takes-the-truck-parking",
     date: "2024-09-18",
     title: "Sacramento yard takes the truck parking",
     summary: "Drop a trailer, grab a truck, and deal with people on the lot. The yard sits near the Citrus Heights office.",
     draft: true,
   },
   {
+    slug: "safety-desk-moves-fully-in-house",
     date: "2024-06-03",
     title: "Safety desk moves fully in-house",
     summary: "Onboarding, driver files, and compliance sit with our own safety team, not an outside service.",
     draft: true,
   },
   {
+    slug: "first-dedicated-lanes-renewed-for-another-year",
     date: "2024-03-21",
     title: "First dedicated lanes renewed for another year",
     summary: "Weekly freight that started as contract lanes is still running. Same trucks, same shippers.",
@@ -99,4 +115,14 @@ export function formatNewsDate(date: string): string {
 export function visibleNewsPosts(): NewsPost[] {
   const showDrafts = process.env.NODE_ENV !== "production";
   return newsPosts.filter((post) => showDrafts || !post.draft).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** A post's own page. */
+export function newsHref(post: NewsPost): string {
+  return `/news/${post.slug}`;
+}
+
+/** The visible post at this address, if there is one: a draft has no page in a production build. */
+export function findNewsPost(slug: string): NewsPost | undefined {
+  return visibleNewsPosts().find((post) => post.slug === slug);
 }
