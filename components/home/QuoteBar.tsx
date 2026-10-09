@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "motion/react";
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { InteractiveHoverButton } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { submitQuote, type QuoteRequest } from "@/lib/forms";
@@ -48,6 +48,9 @@ function today() {
   const now = new Date();
   return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 }
+
+const subscribeNever = () => () => {};
+const noDate = () => undefined;
 
 /** Which kind of contact was typed: an email, a US phone (10 digits, or 11 starting with 1), or neither. */
 function contactKind(text: string): "email" | "phone" | null {
@@ -154,6 +157,9 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   const [values, setValues] = useState<Values>(emptyValues);
   const [showErrors, setShowErrors] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  // The date box's earliest day waits for the browser: the homepage's HTML is built ahead of time, and a day worked
+  // out there stayed the day of the build.
+  const earliest = useSyncExternalStore(subscribeNever, today, noDate);
 
   const pickup = zipState(values.pickup);
   const delivery = zipState(values.delivery);
@@ -213,6 +219,8 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   useLayoutEffect(() => {
     if (phase !== "closing") return;
     void cardRef.current?.offsetHeight;
+    // On purpose: the height has to be let go in the same pass that put it on screen, or the card doesn't shrink.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHeight(undefined);
     setPhase("closed");
   }, [phase]);
@@ -243,6 +251,8 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   // Opened: the card lets go of its fixed height, and the cursor goes to Pickup.
   useEffect(() => {
     if (phase !== "open") return;
+    // On purpose: the sizes held for the opening are let go once it has opened, which only an effect can know.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHeight(undefined);
     setFormWidth(undefined);
     document.getElementById(id("pickup"))?.focus({ preventScroll: true });
@@ -423,7 +433,7 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
               id={id("date")}
               name="date"
               type="date"
-              min={today()}
+              min={earliest}
               value={values.date}
               onChange={(event) => setField("date", event.target.value)}
               aria-invalid={Boolean(errors.date)}

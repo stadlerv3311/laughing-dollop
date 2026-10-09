@@ -219,10 +219,13 @@ export function JobApplication({ initialJob }: { initialJob?: Job }) {
   }, [at, sent]);
 
   // A tapped single answer moves straight on, after a beat so the pick shows — unless it ends the questions (a
-  // driver's "Not yet"), where Send application is the next press.
+  // driver's "Not yet"), where Send application is the next press. It goes to the step after this one, not one on
+  // from wherever the application is by then: a double tap sets two of these going, and counting on twice skipped a
+  // question, or ran past the last one and left the panel empty.
   const pickAndGo = (apply: () => void, go = true) => {
     apply();
-    if (go) setTimeout(() => setAt((current) => current + 1), 220);
+    const next = at + 1;
+    if (go) setTimeout(() => setAt(next), 220);
   };
 
   // Number keys pick answers on the steps that have them (not while typing).

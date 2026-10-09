@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Container, InteractiveHoverButton, Logo, labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { applyLink, company, footerGroups, quoteLink, site } from "@/lib/site";
+import { CopyrightYear } from "./CopyrightYear";
 
 /**
  * Site footer, on white since 2026-10-05 (owner: "make the footer white to balance out the page"). It was ink from
@@ -75,7 +76,7 @@ export function Footer() {
           </Link>
           <p className="flex flex-col gap-1 sm:flex-row sm:gap-7">
             <span>
-              © {new Date().getFullYear()} {company.legalName}
+              © <CopyrightYear built={new Date().getFullYear()} /> {company.legalName}
             </span>
             <span>USDOT {company.usdot}</span>
             <span>{company.mc}</span>
