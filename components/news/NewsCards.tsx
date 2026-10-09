@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useId, useState, useSyncExternalStore } from "react";
 import { labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { formatNewsDate, type NewsPost } from "@/lib/news";
+import { formatNewsDate, newsHref, type NewsPost } from "@/lib/news";
 
 /** From here up the cards sit in a row and open one at a time; under it they stack, all open. */
 const WIDE = "(width >= 64rem)";
@@ -32,13 +33,21 @@ function subscribe(onChange: () => void) {
  * that black and keep it white"). So no box: the day and the sentence in ink at 70%, the headline in full ink, the day
  * level with the top of the picture and the headline and sentence with its foot.
  *
- * Under `lg` there is nothing to point with and no room beside a picture, so the cards stack, every one open (owner:
- * "yes for the phone"): the picture over its words on phones, beside them (the words centred against it) from `sm`. The pictures are then not buttons.
+ * Under `lg` there is nothing to point with, so the cards stack, every one open (owner: "yes for the phone"), each a
+ * picture beside its words, the words centred against it. The picture changes sides from one row to the next (the
+ * builder's sketch, 2026-10-09: picture left, then right, then left; on phones the picture sat over its words until
+ * then, and from `sm` it was always on the left). On phones the picture is a square a little under half the row and
+ * the words are the day and the headline only: the sentence doesn't fit beside a picture that size. The pictures are
+ * then not buttons.
  *
  * A closed panel is taken out of the accessibility tree and its picture's button carries the day and the headline, so
  * a screen reader hears each post once. No alt text on the pictures: they are stock or stand-ins, not pictures of the
- * events (see lib/news.ts). Nothing is a link: the posts have had their own pages since 2026-10-09
- * (app/news/[slug]/page.tsx), but these cards open and close, and All news under them is the way on.
+ * events (see lib/news.ts).
+ *
+ * Each card opens its post's page (the builder, 2026-10-09: "when i press on article from main page it doesnt go
+ * anywhere. we need to link it to the article"): the headline is the link and it is stretched over the whole card,
+ * picture and words, the news page's rows' way (NewsRow). From `lg` a closed card's words are hidden and its link
+ * with them, so pointing at it opens it first, as before, and a press then goes to the post.
  */
 export function NewsCards({ posts }: { posts: NewsPost[] }) {
   const shown = posts.slice(0, 3);
@@ -51,13 +60,13 @@ export function NewsCards({ posts }: { posts: NewsPost[] }) {
   const id = useId();
 
   return (
-    <ul className="flex flex-col gap-10 [--panel:20rem] sm:gap-8 lg:h-96 lg:flex-row lg:gap-3 xl:[--panel:27rem]">
+    <ul className="flex flex-col gap-6 [--panel:20rem] sm:gap-8 lg:h-96 lg:flex-row lg:gap-3 xl:[--panel:27rem]">
       {shown.map((post, i) => {
         const isOpen = open === i;
         const panelId = `${id}-${i}`;
         const day = formatNewsDate(post.date);
         const pictureClass =
-          "group relative block aspect-[2/1] w-full overflow-hidden bg-ink text-left text-paper sm:aspect-auto sm:w-2/5 sm:shrink-0 lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0";
+          "group relative block aspect-square w-[46%] shrink-0 overflow-hidden bg-ink text-left text-paper sm:aspect-auto sm:w-2/5 lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0";
         const picture = (
           <>
             {post.image && (
@@ -65,7 +74,7 @@ export function NewsCards({ posts }: { posts: NewsPost[] }) {
                 src={post.image}
                 alt=""
                 fill
-                sizes="(width >= 64rem) 600px, (width >= 40rem) 40vw, 100vw"
+                sizes="(width >= 64rem) 600px, (width >= 40rem) 40vw, 46vw"
                 className="object-cover transition-transform duration-700 ease-premium lg:group-hover:scale-[1.03]"
               />
             )}
@@ -93,7 +102,8 @@ export function NewsCards({ posts }: { posts: NewsPost[] }) {
 
         return (
           <li key={`${post.date}-${post.title}`} onMouseEnter={() => setOpen(i)} className="lg:min-w-0 lg:flex-[1_1_auto]">
-            <article className="flex h-full flex-col sm:min-h-52 sm:flex-row">
+            {/* Under `lg` every second row is turned round, so the pictures zigzag down the block. */}
+            <article className={cx("relative flex h-full items-center gap-4 sm:min-h-52 sm:items-stretch sm:gap-0", i % 2 === 1 && "max-lg:flex-row-reverse")}>
               {wide ? (
                 <button
                   type="button"
@@ -118,17 +128,24 @@ export function NewsCards({ posts }: { posts: NewsPost[] }) {
                 {/* As wide as the open panel all the time, so the words don't re-wrap while it slides. */}
                 <div
                   className={cx(
-                    "flex h-full flex-col pt-5 motion-reduce:transition-none sm:justify-center sm:pt-0 sm:pl-7 lg:w-[var(--panel)] lg:justify-start lg:px-7 lg:transition-opacity",
+                    "flex h-full flex-col justify-center motion-reduce:transition-none lg:w-[var(--panel)] lg:justify-start lg:px-7 lg:transition-opacity",
+                    // The gap to the picture, on whichever side it stands under `lg`.
+                    i % 2 === 1 ? "sm:max-lg:pr-7" : "sm:max-lg:pl-7",
                     isOpen ? "lg:opacity-100 lg:delay-[450ms] lg:duration-500" : "lg:opacity-0 lg:duration-150",
                   )}
                 >
                   <time dateTime={post.date} className={cx(labelClass, "block text-ink/70")}>
                     {day}
                   </time>
-                  <h3 className="mt-2 font-display text-2xl leading-[1.15] font-semibold tracking-[-0.03em] text-balance lg:mt-auto lg:pt-6 xl:text-[1.75rem] xl:leading-[1.12]">
-                    {post.title}
+                  <h3 className="mt-1.5 font-display text-[1.0625rem] leading-[1.2] font-semibold tracking-[-0.03em] text-balance sm:mt-2 sm:text-2xl sm:leading-[1.15] lg:mt-auto lg:pt-6 xl:text-[1.75rem] xl:leading-[1.12]">
+                    <Link
+                      href={newsHref(post)}
+                      className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-ink"
+                    >
+                      {post.title}
+                    </Link>
                   </h3>
-                  <p className="mt-3 max-w-[26rem] leading-relaxed text-pretty text-ink/70">{post.summary}</p>
+                  <p className="mt-3 max-w-[26rem] leading-relaxed text-pretty text-ink/70 max-sm:hidden">{post.summary}</p>
                 </div>
               </div>
             </article>

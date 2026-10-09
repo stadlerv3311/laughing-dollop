@@ -20,8 +20,8 @@ const SHOWN = 3;
  * words). One row, so the block is short (owner, same day, of three zigzag rows: "i dont want this to take so much
  * space. maybe give it same thing that this block has ?"). Before it, in order: three grey cards with a picture
  * across the top of each, lines with no pictures ("plain text doesnt work"), three rows with a small picture changing
- * sides. The posts don't link anywhere: only All news goes to /news, where every post is listed and
- * opens its own page (they have had pages since 2026-10-09; linking these cards to them has not been asked for).
+ * sides. Each card opens its post's page since 2026-10-09 (the builder; NewsCards), and All news goes to /news, where
+ * every post is listed.
  *
  * The posts are in lib/news.ts and are unconfirmed drafts for now, so the block shows while developing and
  * renders nothing in a production build until there is a real post (see `visibleNewsPosts`).
