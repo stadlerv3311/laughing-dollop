@@ -21,7 +21,7 @@
 | Change a nav link or the company name | `lib/site.ts` — Header, mobile menu and Footer all read from it |
 | Change brand colors or the animation easing | `app/globals.css` → `@theme` (keep ARCHITECTURE.md in sync) |
 | Change the space above and below homepage sections | `components/ui/spacing.ts` (`sectionY` / `sectionTop` / `sectionBottom`, `chapterY` / `chapterTop`) — see ARCHITECTURE.md → Section spacing |
-| Change the page margins or the column grid | `components/ui/Container.tsx`, `components/ui/Columns.tsx`, `--breakpoint-desktop` / `--width-header-cta` in `app/globals.css` — see ARCHITECTURE.md → Layout grid |
+| Change the page margins or the column grid | `components/ui/Container.tsx`, `--breakpoint-desktop` / `--width-header-cta` in `app/globals.css` — see ARCHITECTURE.md → Layout grid. The 12-column grid, `Columns`, is parked in `components/unused/` until a section uses it |
 | Change the font | `app/layout.tsx` → `Geist` (body, feeds `--font-sans` in `app/globals.css`) and `Archivo` (headlines, feeds the `font-display` utility in `app/globals.css`, where its width is set) |
 | Change page titles / SEO description | `app/layout.tsx` → `metadata`, or `metadata` in each page file |
 | Tune the homepage opening (when it starts on the truck, how far the header and hero text drop, when the headline lights up) | `components/intro/timeline.ts` |
@@ -44,7 +44,7 @@
 | Change the hero video, its crop, its scrims or the pause between truck passes (`EMPTY_ROAD_MS`) | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
 | Change the homepage's Why work with us (heading, each job's four reasons, the order of the job cards and which starts open, the two shop rows over the job cards) | `lib/site.ts` → `whyWorkWithUs` (`order` and `open` for the cards), and `equipmentGroups` for the shop rows' cards and words (a card with no `video` or `image` shows as a grey stand-in); layout in `components/home/WhyWorkWithUs.tsx`; the sliding pair itself is `components/home/CardPair.tsx` |
 | Change the three job cards (roles, job names, lines, photos) | `lib/site.ts` → `applyRoutes` (shared with the careers page and the application); photos in `public/images/apply-*.jpg` |
-| Bring back the full-width homepage photo band, or add the B-roll video | `components/ui/HeroMedia.tsx` is still there but unused since 2026-09-17 — the apply cards took its place in `app/page.tsx` (they now sit in Why work with us) |
+| Bring back the full-width homepage photo band, or add the B-roll video | `components/unused/HeroMedia.tsx` is still there but unused since 2026-09-17 (move it back to `components/ui/` to use it) — the apply cards took its place in `app/page.tsx` (they now sit in Why work with us) |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
 | Change the homepage numbers (years, miles, loads, states) | `lib/site.ts` → `companyStats`; layout in `components/home/TrustBar.tsx` |
 | Change quote form fields, error messages or the thank-you screen | `components/home/QuoteBar.tsx` (the receipt is its thank-you) |
@@ -65,7 +65,7 @@
 | Add or change a button style | `components/ui/Button.tsx` |
 | Change a button or nav label, or the section label / heading style | Labels: `lib/site.ts` (`quoteLink`, `applyLink`, `careersLink`, `fleetMapLink`); styles: `components/ui/typography.ts`. Rules: DECISIONS.md → Wording and type |
 | Fade a block in when it scrolls into view | Wrap it in `<Reveal>` from `components/ui` |
-| Slide a photo and its text in from opposite sides, landing together | Make the section a `<SlideGroup>` and wrap each piece in `<SlideItem from="left" \| "right">` (`components/ui/SlideIn.tsx`); used by the safety band |
+| Slide a photo and its text in from opposite sides, landing together | Make the section a `<SlideGroup>` and wrap each piece in `<SlideItem from="left" \| "right">` (`components/unused/SlideIn.tsx`: no section uses it since the safety band stopped sliding, so move it back to `components/ui/` first) |
 | Change the driver slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey). Off the homepage since 2026-09-30; the first one captions the job application's driver photo |
 | Start a new page | Copy a placeholder in `app/`, then add its link in `lib/site.ts` (check DECISIONS.md nav rules first) |
 | Check whether something is in scope | `docs/DECISIONS.md` |
@@ -100,25 +100,26 @@ flowchart TD
 ```
 
 ## Component library
-Import from the folder, e.g. `import { Button, Container } from "@/components/ui"`.
+Import from the folder, e.g. `import { Button, Container } from "@/components/ui"`. Rows marked `unused/` are parked in `components/unused/` and imported by nothing: move the file back to its old folder to use it (ARCHITECTURE.md → Component library conventions).
 
 | Folder | Component | What it does | Runs on |
 |---|---|---|---|
 | `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (solid black), `outline` (black ring on a light frosted fill). Both share one type size so a pair sized alike matches. Sizes: `md`, `lg` | Server |
 | `ui/` | `InteractiveHoverButton` | Pill whose label slides out on hover while an ink dot grows to fill it and brings the label back in white with an arrow; `href` makes it a link; sizes `sm` (fixed 8rem), `lg` (Button's lg height, width from className) and `lgFit` (lg for a button as wide as its label, the dot a fixed 24px in: Get another quote, 2026-10-06); variants `solid` (white, fills ink), `ghostLight` (thin white ring, fills white), and the header's `ghostQuiet` (faint ring over dark bands) / `ghostDark` / `ink`; size `md` is the header's 40px pair. The hero's Get a quote and Apply now, and the header's pair | Server |
 | `ui/` | `Container` | Full-width side-margin wrapper — phone/tablet padding below `desktop` (1200px), content caps at 1200px and centers above it | Server |
-| `ui/` | `Columns` | The 12-column / 24px-gutter grid that sits inside a `Container` — size children with `col-span-*` | Server |
+| `unused/` | `Columns` | The 12-column / 24px-gutter grid that sits inside a `Container` — size children with `col-span-*`. **Not used yet** — no section has taken it up | Server |
 | `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
-| `ui/` | `SlideGroup`, `SlideItem` | A section that slides its items in from the sides on one shared trigger, so they start and stop together; `distance="100%"` starts an item fully off the screen edge. Clips sideways overflow | Client |
+| `unused/` | `SlideGroup`, `SlideItem` | A section that slides its items in from the sides on one shared trigger, so they start and stop together; `distance="100%"` starts an item fully off the screen edge. Clips sideways overflow. **Not currently used** — built for the safety band, which no longer slides in | Client |
 | `ui/` | `LinkHover` | `RiseLabel` (underlined words that roll up to a copy) and `FlyArrow` (the ↗ that flies out and back in): the hover for the underlined arrow links — Get a quote (safety band) and Read our full story (story band); Apply now in Why work with us used it until 2026-10-05, when the black Apply band took over. Driven by the link's `group` hover and focus | Server |
-| `ui/` | `HeroMedia` | Full-width photo or looping video band, 500px tall; shown straight with no overlay; `image` now, optional `video` later. **Not currently used** — the homepage apply cards replaced it on 2026-09-17; kept for other pages' heroes | Server |
+| `unused/` | `HeroMedia` | Full-width photo or looping video band, 500px tall; shown straight with no overlay; `image` now, optional `video` later. **Not currently used** — the homepage apply cards replaced it on 2026-09-17; kept for other pages' heroes | Server |
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
-| `ui/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag; pauses on hover/focus and in a background tab; static under reduced motion. **Not currently used** — the homepage slogan line was removed 2026-09-30 | Client |
-| `ui/` | `ScrollFillText` | A heading's words fill from 25% to full strength as it scrolls up the screen (scroll-linked; finished text for reduced motion). Put it inside the heading; one per screen at most — not used anywhere since 2026-10-01 | Client |
+| `unused/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag; pauses on hover/focus and in a background tab; static under reduced motion. **Not currently used** — the homepage slogan line was removed 2026-09-30 | Client |
+| `unused/` | `ScrollFillText` | A heading's words fill from 25% to full strength as it scrolls up the screen (scroll-linked; finished text for reduced motion). Put it inside the heading; one per screen at most — not used anywhere since 2026-10-01 | Client |
 | `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
 | `ui/` | `PageOpening` | A page's opening on white: centred headline that rises in (StoryHeadline) and the lede under it; careers, Fleet map, Services and News | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet: `PageOpening` and nothing under it | Server |
+| `unused/` | `HalfStar`, `inkDepthClass` | Half the logo's star as an orange outline behind a dark band's heading, and the class that gives a `bg-ink` block its depth. **Not currently used** — made for the safety band and the About opening, both white now | Server |
 | `layout/` | `Header` | Fixed, type-only header: logo top-left, plain text links with a thin gliding line under the current page, Get a quote / Apply now as a same-width pair of interactive hover buttons. White with no bar over dark bands; a white bar with ink type fades in over light sections once scrolled. Careers is a plain link; hide-on-scroll on phones | Client |
 | `layout/` | `MobileMenu`, `MenuToggle` | Full-screen menu below `lg` and its two-line → X button | Client |
 | `layout/` | `Footer` | On white since 2026-10-05 (ink before): two groups of big links, contact, Get a quote (black) and Apply now (black ring), then logo, legal name, USDOT and MC | Server |

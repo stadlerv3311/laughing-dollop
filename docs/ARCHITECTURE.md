@@ -31,7 +31,7 @@ app/
   about/page.tsx             → About (/about)
 
 components/                  → component library, one folder per area, each with an index.ts
-  ui/                        → Button, Columns, Container, CountUp, Field, HalfStar (+ inkDepthClass, the dark bands' look; unused since the About opening went white on 2026-10-06), HeroMedia, LinkHover (RiseLabel + FlyArrow, the arrow links' hover), Logo, Reveal, RotatingSlogan, ScrollFillText, SlideIn, PageOpening (the centred headline and lede that careers, Fleet map, Services and News open with), PagePlaceholder,
+  ui/                        → Button, Container, CountUp, Field, LinkHover (RiseLabel + FlyArrow, the arrow links' hover), Logo, Reveal, PageOpening (the centred headline and lede that careers, Fleet map, Services and News open with), PagePlaceholder,
                                typography (shared label + section-heading classes)
   layout/                    → Header, MobileMenu, Footer (+ CopyrightYear, its year) — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, CardPair, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs, ApplyBand, NewsBand (the news block after the story: the three newest posts as a row of opening picture cards)
@@ -42,6 +42,7 @@ components/                  → component library, one folder per area, each wi
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll
+  unused/                    → parked components (2026-10-09): built for the site, used by no page, kept in case they are wanted again. Columns, HalfStar (+ inkDepthClass, the dark bands' look), HeroMedia, RotatingSlogan, ScrollFillText, SlideIn (SlideGroup + SlideItem). All came from ui/. Nothing imports from this folder
 
 lib/
   site.ts                    → company name, every nav link (single source for Header, menu, Footer), homepage numbers,
@@ -73,6 +74,7 @@ Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordi
 ## Component library conventions
 - Import from the folder barrel: `import { Button, Container } from "@/components/ui"`.
 - Server Components by default; add `"use client"` only for state, effects, or animation.
+- A component no page uses any more, but that is worth keeping, goes to `components/unused/` (the builder, 2026-10-09: "can we create a separate folder for unused components ?") and off its old folder's `index.ts`. Nothing imports from `unused/`: to use one again, move its file back, export it there and take it out of `unused/index.ts`. One that was simply replaced is deleted; git history has it. `Field` and `controlClass` are unused too but stay in `ui/Field.tsx`, because `errorId` in the same file is in use.
 - Style with Tailwind utilities and brand token names (`bg-brand`, `text-ink`, `bg-mist`, `bg-paper`, `ease-premium`) — no raw hex in components. The hero photo is shown straight: the `sunset-grade` and `film-grain` utilities and the `grain` keyframes were removed from `app/globals.css` on 2026-09-17.
 - Company name and links come from `lib/site.ts` — never hardcode them.
 - Put breakpoint visibility (`hidden lg:block`) on a wrapper, not on `Button` — its `inline-flex` would override `hidden`.
@@ -117,7 +119,7 @@ content growing past 1200px — with 12 columns / 24px gutters inside that conte
   below the `desktop` breakpoint (1200px, `--breakpoint-desktop` in `app/globals.css`), `max-w-[75rem] mx-auto`
   (1200px, centered) from `desktop` up. Used by every section, header included — the header's nav links + logo +
   CTA pair fit comfortably inside 1200px at every width from 1024 up (it was already tuned to fit in less).
-- `Columns` (`components/ui/Columns.tsx`) is the 12-column grid itself (8 / 4 columns at `sm` / phone) — put it
+- `Columns` (`components/unused/Columns.tsx`, parked there on 2026-10-09 until a section takes it up) is the 12-column grid itself (8 / 4 columns at `sm` / phone) — put it
   inside a `Container` and size children with Tailwind's `col-span-*`. Not yet adopted by any section; it's the
   primitive for the next pass of "does this text/button sit on the grid" work.
 - `--width-header-cta` (`app/globals.css`) is the single source for the CTA button width Header and HomeHero
