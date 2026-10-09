@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Archivo, Geist } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
@@ -27,6 +27,12 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
+};
+
+// The page draws to the screen's bottom edge on phones (2026-10-09). Without it Chrome on Android lays a strip in the
+// page's background colour over the gesture bar while its toolbar shows, which read as a white band under the hero.
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLenis } from "lenis/react";
 import { useReducedMotion } from "motion/react";
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { InteractiveHoverButton } from "@/components/ui";
@@ -101,6 +102,11 @@ function longDate(value: string) {
 }
 
 type Phase = "closed" | "opening" | "open" | "closing";
+
+/** Below `md`, where the form's fields are stacked. */
+const STACKED = "(width < 48rem)";
+/** Where the site header's bar ends, from the top of the screen. */
+const headerBottom = () => document.querySelector("body > header")?.getBoundingClientRect().bottom ?? 0;
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent"; text: string } | { kind: "failed"; message: string };
 
 type QuoteBarProps = {
@@ -140,6 +146,7 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   const baseId = useId();
   const id = (field: FieldName) => `${baseId}-${field}`;
   const still = useReducedMotion() ?? false;
+  const lenis = useLenis();
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -190,7 +197,51 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
     setHeight(form.offsetHeight + 16);
     setEntrance((n) => n + 1);
     setPhase(still ? "open" : "opening");
+    raise();
   }
+
+  // On phones the form is one tall column low in the band, and the keyboard takes the lower half of the screen: it
+  // came up over the whole form (the builder, 2026-10-09: "keyboard goes over the form … so i can see what i type").
+  // So as the button opens, the page glides the card up to the top of the screen, and the cursor lands in a field
+  // that is already in the clear. Below `md` only, where the fields are stacked. Phones tuck the header away on the
+  // way down (Header.tsx, below `sm`), so there the card goes right to the top, 8px in, and all five fields and
+  // the button fit over the keyboard; where the header stays, the card stops under it.
+  function raise() {
+    const card = cardRef.current;
+    if (!card || !window.matchMedia(STACKED).matches) return;
+    const place = card.getBoundingClientRect().top + window.scrollY;
+    const tucks = window.matchMedia("(width < 40rem)").matches && place - 8 > window.scrollY;
+    const top = tucks ? place - 8 : place - 16 - (document.querySelector<HTMLElement>("body > header")?.offsetHeight ?? 0);
+    if (lenis) lenis.scrollTo(top, { duration: 0.7, immediate: still, lock: true, force: true });
+    else window.scrollTo({ top, behavior: still ? "auto" : "smooth" });
+  }
+
+  // …and the field being typed in stays in the clear as the cursor moves down the form: whenever the keyboard is up
+  // and the focused cell runs under it (or up behind the header), the page moves by the difference.
+  useEffect(() => {
+    const view = window.visualViewport;
+    const form = formRef.current;
+    if (phase !== "open" || !view || !form) return;
+    const reveal = () => {
+      const field = document.activeElement;
+      if (!(field instanceof HTMLElement) || !form.contains(field)) return;
+      // No keyboard on screen: leave the page where it is.
+      if (window.innerHeight - view.height < 120) return;
+      const box = (field.closest("label") ?? field).getBoundingClientRect();
+      const floor = view.offsetTop + view.height - 12;
+      const ceiling = view.offsetTop + headerBottom() + 12;
+      const by = box.bottom > floor ? box.bottom - floor : box.top < ceiling ? box.top - ceiling : 0;
+      if (Math.abs(by) < 1) return;
+      if (lenis) lenis.scrollTo(window.scrollY + by, { immediate: true, force: true });
+      else window.scrollBy(0, by);
+    };
+    view.addEventListener("resize", reveal);
+    form.addEventListener("focusin", reveal);
+    return () => {
+      view.removeEventListener("resize", reveal);
+      form.removeEventListener("focusin", reveal);
+    };
+  }, [phase, lenis]);
 
   // Sent here by a Get a quote link: open the form, or, if it's already open, put the cursor back in Pickup.
   useEffect(() => {
@@ -557,7 +608,9 @@ function Cell({
       htmlFor={id}
       style={style}
       className={cx(
-        "flex min-w-0 cursor-text items-center gap-3 rounded-2xl px-4 py-3 transition-[background-color,box-shadow] duration-200 hover:bg-ink/[0.03] focus-within:bg-ink/[0.05] md:rounded-full md:px-5",
+        // Tighter on phones (2026-10-09): at 12px above and below, the stacked form was 428px tall and its button sat
+        // under a Galaxy's keyboard, which leaves 395px of screen.
+        "flex min-w-0 cursor-text items-center gap-3 rounded-2xl px-4 py-1.5 transition-[background-color,box-shadow] md:py-3 duration-200 hover:bg-ink/[0.03] focus-within:bg-ink/[0.05] md:rounded-full md:px-5",
         error && "shadow-[inset_0_0_0_2px_var(--color-brand)]",
         className,
       )}

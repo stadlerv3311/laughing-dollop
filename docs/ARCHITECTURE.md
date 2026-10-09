@@ -133,6 +133,12 @@ content growing past 1200px — with 12 columns / 24px gutters inside that conte
   variable; its own two buttons sit side by side since then and need 28.75rem (`HomeHero.tsx`), so Header is the
   variable's only user. The hero block's right edge still lines up with Apply now's: both sit in the same
   1200px-capped, centered `Container`, so the margin is identical by construction.
+- The page draws to the phone screen's bottom edge: `viewport-fit=cover`, set once through the `viewport` export in
+  `app/layout.tsx` (2026-10-09). Without it Chrome on Android lays a strip in the page's background colour over the
+  gesture bar while its toolbar shows, which read as a white band under the full-screen hero (seen on a Galaxy S26
+  Ultra and a Pixel 11 Pro). Nothing is pinned to the bottom of the screen today; anything that is later needs
+  `env(safe-area-inset-bottom)` to stay clear of the gesture bar. Not checked on an iPhone held sideways, where
+  `cover` also lets the page run under the notch.
 
 ### Logo
 | Source file (`docs/`) | Web copy (`public/`) | What it is | Use |
@@ -186,6 +192,8 @@ The site's one quote form since 2026-10-02 (`components/home/QuoteBar.tsx`): eve
 QuoteRequest { pickup: { zip, state }, delivery: { zip, state }, pickupDate, contact: { name, phone?, email? } }
 ```
 `state` is the two-letter code the ZIP belongs to (`lib/zip.ts`, from the first three digits — the backend should still check it). The city shown on the map and in the receipt (`cityForZip`, GeoNames' list in `public/zip`) is a label only and isn't part of the request. `submitQuote` is a stub until the backend teammate's endpoint exists: it succeeds in development and fails with a message in production.
+
+On phones (2026-10-09): Ship with us's heading, map and button start 112px from the band's top instead of sitting in the middle, and the band is `lvh` tall, the screen with the browser's toolbar folded away (so is the Apply band). Below `md`, where the form's fields are stacked, pressing Get a quote glides the page so the form's card sits at the top of the screen (16px in where the header tucks away, below `sm`; under the header otherwise), since a phone's keyboard otherwise came up over the whole form; while the keyboard is up, the page also moves to keep the field being typed in above it (`QuoteBar.tsx` → `raise` and the `visualViewport` effect under it). The keyboard half can't be tried in a desktop browser, which has no keyboard to show; check it on a real phone after any change here.
 
 ### News (`lib/news.ts`)
 ```

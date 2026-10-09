@@ -13,6 +13,11 @@ export const STORY_OPEN = "story-open";
 
 export type Milestone = {
   title: string;
+  /**
+   * What the mark counts, in a word or two, under its stop below `lg`, where the marks share one line of text under
+   * the row instead of each having its title and text ("70+" over "Trucks").
+   */
+  label: string;
   /** The big mark over it in the homepage story band ("1", "70+", "48"). */
   mark: string;
   /**
@@ -78,14 +83,14 @@ export const story: Story = {
   opening:
     "One truck and one driver out of Citrus Heights. Then owner-operators, our own authority, company trucks and an office of our own. The map got bigger; the way we answer the phone didn’t.",
   milestones: [
-    { title: "Where it started", mark: "1", text: "One truck and one driver out of California." },
+    { title: "Where it started", label: "Where it started", mark: "1", text: "One truck and one driver out of California." },
     // "70+" is the About page's fleet figure (owner, 2026-10-02: 55 trucks on the road and about 30 new ones in the
     // yard, so more than 70 — but 70 is the number kept). It replaced "DOT" (own authority) the same day.
     // It counts up from 1 like "48" since 2026-10-07 (owner: "70 doesnt have the animation"): one truck to 70+.
-    { title: "The fleet", mark: "70+", countFrom: 1, text: "Late-model trucks on the road." },
+    { title: "The fleet", label: "Trucks", mark: "70+", countFrom: 1, text: "Late-model trucks on the road." },
     // "30" (New trucks: brand-new trucks in the yard) went on 2026-10-05 (owner: back to three, it was cleaner); the
     // 30 are already inside the 70+.
-    { title: "Today", mark: "48", countFrom: 1, text: "Dry van freight moving across 48 states." },
+    { title: "Today", label: "States", mark: "48", countFrom: 1, text: "Dry van freight moving across 48 states." },
   ],
   // Pictures on the milestones only at first (owner, 2026-10-06: "not every one needs a photo. let's keep pictures for
   // only the important milestones"); later that day the owner sent one for each of the other stops too (below). Two

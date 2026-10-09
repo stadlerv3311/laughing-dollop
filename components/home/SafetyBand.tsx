@@ -86,6 +86,7 @@ export function SafetyBand({ between }: { between?: ReactNode }) {
                 start={servicesGroup.open}
                 open={servicesOpen}
                 onOpen={setServicesOpen}
+                phoneRow
                 reduceMotion={reduceMotion}
                 videos={videos}
                 play={play}

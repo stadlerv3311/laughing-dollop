@@ -34,7 +34,8 @@ export function ApplyBand() {
       ref={ref}
       aria-labelledby="apply-band"
       data-header-theme="dark"
-      className="relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden bg-ink px-5 pt-26 pb-8 text-center text-paper sm:px-8 md:pt-22 md:pb-12"
+      // `lvh` like Ship with us: the phone's toolbar is folded away this far down the page.
+      className="relative isolate flex min-h-lvh flex-col items-center justify-center overflow-hidden bg-ink px-5 pt-26 pb-8 text-center text-paper sm:px-8 md:pt-22 md:pb-12"
     >
       <ApplyRoad playing={inView} />
 

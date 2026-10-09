@@ -91,7 +91,13 @@ export function ShipWithUs() {
       data-nav-section=""
       // No scroll anchoring: as the form opens, the centred heading moves up, and the browser would scroll the page
       // up after it (180px on a phone), pulling the band's top off the screen's.
-      className="relative isolate flex min-h-svh [overflow-anchor:none] flex-col items-center justify-center overflow-hidden bg-ink px-5 pt-26 pb-8 text-center text-paper sm:px-8 md:pt-22 md:pb-12"
+      // The large viewport height, not the small one (2026-10-09): a phone's toolbar has folded away by the time the
+      // page has scrolled this far, and a band only `svh` tall left a strip of the next section showing under it.
+      // On phones the heading, map and button start from the top, 112px down, instead of sitting in the middle (the
+      // builder, 2026-10-09: "lets move up … and the button too", then "even more higher"). It also keeps the button
+      // where it is as it opens into the form, so QuoteBar can bring the form up clear of the keyboard. Centred as
+      // before from `md`, where the map lies behind the words.
+      className="relative isolate flex min-h-lvh [overflow-anchor:none] flex-col items-center justify-center overflow-hidden bg-ink px-5 pt-26 pb-8 text-center text-paper max-md:justify-start max-md:pt-28 sm:px-8 md:pt-22 md:pb-12"
     >
       <ShipRouteMap
         pickup={pickup}
