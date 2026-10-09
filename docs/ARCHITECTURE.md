@@ -19,6 +19,7 @@ app/
   globals.css                → Tailwind import + brand tokens
   icon.svg                   → favicon (star icon)
   page.tsx                   → Homepage (/) — HomeIntro + HomeHero + SlideOverStack(SafetyBand(between: TrustBar) + ToolsBand, ShipWithUs) + StoryTeaser + NewsBand + SlideOverStack(WhyWorkWithUs, ApplyBand)
+  not-found.tsx              → the 404 page: what any address the site doesn't have shows, inside the header and footer (2026-10-09)
   services/page.tsx          → Services (/services)
   quote/page.tsx             → redirects to /#quote (the quote form is in Ship with us since 2026-10-02)
   fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are on a real map (FleetMap); formerly Track a Load

@@ -75,7 +75,7 @@ Six components no page uses, kept on purpose, now in `components/unused/` (the b
 ## Still open
 - **`next` has a critical advisory** (versions 16.0.0 to 16.3.7; the project is on 16.3.4), and `npm audit` lists eight high ones in development tooling. Fixing the first means upgrading `next`, which the audit's rules left out. Worth doing as its own task before launch.
 - **Stand-in media shows in a production build.** The news posts and the fleet positions are kept out of production; the pictures and clips marked "must not go live" are not (Samsara's GPS clip, Volvo's images in the application, the Services and About pictures). They are also not in the repo, so a deploy from git would show broken pictures in their place. A launch blocker, listed in DECISIONS.md → Open.
-- **No 404 page of the site's own**: an unknown address gets the framework's default. The builder is choosing one.
+- **No 404 page of the site's own**: an unknown address got the framework's default. Built later the same day, after the audit: `app/not-found.tsx`.
 - **A scroll lock that may outlast the homepage** (`components/home/ShipWithUs.tsx`, `useLandingPause`): the timer that gives the scroll back after the landing pause isn't cleared when the page is left, so the next page could hold still for up to 2.4 seconds. Read from the code, not reproduced, so not changed.
 - **ARCHITECTURE.md → Section spacing** says not to hand-pick a band's padding, and most bands now do, each with the builder's reason beside it. The rule or the bands: not settled here.
 - **No tests, no formatter.** There was nothing to re-run or to format with, and the audit added neither. File names and imports were already consistent.
