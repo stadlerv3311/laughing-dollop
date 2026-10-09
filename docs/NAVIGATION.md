@@ -41,7 +41,7 @@
 | Change the safety band (GPS, dash cams) | Copy: `lib/site.ts` → `safetySystems` (GPS and dash cams), `safetyGroups` (the road pair's words and which cards pair up; the shop cards and words are `equipmentGroups`, shown in Why work with us), `safetyPitch` (the line beside the heading); layout: `components/home/SafetyBand.tsx`; each card's clip is its `video` in `safetySystems` (or an `image` still) (placeholders in `public/videos/safety-*-placeholder.mp4`) |
 | Change the logo row under the safety band (Samsara, Fleetio, Volvo, Datatruck, OnRamp) | List and each logo's display height: `lib/site.ts` → `tools`; logo files: `public/logos/*.svg`; layout: `components/home/ToolsBand.tsx` |
 | Edit the homepage headline (h1) | `lib/site.ts` → `heroLines`; the word-by-word light-up in `components/home/HeroHeadline.tsx`; placement in `components/home/HomeHero.tsx` |
-| Change the hero video, its crop, its scrims or the pause between truck passes (`EMPTY_ROAD_MS`) | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `homeHeadline` |
+| Change the hero video, its crop, its scrims or the pause between truck passes (`EMPTY_ROAD_MS`) | `components/home/HomeHero.tsx` (video `public/videos/home-hero-forest.mp4`, poster `public/images/home-hero-forest.jpg`); the h1 is `lib/site.ts` → `heroLines`, the line under it `homeSupport` |
 | Change the homepage's Why work with us (heading, each job's four reasons, the order of the job cards and which starts open, the two shop rows over the job cards) | `lib/site.ts` → `whyWorkWithUs` (`order` and `open` for the cards), and `equipmentGroups` for the shop rows' cards and words (a card with no `video` or `image` shows as a grey stand-in); layout in `components/home/WhyWorkWithUs.tsx`; the sliding pair itself is `components/home/CardPair.tsx` |
 | Change the three job cards (roles, job names, lines, photos) | `lib/site.ts` → `applyRoutes` (shared with the careers page and the application); photos in `public/images/apply-*.jpg` |
 | Bring back the full-width homepage photo band, or add the B-roll video | `components/unused/HeroMedia.tsx` is still there but unused since 2026-09-17 (move it back to `components/ui/` to use it) — the apply cards took its place in `app/page.tsx` (they now sit in Why work with us) |
@@ -58,7 +58,7 @@
 | Regenerate or re-project the state shapes | `scripts/build-us-states.mjs` → writes `lib/us-states.ts` |
 | Fix a ZIP that lights up the wrong state | `lib/zip.ts` |
 | Refresh the ZIP → city list (about once a year) | Download GeoNames' `US.zip`, then `node scripts/build-zip-cities.mjs path/to/US.txt` → `public/zip/*.json` |
-| Change the shared input/select look | `components/ui/Field.tsx` → `controlClass` |
+| Change the look of a form's boxes | The quote form: `inputClass` and `Cell` in `components/home/QuoteBar.tsx`. The job application: `lineClass` in `components/careers/JobApplication.tsx`. (`controlClass` in `components/ui/Field.tsx` is the old shared look; no form uses it today) |
 | Change header behavior (hide on scroll on phones, dimmed state during the logo moment) | `components/layout/Header.tsx` |
 | Change the phone/tablet menu | `components/layout/MobileMenu.tsx` |
 | Change the footer | `components/layout/Footer.tsx`; its links are `footerGroups` and the phone, address, USDOT and MC are `company`, both in `lib/site.ts` |
@@ -84,6 +84,8 @@ flowchart TD
   Page --> HomeHero["home/HomeHero"]
   SlideOverStack --> WhyWorkWithUs["home/WhyWorkWithUs"]
   SlideOverStack --> ApplyBand["home/ApplyBand"]
+  Page --> StoryTeaser["home/StoryTeaser"]
+  StoryTeaser -. "story" .-> Story["lib/story"]
   Page --> NewsBand["home/NewsBand"]
   NewsBand -. "posts" .-> News["lib/news"]
   NewsBand --> NewsCards["news/NewsCards"]
@@ -105,18 +107,18 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | Folder | Component | What it does | Runs on |
 |---|---|---|---|
 | `ui/` | `Button` | Pill button; `href` makes it a link. Variants: `primary` (solid black), `outline` (black ring on a light frosted fill). Both share one type size so a pair sized alike matches. Sizes: `md`, `lg` | Server |
-| `ui/` | `InteractiveHoverButton` | Pill whose label slides out on hover while an ink dot grows to fill it and brings the label back in white with an arrow; `href` makes it a link; sizes `sm` (fixed 8rem), `lg` (Button's lg height, width from className) and `lgFit` (lg for a button as wide as its label, the dot a fixed 24px in: Get another quote, 2026-10-06); variants `solid` (white, fills ink), `ghostLight` (thin white ring, fills white), and the header's `ghostQuiet` (faint ring over dark bands) / `ghostDark` / `ink`; size `md` is the header's 40px pair. The hero's Get a quote and Apply now, and the header's pair | Server |
+| `ui/` | `InteractiveHoverButton` | Pill whose label slides out on hover while an ink dot grows to fill it and brings the label back in white with an arrow; `href` makes it a link; sizes `sm` (fixed 8rem), `lg` (Button's lg height, width from className) and `lgFit` (lg for a button as wide as its label, the dot a fixed 24px in: Get another quote, 2026-10-06); variants `solid` (white, fills ink), `ghostLight` (thin white ring, fills white), and the header's `ghostQuiet` (faint ring over dark bands) / `ghostDark` / `ink`; size `md` is the header's 40px pair. The hero's Get a quote and Apply now, the header's pair, the footer's pair, the quote form's send button and Get another quote, and the application's Continue | Server |
 | `ui/` | `Container` | Full-width side-margin wrapper — phone/tablet padding below `desktop` (1200px), content caps at 1200px and centers above it | Server |
 | `unused/` | `Columns` | The 12-column / 24px-gutter grid that sits inside a `Container` — size children with `col-span-*`. **Not used yet** — no section has taken it up | Server |
-| `ui/` | `Logo` | Brand logo, `variant="full"` or `"icon"`; fills its wrapper's width | Server |
+| `ui/` | `Logo` | Brand logo: `variant="full"` (the default), `"icon"` (the star alone) or `"light"` (the white wordmark, which the header shows over dark bands); fills its wrapper's width | Server |
 | `ui/` | `Reveal` | Fades + lifts children in once they scroll into view; `delay` for stagger | Client |
 | `unused/` | `SlideGroup`, `SlideItem` | A section that slides its items in from the sides on one shared trigger, so they start and stop together; `distance="100%"` starts an item fully off the screen edge. Clips sideways overflow. **Not currently used** — built for the safety band, which no longer slides in | Client |
-| `ui/` | `LinkHover` | `RiseLabel` (underlined words that roll up to a copy) and `FlyArrow` (the ↗ that flies out and back in): the hover for the underlined arrow links — Get a quote (safety band) and Read our full story (story band); Apply now in Why work with us used it until 2026-10-05, when the black Apply band took over. Driven by the link's `group` hover and focus | Server |
+| `ui/` | `LinkHover` | `RiseLabel` (underlined words that roll up to a copy) and `FlyArrow` (the ↗ that flies out and back in): the hover for every underlined arrow link — Get a quote and Fleet map in the safety band, Read our full story, All news, the careers page's Apply now, the About page's two cards, the Services page's closing card, and New application after an application is sent. Driven by the `group` hover and focus of the link, or of the card around it | Server |
 | `unused/` | `HeroMedia` | Full-width photo or looping video band, 500px tall; shown straight with no overlay; `image` now, optional `video` later. **Not currently used** — the homepage apply cards replaced it on 2026-09-17; kept for other pages' heroes | Server |
 | `ui/` | `CountUp` | Number that fills up from zero once it scrolls into view; `suffix` for "+" / "M+" | Client |
 | `unused/` | `RotatingSlogan` | Rolls through `driverSlogans` like an odometer; `as` picks the tag; pauses on hover/focus and in a background tab; static under reduced motion. **Not currently used** — the homepage slogan line was removed 2026-09-30 | Client |
 | `unused/` | `ScrollFillText` | A heading's words fill from 25% to full strength as it scrolls up the screen (scroll-linked; finished text for reduced motion). Put it inside the heading; one per screen at most — not used anywhere since 2026-10-01 | Client |
-| `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look | Server |
+| `ui/` | `Field`, `controlClass`, `errorId` | Form field label + error message, and the shared input/select look. Only `errorId` is in use (the job application's error ids): no form uses `Field` or `controlClass` today, since the quote form and the application draw their own boxes | Server |
 | `ui/` | `PageOpening` | A page's opening on white: centred headline that rises in (StoryHeadline) and the lede under it; careers, Fleet map, Services and News | Server |
 | `ui/` | `PagePlaceholder` | Temporary body for pages not built yet: `PageOpening` and nothing under it | Server |
 | `unused/` | `HalfStar`, `inkDepthClass` | Half the logo's star as an orange outline behind a dark band's heading, and the class that gives a `bg-ink` block its depth. **Not currently used** — made for the safety band and the About opening, both white now | Server |
@@ -127,13 +129,14 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `home/` | `HeroHeadline` | The homepage h1, "A fleet you can trust. A load you can see." (`heroLines`): all full white (since 2026-10-02), lighting up word by word as the intro hands over; fixed since 2026-10-02 (it rolled through four pairs before) | Server-safe (rendered inside the client `HomeHero`) |
 | `home/` | `HomeHero` | Full-screen forest drone loop (road on the left fifth): shipper h1 (`HeroHeadline`) lighting up word by word, one supporting line, Get a quote (solid) and Apply now (thin white ring) side by side in a 28.75rem column under the headline from `lg` (2026-10-02) | Client |
 | `home/` | `WhyWorkWithUs` | Why work with us, the careers half (its ask is `ApplyBand`, right under it): heading (centred, no label, since 2026-10-05); two shop rows (`CardPair`): Lease to own and New equipment (pictures left, words right), then Maintenance on record and Our shop (mirrored), since 2026-10-05 — the shop pair moved from the safety band on 2026-10-03; then the careers block, centred since 2026-10-05: "Why ___ stay." as a heading, the three job cards across the full width (dispatcher, driver in the middle and open first, technician; open on hover, focus or tap; pick the job, don't link), and the open job's four reasons in a row beneath with every sentence in view (its centred Apply now went to the Apply band on 2026-10-05). Copy and the cards' order from `whyWorkWithUs` (`order`, `open`) and `equipmentGroups`, cards from `applyRoutes` | Client |
-| `home/` | `StoryHeadline` | The story band's two-line heading (also the safety band's since 2026-09-30, with "We know" lit white instead of an orange word), each line rising in from behind its edge (the second 0.15 s later), the first line at 55% white and the accent word (`lib/story.ts` → `headlineAccent`) turning orange after it lands. Once, on first view | Client |
+| `home/` | `StoryHeadline` | The story band's two-line heading (also the safety band's since 2026-09-30, with "We know" lit white instead of an orange word), each line rising in from behind its edge (the second 0.15 s later), the first line at 55% white and the accent word (`lib/story.ts` → `headlineAccent`) turning orange after it lands. Once, on first view. Every use today sets `solid`, so no line is grey. It lives in `home/` but the inner pages' `PageOpening` and the About page's opening use it too | Client |
+| `home/` | `StoryTeaser` | The homepage's story band, on white: the two-line heading (`StoryHeadline`, in Geist, "rule" in orange), the rule under it, Read our full story (the link that morphs the band into the About page's opening) and the three marks (`StoryRoute`). Copy in `lib/story.ts` | Server |
 | `home/` | `StoryRoute` | The story band's three marks (1, 70+, 48) as a route, centred in their columns from `lg`: the hairline draws stop to stop (and ends at the last stop) with a riding orange dot, each mark lights as it's reached, 48 counts up from 1. Once, on first view; stacked with the road down the left on phones. Marks and lines in `lib/story.ts` → `milestones` | Client |
 | `home/` | `ShipRouteMap` | The dotted lower-48 map filling Ship with us (beside the words on phones): the typed ZIPs light their states and drop pins, a dashed arc joins them, an orange dot rides it on send, and a white wave sweeps the dots (paused off screen; none of it under reduced motion). Images `public/images/us-dots.svg`, with the country's edge in brighter dots, and its white mask `us-dots-mask.svg` (rebuild both: `node scripts/build-us-dots.mjs`; the edge's strength is `EDGE` there) | Client |
 | `home/` | `QuoteBar` | The site's quote form (every Get a quote opens it): a big `cloud` Get a quote button that opens into the form (Pickup ZIP, Delivery ZIP, Pickup date, Name, Phone or email), checks it, sends it through `submitQuote` and turns into a receipt with Get another quote; Escape (only — never a click) closes it back into the button, keeping what was typed | Client |
 | `home/` | `ShipWithUs` | The shipper half's closing ask, full screen on black since 2026-10-02: label and heading over the map, the quote button-and-form under them, and a one-time landing pause on the way down; between the safety band and the story. Replaced `AudienceSplit` / `AudiencePanel` on 2026-09-18 | Client |
 | `home/` | `SafetyBand` | What we haul and how we watch it: the heading and pitch, the services pair (`CardPair`) beside its words, the list of services and Get a quote (`lib/services.ts`), the numbers band (`between`), then the road pair — GPS and dash cams — mirrored beside its words (since 2026-10-05); the shop pair moved to Why work with us on 2026-10-03; all on white since 2026-10-02 | Client |
-| `home/` | `CardPair` | Two cards side by side that open up (hover widens one and plays its clip, paused otherwise; a tap plays or pauses), on 7 of 12 columns from `lg`; `usePairVideos` keeps one clip playing per section. Takes any two cards (`PairCard`; a still can set its `position`; a card with neither clip nor still is a plain grey stand-in); used by the safety band's services and road pairs and Why work with us's two shop rows | Client |
+| `home/` | `Pair`, `usePairVideos` (in `CardPair.tsx`) | Two cards side by side that open up (hover widens one and plays its clip, paused otherwise; a tap plays or pauses), on 7 of 12 columns from `lg`; `usePairVideos` keeps one clip playing per section. Takes any two cards (`PairCard`; a still can set its `position`; a card with neither clip nor still is a plain grey stand-in); used by the safety band's services and road pairs and Why work with us's two shop rows | Client |
 | `home/` | `ToolsBand` | The five tool companies' logos, centred (no line over them since 2026-10-02), closing the safety band inside the same pinned section | Server |
 | `home/` | `ApplyBand` | The careers half's closing ask, the twin of Ship with us (2026-10-05): a full black screen with a label, a 72px question and one Apply now pill (a link to the application, `/careers/apply`), over a road drawn in the map's dots on a canvas (`ApplyRoad`, moving only while on screen, still under reduced motion). Last on the page, straight on the white footer; slides up over Why work with us | Client (canvas) |
 | `home/` | `NewsBand` | The news block between the story band and Why work with us: no heading shown (since 2026-10-09), the three newest posts as `NewsCards`, the All news link centred under them; renders nothing when there are no posts to show | Server |
@@ -141,14 +144,60 @@ Import from the folder, e.g. `import { Button, Container } from "@/components/ui
 | `services/` | `QuoteCard` | The Services page's closing card: cut on a slant, the question and Get a quote on white, the homepage band's live map (`ShipRouteMap`) on black; no cut below laptop width. Its Get a quote grows the card into the homepage's quote band | Client |
 | `ui/` | `PictureStage` | The stage on Services and News: one big card with an item's picture and its words on a white panel in the picture's corner, the items as smaller cards under it; choosing one grows it into the stage (a view transition), and with a mouse from laptop width it moves on every five seconds while a line fills, held while pointed at. Takes `items` (`StageItem`: name, words, an optional label and picture); `headlines` for names that are sentences (news posts) | Client |
 | `news/` | `NewsCards` | The homepage news block's three posts: from 1024px a row of pictures, one open with the day, headline and sentence beside it on white; hover, focus or press another picture and the words trade places. Below 1024px stacked, all open | Client |
-| `home/` | `SlideOverStack` | Pins the safety band from `lg` while Ship with us slides up over it as a sheet (70% of the band's height), once, on the way down; used a second time for the Apply band over Why work with us; `useCovered()` tells the band when it's covered so its timer pauses (2026-09-24) | Client (scroll) |
+| `home/` | `SlideOverStack` | Pins the safety band from `lg` while Ship with us slides up over it as a sheet (70% of the band's height), once, on the way down; used a second time for the Apply band over Why work with us; `useCovered()` tells a band when it's covered (2026-09-24, for a timer the band no longer has); nothing reads it today | Client (scroll) |
 | `home/` | `TrustBar` | Company numbers that fill up on scroll, set on white with no box or lines, inside the safety band, between the services pair and the road pair (`companyStats` in `lib/site.ts`, `main` marks the two big ones); one centred row from `lg`, big pair over the small three below it | Server |
+| `about/` | `StoryLine` | The About page's story down one line that bends from side to side around the pictures: a dot for each stop, one picture frame to a chapter, every second chapter on a black band; `landing` runs the line on to a last dot on the closing band's top edge. Stops in `lib/story.ts` → `timeline` | Client |
+| `about/` | `SplitCard` | One of the About page's two closing cards on the black band: cut on a slant, white above and black below, the underlined arrow link under the words, a dashed lane line rolling toward you in the black wedge; `flip` is the mirror image. The whole card is the link | Server |
+| `fleet/` | `FleetMap` | The Fleet map's street map (MapLibre, loaded in the browser on this page only): trucks as orange dots, bunched into counted black circles that open on a click; the truck count and when the positions were read sit over it. Zoom capped at `MAX_ZOOM` | Client |
 | `careers/` | `JobApplication` | One application for all three jobs, as a dark split: the picked job's photo on the left half (a band on phones), one question at a time on ink on the right under "Applying for" and the job's title, the picture changing with the question where one is set (`STEP_IMAGES`), always opening on the name; where the URL doesn't say the job (`/careers/apply`, against `/careers/drivers` and `/careers/staff?job=office|shop`) "Which job?", three photo cards, is the fifth question, over a picture of loading docks until then; Back from the first question goes to `/careers`. Tap answers move on, Enter goes on, number keys pick. Sent: a 122px icon plays in the middle of the panel (a ring draws, a tick draws in it, a white disc fills it, the tick turns into a T), then that T travels to the spot of the T of "Thanks" and becomes the letter (`SentMark`, sized by `T_GLYPH`), and the rest of the thanks comes in | Client |
-| `careers/` | `CareersOverview` | The careers page: a dark opening, then one alternating photo-and-text section per job (paragraph, Why here list, Apply now into the application on that job) | Server |
+| `careers/` | `CareersOverview` | The careers page: the shared opening on white (`PageOpening`), then one alternating photo-and-text section per job (paragraph, Why here list, Apply now into the application on that job) | Server |
 | `intro/` | `HomeIntro` | Renders nothing; on load drives the shared intro progress 0 → 1 off the hero video's clock, which slides the header down with the truck, brings the hero text down after it and lights up the headline | Client |
 | `intro/` | `timeline.ts` | `INTRO` video times, drop spans and distances, appear scale and the fraction things light up at | — |
 | `providers/` | `IntroProgressProvider`, `useIntroProgress` | Shares intro progress (0–1) between `HomeIntro`, `Header` and `HomeHero` | Client |
 | `providers/` | `SmoothScroll` | Lenis smooth scrolling; off for reduced motion | Client |
+
+### Props
+What each component takes, as the code has it. `*` is required; a value after `=` is the default. Components not listed take none.
+
+| Component | Props |
+|---|---|
+| `Button` | `children*`, `variant = "primary"` (`"primary"` \| `"outline"`), `size = "md"` (`"md"` \| `"lg"`), `className`, `href` (a link when set, a `<button type="button">` without it), and the rest of the link's or the button's own props |
+| `InteractiveHoverButton` | `text = "Button"`, `size = "sm"` (`"sm"` \| `"md"` \| `"lg"` \| `"lgFit"`), `variant = "solid"` (`"solid"` \| `"ghostLight"` \| `"ghostQuiet"` \| `"ghostDark"` \| `"ink"`), `className`, `href` (a link when set, a `<button type="button">` without it), and the rest of the link's or the button's own props |
+| `Container` | a `<div>`'s props; `className` is added to its own |
+| `CountUp` | `value*` (number), `suffix = ""`, `duration = 2` (seconds), `from = 0`, `play = true`, `className` |
+| `Field` | `id*`, `label*`, `children*`, `optional`, `error`, `className`. `errorId(id)` gives `"<id>-error"` |
+| `RiseLabel` | `children*`, `className` (replaces the default underline, `border-b pb-0.5`) |
+| `FlyArrow` | `className` (sizes it, e.g. `size-3.5`) |
+| `Logo` | `variant = "full"` (`"full"` \| `"icon"` \| `"light"`), `alt` = the company name (pass `""` inside a link that has its own name), `loading` (`"eager"` \| `"lazy"`), `className` |
+| `PageOpening` | `id*`, `lines*` (string[]), `lede` |
+| `PagePlaceholder` | `title*`, `description*` |
+| `PictureStage` | `items*` (`StageItem[]`: `id`, `name`, `detail`, optional `label` and `image: { src, position? }`), `headlines = false` |
+| `Reveal` | `children*`, `delay = 0` (seconds), `y = 16` (px), `className` |
+| `CopyrightYear` | `built*` (number: the year when the page was built) |
+| `MobileMenu` | `open*`, `pathname*`, `onNavigate*` |
+| `MenuToggle` | `open*`, `onToggle*`, `light = false` |
+| `HeroHeadline` | `lit*` (boolean), `className` |
+| `Pair` | `cards*` (two `PairCard`s), `start*` and `open*` (0 or 1), `onOpen*`, `onActive`, `reduceMotion*`, and `videos*`, `play*`, `pause*` from `usePairVideos()` |
+| `QuoteBar` | `onStates*`, `onSent*`, `openRequest*` (number), `onOpenChange` |
+| `SafetyBand` | `between` (what sits between its two pairs: the numbers band) |
+| `ShipRouteMap` | `pickup*` and `delivery*` (a state code or `null`), `pickupCity`, `deliveryCity`, `ride*` and `sweep*` (numbers, counted up to replay), `playing*`, `demo*`, `demoStates`, `className` |
+| `SlideOverStack` | `under*`, `over*`, `dark = false` |
+| `StoryHeadline` | `id*`, `lines*` (string[]), `accent`, `tone = "brand"` (`"brand"` \| `"paper"`), `as = "h2"` (`"h1"` \| `"h2"`), `light = false`, `inline = false`, `solid = false`, `large = false`, `sans = false`, `className` |
+| `StoryRoute` | `milestones*` (`Milestone[]`, `lib/story.ts`) |
+| `StoryLine` | `entries*` (`TimelineEntry[]`, `lib/story.ts`), `landing = false` |
+| `SplitCard` | `title*`, `text*`, `link*` (`{ label, href }`), `flip = false` |
+| `JobApplication` | `initialJob` (`"driver"` \| `"office"` \| `"shop"`; without it the application asks which job) |
+| `NewsCards` | `posts*` (`NewsPost[]`; the first three are shown) |
+| `NewsRow` | `post*` (`NewsPost`) |
+| `QuoteCard` | `id*` (its heading's id), `title*` |
+| `FleetMap` | `snapshot*` (`FleetSnapshot`, `lib/fleet.ts`) |
+| `IntroProgressProvider`, `SmoothScroll` | `children*` |
+| `Columns` (unused) | a `<div>`'s props; `className` is added to its own |
+| `HeroMedia` (unused) | `image*` (`{ src, alt }`), `video` (`{ src, type? }`) |
+| `RotatingSlogan` (unused) | `slogans*`, `hold = 3.6` (seconds), `as = "p"` (`"h1"` \| `"h2"` \| `"p"`), `className` |
+| `ScrollFillText` (unused) | `text*`, `from = 0.25` |
+| `SlideGroup` (unused) | `children*`, `className`, `aria-labelledby` |
+| `SlideItem` (unused) | `from*` (`"left"` \| `"right"`), `distance = "6rem"`, `className`, `children` |
 
 ## Directory map
 ```
