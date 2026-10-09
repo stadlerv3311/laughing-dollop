@@ -39,3 +39,30 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Pictures held back from the public repo: third-party marketing images and pictures whose source is not
+# confirmed (docs/DECISIONS.md). They stay on disk so the pages render while developing. Take a line out only
+# once the picture is cleared to publish.
+/public/images/about-company-trucks.jpg
+/public/images/about-contract-lanes.jpg
+/public/images/about-dock-doors.jpg
+/public/images/about-fleet.jpg
+/public/images/about-one-truck.jpg
+/public/images/about-owner-operators.jpg
+/public/images/apply-docks.jpg
+/public/images/apply-driver-call.jpg
+/public/images/apply-driver-email.jpg
+/public/images/apply-driver-road.jpg
+/public/images/apply-driver-seat.jpg
+/public/images/apply-driver-sleeper.jpg
+/public/images/apply-driver-start.jpg
+/public/images/apply-driver-wheel.jpg
+/public/images/dry-van-trailers.jpg
+/public/images/dry-van-yard.jpg
+/public/images/lease-handshake.jpg
+/public/images/news-truck-yard.jpg
+/public/images/services-dash-cam.jpg
+/public/images/services-dock-doors.jpg
+/public/images/services-drop-trailers.jpg
+/public/images/services-interchange.jpg
+/public/images/services-shop.jpg
