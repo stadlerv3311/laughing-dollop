@@ -96,7 +96,6 @@ export function HomeHero() {
   return (
     <section
       ref={sectionRef}
-      id="content"
       data-header-theme="dark"
       // The header's bar over the film is matte glass, not the ink one, and only once the page has scrolled (Header.tsx).
       data-header-glass="matte"

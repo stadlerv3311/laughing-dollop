@@ -35,10 +35,6 @@
      homepage hero's text column matches the pair's total width so it lines up under them (HomeHero.tsx). */
   --width-header-cta: 9.5rem;
 
-  /* Homepage hero: the photo eases in from a slight zoom, and the words rise into place (2026-09-21). */
-  --animate-hero-settle: hero-settle 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-hero-rise: hero-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-
   /*
    * Ship with us (2026-10-02, ShipWithUs.tsx): the white light that sweeps across the map's dots — once as the band
    * lands, then every few seconds while it's on screen; the form's cells arriving in turn as the button opens into it;
@@ -123,26 +119,6 @@
       opacity: 0;
     }
   }
-
-  @keyframes hero-settle {
-    from {
-      transform: scale(1.05);
-    }
-    to {
-      transform: none;
-    }
-  }
-
-  @keyframes hero-rise {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
 }
 
 @layer base {
@@ -182,16 +158,6 @@
   ::selection {
     background: var(--color-brand);
     color: var(--color-paper);
-  }
-}
-
-/* Intro "Scroll" cue — a short line sliding down its track */
-@keyframes scroll-cue {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(200%);
   }
 }
 

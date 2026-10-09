@@ -177,7 +177,7 @@ export const applyRoutes: readonly ApplyRoute[] = [
     ],
     image: {
       // The owner's driver portrait (2026-09-17), down from 5376px — the full-size original took ~20s a
-      // width to resize in dev. The truck photo it replaced is still `home-hero-desert.jpg`.
+      // width to resize in dev. The truck photo it replaced, `home-hero-desert.jpg`, was deleted on 2026-10-09.
       src: "/images/apply-driver.jpg",
       alt: "A driver standing with folded arms in front of his truck",
       // He stands left of centre, so a centred square crop would cut him in half.

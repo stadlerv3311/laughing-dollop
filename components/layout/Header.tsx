@@ -316,7 +316,6 @@ export function Header() {
             >
               {/* Fades and settles into place as the homepage intro hands over — see HomeIntro. */}
               <motion.div
-                data-intro-logo-target
                 style={{ opacity: logoOpacity, scale: logoScale }}
                 className="relative w-[132px] sm:w-[148px]"
               >
