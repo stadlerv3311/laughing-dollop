@@ -31,8 +31,8 @@
    */
   --breakpoint-desktop: 75rem;
 
-  /* Header's two CTA buttons share this width from `xl` so they read as a matched pair (Header.tsx); the
-     homepage hero's text column matches the pair's total width so it lines up under them (HomeHero.tsx). */
+  /* Header's two CTA buttons share this width from `xl` so they read as a matched pair (Header.tsx). The homepage
+     hero's text column matched the pair's total width until 2026-10-02; it is a fixed 28.75rem now (HomeHero.tsx). */
   --width-header-cta: 9.5rem;
 
   /*

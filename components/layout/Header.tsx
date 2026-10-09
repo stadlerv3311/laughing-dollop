@@ -351,7 +351,7 @@ export function Header() {
               <div className="hidden lg:block">
                 {/*
                   The two CTAs share one fixed width from `xl` (`--width-header-cta`, app/globals.css), so they
-                  read as a pair — HomeHero's text column matches the pair's total width off the same variable.
+                  read as a pair (HomeHero's text column matched the pair's total width until 2026-10-02; it has its own now).
                   Both are 40px tall. Between 1024 and 1280 they size to their labels, or the row runs off the
                   right edge. They play the hero buttons' dot-fill hover (InteractiveHoverButton): faint white
                   rings over dark bands (`ghostQuiet`), so they sit back and the hero's buttons lead.

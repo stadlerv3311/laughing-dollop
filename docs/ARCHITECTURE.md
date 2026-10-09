@@ -50,7 +50,9 @@ lib/
                                the footer's link groups (`footerGroups`) and the FMCSA record (`company`: legal name,
                                phone, address, USDOT, MC)
   cx.ts                      → className join helper
-  forms.ts                   → QuoteRequest type + submitQuote stub (backend contract goes here)
+  forms.ts                   → QuoteRequest type + submitQuote stub, JobApplication type + submitJobApplication stub (backend contract goes here)
+  services.ts                → the three services, the Services page's words (`servicesPage`) and the safety band's services pair (`servicesGroup`)
+  story.ts                   → the company story (draft): the homepage band's headline, rule and marks, the About page's stops (`timeline`), and the story band → About transition's names
   fleet.ts                   → FleetSnapshot type + getFleetSnapshot stub with sample positions (the Samsara contract goes here)
   news.ts                    → NewsPost type + newsPosts (eight UNCONFIRMED stand-in posts, drafts) + visibleNewsPosts (drafts are left out of production) + formatNewsDate
   us-states.ts               → generated lower-48 state shapes for the quote map — don't edit by hand
@@ -58,18 +60,20 @@ lib/
 
 scripts/
   build-us-states.mjs        → regenerates lib/us-states.ts from Census shapes (run steps in the file)
+  build-us-dots.mjs          → regenerates public/images/us-dots.svg and us-dots-mask.svg, the dot map, from lib/us-states.ts (`node scripts/build-us-dots.mjs`)
   build-zip-cities.mjs       → regenerates public/zip/*.json from GeoNames' US postal code list (run steps in the file)
 
 public/
   zip/                       → 0.json … 9.json: every lower-48 ZIP's "City, ST" by first digit, for the quote map's pin labels (GeoNames, CC BY 4.0, credited in the footer; ATTRIBUTION.txt)
   logo.svg, logo-icon.svg    → web copies of the logo originals in docs/
   logo-light.svg             → logo.svg with a white wordmark, for the header over dark bands
-  images/                    → photos (AI-generated stand-ins); home-hero-forest.jpg is the hero video's poster; dry-van-yard.jpg (the owner's pick: since 2026-10-06 their cleaner copy of the view first sent on 2026-10-05 as dry-van-trailers.jpg, which is no longer used; source not confirmed, not our yard, both kept out of the public repo until it is) and home-hero-sierra.jpg are the safety band's services stills; the Services page's three (2026-10-08) are dry-van-yard.jpg, services-interchange.jpg (a highway interchange from above, the builder's pick for Dedicated lanes) and services-drop-trailers.jpg (a row of trailers on their landing gear, the builder's pick for Drop and hook; Great Dane badges on them), the last two with their source not said and kept out of the public repo until it is; new-equipment-row.jpg (the blue-sky copy of new-equipment-lot.jpg), lease-handshake.jpg (the owner's pick, 2026-10-05: source not confirmed, kept out of the public repo until it is) and our-shop-tires.jpg are Why work with us's New equipment, Lease to own and Our shop stills. Deleted on 2026-10-09, when nothing used them any more (all in git history): home-hero-desert.jpg, home-hero-placeholder.jpg, about-truck-front.jpg, ship-truck-side.jpg, new-equipment-lot.jpg, lease-truck-road.webp, safety-fleet.jpg and safety-truck-front.jpg
-  videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated, upscaled to 1080p; replayed by hand with a 2 s hold between passes)
+  logos/                     → the five tool companies' logos for the row under the safety band (samsara, fleetio, volvo, datatruck, onramp)
+  images/                    → us-dots.svg and us-dots-mask.svg are the dot map and its mask (built by scripts/build-us-dots.mjs); the rest are photos (AI-generated stand-ins, and pictures whose source isn't confirmed, which are listed in .gitignore and stay out of the public repo); home-hero-forest.jpg is the hero video's poster; dry-van-yard.jpg (the owner's pick: since 2026-10-06 their cleaner copy of the view first sent on 2026-10-05 as dry-van-trailers.jpg, which is no longer used; source not confirmed, not our yard, both kept out of the public repo until it is) and home-hero-sierra.jpg are the safety band's services stills; the Services page's three (2026-10-08) are dry-van-yard.jpg, services-interchange.jpg (a highway interchange from above, the builder's pick for Dedicated lanes) and services-drop-trailers.jpg (a row of trailers on their landing gear, the builder's pick for Drop and hook; Great Dane badges on them), the last two with their source not said and kept out of the public repo until it is; new-equipment-row.jpg (the blue-sky copy of new-equipment-lot.jpg), lease-handshake.jpg (the owner's pick, 2026-10-05: source not confirmed, kept out of the public repo until it is) and our-shop-tires.jpg are Why work with us's New equipment, Lease to own and Our shop stills. Deleted on 2026-10-09, when nothing used them any more (all in git history): home-hero-desert.jpg, home-hero-placeholder.jpg, about-truck-front.jpg, ship-truck-side.jpg, new-equipment-lot.jpg, lease-truck-road.webp, safety-fleet.jpg and safety-truck-front.jpg
+  videos/                    → home-hero-forest.mp4 is the hero's seamless loop (AI-generated, upscaled to 1080p; replayed by hand with a 2 s hold between passes); safety-*-placeholder.mp4 are the card clips' placeholders (the GPS one is Samsara's and must not go live)
 ```
 Full component list: NAVIGATION.md → Component library.
 
-Still to come (per the page plan): `ServiceCard`, `TestimonialCard`, `FaqAccordion`, `TrustBadge`, `QualificationForm`.
+Still to come (per the page plan): `TestimonialCard`, `FaqAccordion`, `TrustBadge`. The plan's `ServiceCard` and `QualificationForm` were built under other names: `PictureStage` (the Services page's stage) and `JobApplication`.
 
 ## Component library conventions
 - Import from the folder barrel: `import { Button, Container } from "@/components/ui"`.
@@ -96,7 +100,7 @@ Orange contrast rules (`#FF3000` is 3.70:1 on white — below the 4.5:1 WCAG AA 
 
 ### Typography (2026-09-24)
 - Two faces since 2026-10-03 (owner's pick "4" of ten type pairings). **Headlines: Archivo at 115% width** (`font-display`, a utility in `app/globals.css`: the family plus `font-variation-settings: "wdth" 115`), always with `font-semibold` and `tracking-[-0.03em]`. It's on all type 22px and up: the hero h1, chapter, section and page headings, the sub-headings beside pictures, card titles, the numbers band, the story marks, the About timeline years, the footer's and mobile menu's big links, Apply now. **Everything else is Geist**: labels, body, buttons, forms (including the application's typed answers), nav. One exception: the homepage story band's heading is Geist semibold at `tracking-[-0.045em]` (owner, 2026-10-05; `StoryHeadline`'s `sans`). Archivo set wide runs about 15% wider than Geist, so check one-line and no-wrap headlines when sizing them up.
-- Three shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked), `chapterHeadingClass` (the big moments after the hero — the safety band since 2026-09-30, Ship with us, Our story, Why work with us — 40 / 48 / 56px, since 2026-09-29) and `sectionHeadingClass` (the About timeline h2, "Why ___ stay." over the homepage's job cards since 2026-10-05, and the safety band's until 2026-09-30 — semibold Archivo since 2026-10-03, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
+- Three shared classes in `components/ui/typography.ts`: `labelClass` (the small sentence-case label above a heading — 14px semibold, never uppercase or tracked), `chapterHeadingClass` (the big moments after the hero — the safety band since 2026-09-30, Ship with us, Our story, Why work with us — 40 / 48 / 56px, since 2026-09-29) and `sectionHeadingClass` ("Why ___ stay." over the homepage's job cards since 2026-10-05, "How we run it" on Services and "Earlier" on News; the About timeline's h2 until that was deleted, and the safety band's until 2026-09-30 — semibold Archivo since 2026-10-03, 28px on phones, 40px from `sm`, easing 36 → 40px from `lg`; the heading scale is 28 / 40 / 56px — DECISIONS.md → Wording and type). Colour is set by the caller: `text-ink/70` on light, `text-paper/70` on dark. Label → heading gap is `mt-4`.
 - Page h1s (inner pages) are `font-display text-5xl sm:text-6xl font-semibold tracking-[-0.03em]`; the homepage hero h1 has its own scale, with its fixed words at `text-paper/60` (large text, so it clears the contrast floor for its size).
 - Header nav links are all one size (15px); inactive links `text-ink/70`, the contrast floor.
 - Copy rules (case, "and", apostrophes, commas) are in DECISIONS.md → Wording and type.
@@ -122,11 +126,11 @@ content growing past 1200px — with 12 columns / 24px gutters inside that conte
 - `Columns` (`components/unused/Columns.tsx`, parked there on 2026-10-09 until a section takes it up) is the 12-column grid itself (8 / 4 columns at `sm` / phone) — put it
   inside a `Container` and size children with Tailwind's `col-span-*`. Not yet adopted by any section; it's the
   primitive for the next pass of "does this text/button sit on the grid" work.
-- `--width-header-cta` (`app/globals.css`) is the single source for the CTA button width Header and HomeHero
-  both need — Header's two buttons are this width from `xl`; HomeHero's headline block matches their combined
-  width (`calc(2 × var + 0.75rem gap)`) so its right edge lines up with Apply To Drive. Since both sit in the
-  same 1200px-capped, centered `Container`, that's the only number they still need to share — the margin itself
-  is identical by construction, not by matching two containers' padding.
+- `--width-header-cta` (`app/globals.css`) is the width of each of Header's two CTA buttons from `xl`, so they
+  read as a matched pair. Until 2026-10-02 HomeHero's text column matched the pair's combined width off the same
+  variable; its own two buttons sit side by side since then and need 28.75rem (`HomeHero.tsx`), so Header is the
+  variable's only user. The hero block's right edge still lines up with Apply now's: both sit in the same
+  1200px-capped, centered `Container`, so the margin is identical by construction.
 
 ### Logo
 | Source file (`docs/`) | Web copy (`public/`) | What it is | Use |

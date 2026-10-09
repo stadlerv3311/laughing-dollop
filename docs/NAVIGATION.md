@@ -67,7 +67,7 @@
 | Fade a block in when it scrolls into view | Wrap it in `<Reveal>` from `components/ui` |
 | Slide a photo and its text in from opposite sides, landing together | Make the section a `<SlideGroup>` and wrap each piece in `<SlideItem from="left" \| "right">` (`components/unused/SlideIn.tsx`: no section uses it since the safety band stopped sliding, so move it back to `components/ui/` first) |
 | Change the driver slogans | `lib/site.ts` → `driverSlogans` — `{ lead, tail }` pairs (ink over grey). Off the homepage since 2026-09-30; the first one captions the job application's driver photo |
-| Start a new page | Copy a placeholder in `app/`, then add its link in `lib/site.ts` (check DECISIONS.md nav rules first) |
+| Start a new page | Make `app/<route>/page.tsx`; until it's built, return `PagePlaceholder` from `components/ui` (as `app/news/page.tsx` does while it has no posts) and open a built page with `PageOpening`. Then add its link in `lib/site.ts` (check DECISIONS.md nav rules first) |
 | Check whether something is in scope | `docs/DECISIONS.md` |
 | Find the original logo files | `docs/Logo black.svg` (full logo), `docs/Only logo Solutions.svg` (icon only) |
 | Run the site locally | `npm run dev` → http://localhost:3000 |
@@ -202,9 +202,9 @@ What each component takes, as the code has it. `*` is required; a value after `=
 ## Directory map
 ```
 app/          → routes, one folder per page (App Router), globals.css, icon.svg
-components/   → the component library (ui, layout, home, about, quote, intro, providers)
-lib/          → site config (names + links), story copy, quote types + stub, state shapes, ZIP lookup
-scripts/      → one-off generators (state shapes for the quote map)
-public/       → logo.svg, logo-icon.svg
+components/   → the component library (ui, layout, home, about, careers, news, services, fleet, intro, providers; unused holds parked ones)
+lib/          → site config (names + links), services, story and news copy, form and fleet types + stubs, state shapes, ZIP lookup
+scripts/      → one-off generators (state shapes, the dot map, the ZIP → city files)
+public/       → logo.svg, logo-icon.svg, logo-light.svg, images/, videos/, logos/ (the tools row), zip/ (ZIP → city)
 docs/         → project docs + original logo files
 ```

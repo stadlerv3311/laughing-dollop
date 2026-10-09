@@ -1,5 +1,7 @@
 # ITrucking Solutions Website — Site Map & Reference
 
+> **The original plan, kept for reference. Not the current state.** It was last brought up to date on 2026-09-29 and parts of it have been overtaken since: there is no Home item or Careers dropdown in the header, the quote form lives in the homepage's Ship with us band (`/quote` only redirects there), the hero, the apply cards and the rolling slogans it describes were replaced, and Services, Careers, News and About are built. Where this file and `DECISIONS.md` disagree, `DECISIONS.md` is right. What each page is today: `NAVIGATION.md` → Pages.
+
 ## Brand
 
 - **Logo**: icon mark (compass/pinwheel, 8-piece radial shape) + full black wordmark lockup
