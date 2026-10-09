@@ -62,6 +62,9 @@ export const services: readonly Service[] = [
   },
 ];
 
+/** A line under "How we run it" on the Services page, with the picture under it if it has one. */
+type RunLine = { text: string; picture?: { src: string; position?: string } };
+
 // The Services page's own words (2026-10-08). The builder brought a draft of the whole page put together by another
 // assistant ("what do you think about this text for services page"), then: "modify the text to fit to this company
 // but keep as much as possible", and "use that text on the page". What changed from that draft, and why, is in
@@ -71,34 +74,48 @@ export const services: readonly Service[] = [
 // empty." (the builder quoted the second without an answer). Never any pricing language.
 export const servicesPage = {
   headline: ["Freight we move,", "on trucks we own."],
-  lede: "ITrucking Solutions is a for-hire interstate carrier based in California. We haul dry van truckload on our own late-model trucks and trailers. You book the load with us. We pick it up and deliver it. No broker in the middle.",
+  lede: "ITrucking Solutions is a for-hire interstate carrier. We haul dry van truckload on our own late-model trucks and trailers. You book the load with us. We pick it up and we deliver. No broker in the middle.",
   run: {
     title: "How we run it",
     // Three of the facts as big numbers, the way the homepage sets its own, and the rest a line each. 70+ is the
     // About page's fleet figure (lib/story.ts); the shop is our own and already running (owner, 2026-10-03), where
-    // the draft had it "being built"; GPS on the equipment is the safety band's fact.
+    // the draft had it "being built". The last three lines are the facts of the homepage's road pair, in its own
+    // words (lib/site.ts → `safetyGroups`), without its promises to the shipper (the builder, 2026-10-08, of that
+    // block: "some information that can work"). Two lines since later that day (the builder, on a screenshot of six:
+    // the lanes line and "Every mile on record" crossed out, "cause they repeat", and the other four boxed in pairs,
+    // "lets combine another cause those are basicaly the same").
     numbers: [
       { value: 53, suffix: "", label: "Foot dry vans" },
       { value: 70, suffix: "+", label: "Late-model trucks" },
       { value: 1, suffix: "", label: "Dispatch team, booking to delivery" },
     ],
+    // Each line can have a picture under it. The yard and shop's: a mechanic tilting the hood of a truck in a shop
+    // (the builder, 2026-10-08: "use this for shop and mantenance shop"). It took the place of a warehouse wall with orange dock
+    // doors, put there an hour before ("add this pictures to yard in sacramento"; `services-dock-doors.jpg`, still
+    // on disk, unused). PLACEHOLDER: it looks AI-made, the truck has a Volvo's shape (Volvo's OK needed, as for the
+    // site's other truck pictures), and it is not our shop or our mechanic. So no alt text, no caption, and it must
+    // not go live as ours. Kept out of the public repo. The dark frame around the sent file is cut off.
     lines: [
-      "Regional and long-haul lanes out of California",
-      "Our own shop does the maintenance",
-      "A yard in Sacramento",
-      "GPS on the equipment",
-    ],
-  },
-  need: {
-    title: "What we need to quote a load",
-    // The form (Ship with us) takes the two ZIPs and the date; the rest is for the call back, since it has no fields
-    // for weight or pallets.
-    text: "Pickup ZIP, delivery ZIP and the date go in the form. When we call back, have the weight, the pallet count and whether it is a live load or a drop. If it is a weekly lane, how many trucks and which days. We will say if we can cover it.",
+      {
+        text: "A yard in Sacramento and our own maintenance shop",
+        picture: { src: "/images/services-shop.jpg", position: "50% 55%" },
+      },
+      // From inside a truck cab looking down a highway, a dash camera with a screen under the mirror (the builder,
+      // 2026-10-08: "use this for dash cam and gps"; the free libraries had no such picture). PLACEHOLDER: it looks
+      // AI-made (the sticker on the visor is gibberish), the trucks in it are European cab-overs and the camera's
+      // screen reads km/h, and it is not our truck or our camera. So no alt text, no caption, and it must not go
+      // live as ours. Kept out of the public repo.
+      {
+        text: "GPS on every truck and trailer, dash cameras on every windshield",
+        picture: { src: "/images/services-dash-cam.jpg" },
+      },
+    ] as readonly RunLine[],
   },
   close: {
-    // The homepage band's own question, word for word.
+    // The homepage band's own question, word for word. A sentence stood under it ("Tell us about it. If we can take
+    // it, we will say so. If we cannot, we will say that too.") until the builder crossed it out on a screenshot,
+    // 2026-10-08.
     title: "Have a load to move?",
-    text: "Tell us about it. If we can take it, we will say so. If we cannot, we will say that too.",
   },
 } as const;
 

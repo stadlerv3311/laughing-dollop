@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { NewsCards } from "@/components/news";
-import { Container, FlyArrow, Reveal, RiseLabel, sectionHeadingClass } from "@/components/ui";
-import { cx } from "@/lib/cx";
+import { Container, FlyArrow, Reveal, RiseLabel } from "@/components/ui";
 import { visibleNewsPosts } from "@/lib/news";
 import { newsLink } from "@/lib/site";
 
@@ -14,9 +13,9 @@ const SHOWN = 3;
  * work with us part"): where we come from, then what is new, then the careers half. It began the same day as the
  * page's last block, between the Apply band and the footer, and read as an afterthought there.
  *
- * The heading centred, like the story's over it and Why work with us's under it, with All news centred under the
- * cards (owner, 2026-10-08, two arrows on a screenshot: the heading from the left to the middle, the link from the
- * right to under the cards). Between them the three newest posts as one row of picture cards that open one at a
+ * No heading to see (the builder, 2026-10-09, a box round it on a screenshot: "remove news text"; it was centred, like
+ * the story's over it and Why work with us's under it): the cards' days and headlines say what the block is, and All
+ * news is centred under them (owner, 2026-10-08). The three newest posts as one row of picture cards that open one at a
  * time, the job cards of Why work with us with the words beside the open picture (NewsCards, which has the owner's drawing in
  * words). One row, so the block is short (owner, same day, of three zigzag rows: "i dont want this to take so much
  * space. maybe give it same thing that this block has ?"). Before it, in order: three grey cards with a picture
@@ -28,10 +27,10 @@ const SHOWN = 3;
  * renders nothing in a production build until there is a real post (see `visibleNewsPosts`).
  *
  * No line over or under it (owner, 2026-10-08: "lets fix distances between blocks also remove divider"; a hairline
- * closed it until then). The gaps are the page's own, measured to the letters: the heading as far under the story's
- * last line as Why work with us's is under this block (120px at laptop width, 102 and 85 narrower, the same top
- * padding as that section), the cards one inner step under the heading's baseline (70px, 64 on phones), All news
- * 48px under the cards, and no padding at the foot, since the next section brings its own 120.
+ * closed it until then). The gaps are the page's own: the cards' top edge as far under the story's last line as Why
+ * work with us's heading is under this block (120px at laptop width, 102 and 85 narrower; the builder, 2026-10-09:
+ * "fix the space in between block after removing"), All news 48px under the cards, and no padding at the foot, since
+ * the next section brings its own 120.
  */
 export function NewsBand() {
   const posts = visibleNewsPosts().slice(0, SHOWN);
@@ -42,17 +41,16 @@ export function NewsBand() {
       aria-labelledby="news-title"
       // News's section for the header's filling line (Header → `data-nav-section`).
       data-nav-section={newsLink.href}
-      className="bg-paper pt-[4.5rem] text-ink sm:pt-[5.5rem] lg:pt-[6.5625rem]"
+      className="bg-paper pt-[4.8125rem] text-ink sm:pt-[5.875rem] lg:pt-[7rem]"
     >
       <Container>
         <div>
-          <Reveal>
-            <h2 id="news-title" className={cx(sectionHeadingClass, "text-center")}>
-              News
-            </h2>
-          </Reveal>
+          {/* Not shown since 2026-10-09; it still names the block for screen readers and heads the posts' own headings. */}
+          <h2 id="news-title" className="sr-only">
+            News
+          </h2>
 
-          <Reveal delay={0.1} className="mt-[3.5625rem] sm:mt-[3.8125rem] lg:mt-[3.6875rem]">
+          <Reveal>
             <NewsCards posts={posts} />
           </Reveal>
 

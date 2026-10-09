@@ -1,1 +1,1 @@
-export { ServiceStage } from "./ServiceStage";
+export { QuoteCard } from "./QuoteCard";

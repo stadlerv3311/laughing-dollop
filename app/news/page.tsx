@@ -1,36 +1,38 @@
 import type { Metadata } from "next";
-import { NewsLead, NewsMore, NewsRow, NewsZigzag } from "@/components/news";
-import { Container, PageOpening, PagePlaceholder, Reveal, sectionBottom } from "@/components/ui";
+import { NewsRow } from "@/components/news";
+import { Container, PageOpening, PagePlaceholder, PictureStage, Reveal, sectionBottom, sectionHeadingClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { visibleNewsPosts } from "@/lib/news";
+import { formatNewsDate, visibleNewsPosts } from "@/lib/news";
 
 export const metadata: Metadata = { title: "News" };
 
-/** How many posts show with their pictures under the newest one, a row each; any older than that wait behind See more. */
-const CARDS = 4;
+/** How many of the newest posts share the stage; the rest are the list under it. */
+const STAGED = 3;
 
 /**
- * The news page (owner, 2026-10-07, picking from three mock-ups: "lets do B combine with C combine. Latest big and
- * next smaller"): the newest post big on a black panel, the next four under it a row each, the picture changing sides
- * from row to row, on the page's white (NewsZigzag, which tells how it got there the same day: six grey cards, a
- * bento, no grey, four small in a row, then this).
- * Any older than those sit behind a See more pill under the cards, which opens them as a list of lines, "Earlier"
- * (owner, same day: "lets add se more here. and use list after pressing see more"). So the page steps down in three
- * sizes, and stays short however many posts there are. Every post is read here in full, a date, a headline and a sentence or two; there are no pages for single posts.
+ * The news page (the builder, 2026-10-09, on a picture of the Services page's stage: "use te shame solution on news
+ * screen. all news after that are just a list"): the three newest posts on the Services page's stage (PictureStage),
+ * one big with its picture and its day, headline and sentence on a white panel in the picture's corner, and the three
+ * as smaller cards under it, each going up to the stage when it is chosen. Every older post is a line of the list
+ * under that, "Earlier" (NewsRow): a day, a headline and a sentence, no picture. Every post is read here in full;
+ * there are no pages for single posts.
+ *
+ * Before that (owner, 2026-10-07) the newest post was big on a black panel, the next four a row each with the picture
+ * changing sides, and the rest behind a See more link. The list is open now: it is all that follows the stage.
  *
  * The posts come from lib/news.ts. While they are all unconfirmed drafts a production build has none to show, and the page
  * stays the "being built" placeholder it was.
  *
- * No line under the heading (owner, same day, crossed out on a screenshot): the posts say what the page is.
+ * No line under the heading (owner, 2026-10-07, crossed out on a screenshot): the posts say what the page is.
  *
  * It closes on the hairline the homepage's news block closes on, so the posts don't run into the footer.
  */
 export default function NewsPage() {
-  const [latest, ...older] = visibleNewsPosts();
-  const cards = older.slice(0, CARDS);
-  const earlier = older.slice(CARDS);
+  const posts = visibleNewsPosts();
+  const staged = posts.slice(0, STAGED);
+  const earlier = posts.slice(STAGED);
 
-  if (!latest) {
+  if (staged.length === 0) {
     return <PagePlaceholder title="News" description="This page is being built. Company news and updates will go here." />;
   }
 
@@ -40,23 +42,30 @@ export default function NewsPage() {
       <Container>
         <div className={cx("mt-16 border-b border-ink/10 sm:mt-[4.375rem]", sectionBottom)}>
           <Reveal>
-            <NewsLead post={latest} />
+            <PictureStage
+              headlines
+              items={staged.map((post) => ({
+                id: `${post.date}-${post.title}`,
+                name: post.title,
+                detail: post.summary,
+                label: <time dateTime={post.date}>{formatNewsDate(post.date)}</time>,
+                image: post.image ? { src: post.image } : undefined,
+              }))}
+            />
           </Reveal>
-          {cards.length > 0 && (
-            <Reveal delay={0.1} className="mt-8 sm:mt-10 lg:mt-12">
-              <NewsZigzag posts={cards} />
-            </Reveal>
-          )}
           {earlier.length > 0 && (
-            <NewsMore>
-              <ul>
+            // The distance between blocks, as under the Services page's stage. The last line's own space below it
+            // adds to the space above the closing hairline.
+            <Reveal className="pt-[4.5rem] sm:pt-[5.5rem] lg:pt-[6.5625rem]">
+              <h2 className={sectionHeadingClass}>Earlier</h2>
+              <ul className="mt-7 lg:mt-10">
                 {earlier.map((post) => (
                   <li key={`${post.date}-${post.title}`}>
                     <NewsRow post={post} />
                   </li>
                 ))}
               </ul>
-            </NewsMore>
+            </Reveal>
           )}
         </div>
       </Container>

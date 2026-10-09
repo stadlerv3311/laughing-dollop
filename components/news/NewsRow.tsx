@@ -3,9 +3,9 @@ import { cx } from "@/lib/cx";
 import { formatNewsDate, type NewsPost } from "@/lib/news";
 
 /**
- * One news post as a line of the news page's "Earlier" list: the day, the headline and the sentence or two, side by
- * side from `lg` and stacked below it, under a hairline. The smallest of the page's three sizes (NewsLead, NewsZigzag,
- * this). Not a link: there are no pages for single posts.
+ * One news post as a line of the news page's "Earlier" list, every post older than the three on the stage: the day, the
+ * headline and the sentence or two, side by side from `lg` and stacked below it, under a hairline. Not a link: there
+ * are no pages for single posts.
  */
 export function NewsRow({ post }: { post: NewsPost }) {
   return (

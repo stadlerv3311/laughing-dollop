@@ -9,6 +9,7 @@ export { FlyArrow, RiseLabel } from "./LinkHover";
 export { InteractiveHoverButton } from "./InteractiveHoverButton";
 export { Logo } from "./Logo";
 export { PageOpening } from "./PageOpening";
+export { PictureStage, type StageItem } from "./PictureStage";
 export { PagePlaceholder } from "./PagePlaceholder";
 export { Reveal } from "./Reveal";
 export { RotatingSlogan } from "./RotatingSlogan";

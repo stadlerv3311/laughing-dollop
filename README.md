@@ -12,7 +12,7 @@ A Next.js (App Router) + Tailwind + TypeScript site serving two audiences: shipp
 - Homepage story card: short company history that links to the full story on the About page (draft copy for now)
 - Services page (Dry Van today, extensible for future trailer types) — *placeholder*
 - Get a Quote: clickable map of the lower 48 (pickup → delivery with a route line) next to a short quote form — built, not connected to a backend yet
-- Fleet Map (roughly where our trucks are, refreshed about hourly, no login) — *placeholder*
+- Fleet Map (roughly where our trucks are, refreshed about hourly, no login) — *real map, sample positions until the Samsara feed exists*
 - News (company news and updates) — *placeholder*
 - Careers: Drive For Us + staff (dispatcher/mechanic/office) applications — short form, HR follows up directly — *placeholder*
 - About (story, team, safety/compliance) — story section built with draft copy; team and safety still *placeholder*

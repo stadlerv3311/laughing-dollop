@@ -61,6 +61,12 @@ export function ApplyBand() {
             aria-hidden
             className="absolute top-1/2 left-[calc(50%-4.375rem)] size-2 -translate-y-1/2 rounded-full bg-ink transition-transform duration-500 ease-premium group-hover/launch:scale-[100] group-focus-visible/launch:scale-[100] motion-reduce:transition-none"
           />
+          {/* The dot is orange while the pill rests, as on Get a quote's (the builder, 2026-10-09: "on work with us
+              too"): a dot of its own over the ink one that fades as the pill fills, so the pill is never orange. */}
+          <span
+            aria-hidden
+            className="absolute top-1/2 left-[calc(50%-4.375rem)] size-2 -translate-y-1/2 rounded-full bg-brand transition-opacity delay-300 duration-150 group-hover/launch:opacity-0 group-hover/launch:delay-0 group-focus-visible/launch:opacity-0 group-focus-visible/launch:delay-0 motion-reduce:transition-none"
+          />
           <span className="relative pl-5 transition-colors duration-300 group-hover/launch:text-paper group-focus-visible/launch:text-paper">
             {applyLink.label}
           </span>

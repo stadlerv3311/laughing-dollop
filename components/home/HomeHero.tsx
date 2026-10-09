@@ -98,8 +98,8 @@ export function HomeHero() {
       ref={sectionRef}
       id="content"
       data-header-theme="dark"
-      // The film shows through the header: no dark glass bar here (Header.tsx).
-      data-header-glass="none"
+      // The header's bar over the film is matte glass, not the ink one, and only once the page has scrolled (Header.tsx).
+      data-header-glass="matte"
       className="relative isolate flex min-h-svh flex-col overflow-hidden bg-ink text-paper"
     >
       <motion.div aria-hidden className="absolute inset-0 -z-10" style={reduceMotion ? undefined : { scale: videoScale }}>

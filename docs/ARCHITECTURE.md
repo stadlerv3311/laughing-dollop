@@ -7,6 +7,7 @@
 - Tailwind CSS v4 — brand tokens live in `app/globals.css` → `@theme`
 - motion (`motion/react`) — UI animation and scroll-linked values
 - Lenis — smooth wheel scrolling (turned off for reduced motion)
+- MapLibre GL JS (`maplibre-gl`) — the Fleet map's street map, with OpenFreeMap's free tiles (no key). Loaded only on `/fleet-map`, in the browser (2026-10-06)
 - No 3D library — three.js and React Three Fiber were removed on 2026-09-11; the video intro that replaced them was itself removed on 2026-09-23 (see DECISIONS.md → Hero media)
 - Fonts: Geist via `next/font/google` as `font-sans` for body and UI (chosen 2026-09-24 over the provisional Manrope — see DECISIONS.md → Open → Font), and Archivo with its width axis as `--font-archivo` for headlines (2026-10-03), used through the `font-display` utility
 - Form backend: owned by the backend teammate, not yet decided — see DECISIONS.md
@@ -20,8 +21,8 @@ app/
   page.tsx                   → Homepage (/) — HomeIntro + HomeHero + SlideOverStack(SafetyBand(between: TrustBar) + ToolsBand, ShipWithUs) + StoryTeaser + NewsBand + SlideOverStack(WhyWorkWithUs, ApplyBand)
   services/page.tsx          → Services (/services)
   quote/page.tsx             → redirects to /#quote (the quote form is in Ship with us since 2026-10-02)
-  fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are; formerly Track a Load
-  news/page.tsx              → News (/news) — the newest post big on a black panel (NewsLead), the next four a row each on white, the picture on one side and the day, headline and sentence on the other, changing sides from row to row (NewsZigzag), any older behind See more as a list (NewsMore, NewsRow); the "being built" placeholder while there are no posts to show
+  fleet-map/page.tsx         → Fleet Map (/fleet-map) — roughly where our trucks are on a real map (FleetMap); formerly Track a Load
+  news/page.tsx              → News (/news) — the three newest posts on the Services page's stage (PictureStage: one big with its picture and its day, headline and sentence on a white corner panel, the three as small cards under it), every older post a line of the "Earlier" list under that (NewsRow); the "being built" placeholder while there are no posts to show
   careers/
     page.tsx                 → Careers (/careers) — the three jobs and why to take each; where Careers goes
     apply/page.tsx           → The job application with no job set, so it asks "Which job?" (/careers/apply); where Apply now goes
@@ -35,8 +36,9 @@ components/                  → component library, one folder per area, each wi
   layout/                    → Header, MobileMenu, Footer — see DECISIONS.md nav rules before adding items
   home/                      → HomeHero, HeroHeadline, ShipWithUs, QuoteBar, SafetyBand, CardPair, ToolsBand, ShipRouteMap, SlideOverStack, TrustBar, StoryTeaser, StoryHeadline, StoryRoute, WhyWorkWithUs, ApplyBand, NewsBand (the news block after the story: the three newest posts as a row of opening picture cards)
   about/                     → SplitCard (the two closing cards on the black band, each cut on a slant, white above and black below, the underlined arrow link under the words on the white; the black wedge is a road whose dashed lane line rolls toward you), StoryLine (the About page's story down one line that bends from side to side around the pictures, one picture frame to a chapter, the next stop's words and picture taking the last one's place in it as the chapter passes the middle of the screen, a chapter's second dot half way down its picture, nothing standing still, every second chapter on a full-width black band, 2026-10-06), StoryChapters (the pinned route it replaced the same day — unused), Timeline (the sideways timeline before that — unused), StoryMilestones (the story band's old dot timeline — unused since the 2c band, 2026-09-25)
-  news/                      → NewsLead (the newest post, big, on a black panel), NewsZigzag (the news page's four posts under it: a row each, picture beside day, headline and sentence, the picture changing sides, on white with a hairline between rows), NewsCards (the homepage block's three posts as a row of pictures that open one at a time, the words sliding out on white beside the open one; stacked and all open below 1024px; client), NewsMore (the See more arrow link that opens the "Earlier" list, and See less under it; client), NewsRow (one post as a line of that list)
-  services/                  → ServiceStage (the Services page's big card and the three small ones under it; a chosen one grows into the stage)
+  news/                      → NewsCards (the homepage block's three posts as a row of pictures that open one at a time, the words sliding out on white beside the open one; stacked and all open below 1024px; client), NewsRow (one post as a line of the news page's "Earlier" list)
+  services/                  → QuoteCard (the page's closing card: cut on a slant, the question on white beside the homepage's live dot map; its link grows it into the homepage's quote band, a shared view transition)
+  fleet/                     → FleetMap (the Fleet map's street map: trucks as dots, bunched into counted circles; zoom capped)
   careers/                   → CareersOverview (the careers page), JobApplication (the one application for all three jobs)
   intro/                     → HomeIntro, timeline
   providers/                 → IntroProgressProvider, SmoothScroll
@@ -48,6 +50,7 @@ lib/
                                phone, address, USDOT, MC)
   cx.ts                      → className join helper
   forms.ts                   → QuoteRequest type + submitQuote stub (backend contract goes here)
+  fleet.ts                   → FleetSnapshot type + getFleetSnapshot stub with sample positions (the Samsara contract goes here)
   news.ts                    → NewsPost type + newsPosts (eight UNCONFIRMED stand-in posts, drafts) + visibleNewsPosts (drafts are left out of production) + formatNewsDate
   us-states.ts               → generated lower-48 state shapes for the quote map — don't edit by hand
   zip.ts                     → ZIP → state lookup (USPS 3-digit prefixes) and ZIP → "City, ST" (`cityForZip`, from public/zip)
@@ -156,7 +159,7 @@ Design references (what we take from each — style and structure only, never th
 - Skipped (everything just appears in place, no animation) for `prefers-reduced-motion` visitors.
 
 ## Header behavior
-- Fixed. Transparent at the top, frosted white once scrolled. Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the homepage logo moment or while a menu is open).
+- Fixed. Transparent at the top, frosted white once scrolled. Over dark bands the frosted bar is ink; over the homepage hero it is see-through matte glass (`data-header-glass="matte"`). Stays in view while scrolling from `sm` (640px) up. On phones it hides on scroll down and drops back on scroll up (not during the homepage logo moment or while a menu is open).
 - During the homepage logo moment: nav and buttons sit at 60% opacity over the scene; hovering or tabbing into the header brings them to full with a frosted bar. The logo fades and settles into place — see Homepage opening above.
 - Careers is a plain link to `/careers` (the dropdown panel was removed 2026-09-25).
 - Below `lg`: menu button opens a full-screen menu that drops from the top.
@@ -164,7 +167,7 @@ Design references (what we take from each — style and structure only, never th
 ## Data model
 
 ### Services (`lib/services.ts`)
-Array of service entries, all dry van (since 2026-10-05): dry van truckload, dedicated lanes, drop and hook — owner-confirmed facts only. Adding a future trailer type (Reefer, Flatbed) should be a new array entry, not a page rebuild. Shown in the homepage safety band's words column (`description`) and on `/services`, on the stage and its three cards (`detail`, `image`). `servicesPage` holds the rest of that page's words: headline, lede, the "How we run it" numbers and lines, what to have ready for a quote, and the closing band. `servicesGroup` holds that column's heading and paragraph and the band's two service stills (`PairCard`s for `CardPair`).
+Array of service entries, all dry van (since 2026-10-05): dry van truckload, dedicated lanes, drop and hook — owner-confirmed facts only. Adding a future trailer type (Reefer, Flatbed) should be a new array entry, not a page rebuild. Shown in the homepage safety band's words column (`description`) and on `/services`, on the stage and its three cards (`detail`, `image`). `servicesPage` holds the rest of that page's words: headline, lede, the "How we run it" numbers and lines (each line with an optional `picture`), and the closing band. `servicesGroup` holds that column's heading and paragraph and the band's two service stills (`PairCard`s for `CardPair`).
 ```
 { id, name, description, detail, image: { src, position? } }
 ```
@@ -181,6 +184,13 @@ QuoteRequest { pickup: { zip, state }, delivery: { zip, state }, pickupDate, con
 NewsPost { date (YYYY-MM-DD), title, summary, image?, draft? }
 ```
 The homepage block shows the three newest and `/news` lists them all. A `draft` post shows while developing and is left out of a production build; the eight in the file are unconfirmed stand-in copy (DECISIONS.md → News copy), so the block is off the live site, and `/news` stays its placeholder there, until a real post replaces them.
+
+### Fleet map (`lib/fleet.ts`)
+What the backend teammate's Samsara endpoint should return, about hourly. Rough positions only: no driver, load, speed or truck number.
+```
+FleetSnapshot { updatedAt, trucks: [{ id, lat, lng }] }
+```
+`getFleetSnapshot` is a stub until then: sample positions in development, a "not switched on yet" message in production.
 
 ### Qualification form (Drive For Us + staff roles)
 5–6 short questions only. Submits into an HR contact flow, not a document/e-signature pipeline. See DECISIONS.md → Applications.

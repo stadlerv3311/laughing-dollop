@@ -346,6 +346,13 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
             aria-hidden
             className="absolute top-1/2 left-[calc(50%-4.375rem)] size-2 -translate-y-1/2 rounded-full bg-ink transition-transform duration-500 ease-premium group-hover/launch:scale-[100] group-focus-visible/launch:scale-[100] motion-reduce:transition-none"
           />
+          {/* The dot is orange while the pill rests (the builder, 2026-10-09: "make the dot in the button orange"). It
+              is a dot of its own over the ink one and never grows: it fades as the ink dot fills the pill and comes
+              back once that has shrunk again, so the pill itself is never orange (DECISIONS.md → Buttons are black). */}
+          <span
+            aria-hidden
+            className="absolute top-1/2 left-[calc(50%-4.375rem)] size-2 -translate-y-1/2 rounded-full bg-brand transition-opacity delay-300 duration-150 group-hover/launch:opacity-0 group-hover/launch:delay-0 group-focus-visible/launch:opacity-0 group-focus-visible/launch:delay-0 motion-reduce:transition-none"
+          />
           <span className="relative pl-5 transition-colors duration-300 group-hover/launch:text-paper group-focus-visible/launch:text-paper">
             {quoteLink.label}
           </span>

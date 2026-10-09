@@ -35,6 +35,13 @@ export const primaryNav: NavLink[] = [servicesLink, careersLink, aboutLink, flee
  * the homepage at the band (components/home/ShipWithUs.tsx). `/quote` redirects here.
  */
 export const quoteLink: NavLink = { label: "Get a quote", href: "/#quote" };
+/**
+ * View transition name shared by the Services page's closing card and the homepage's Ship with us band, and the
+ * transition type the card's Get a quote sets, so only that navigation grows one into the other (the builder,
+ * 2026-10-08). The same arrangement as the story band's (lib/story.ts). CSS: `.quote-open` in app/globals.css.
+ */
+export const QUOTE_BAND = "quote-band";
+export const QUOTE_OPEN = "quote-open";
 // Every driver-application button on the site uses this label — header, hero, phone menu and the apply cards
 // (2026-09-24 wording pass; it replaced "Apply To Drive", "Drive with us" and "Apply"). The page it opens is
 // still called "Drive for us". It opens the application itself since 2026-10-05 (owner: "open the form for applying,

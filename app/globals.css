@@ -73,7 +73,7 @@
   --animate-road-drive: road-drive 1.6s linear infinite;
 
   /*
-   * Services page (2026-10-08, ServiceStage.tsx): the line on the small card of the service that has the stage, filling
+   * Services page (2026-10-08, components/ui/PictureStage.tsx): the line on the small card of the service that has the stage, filling
    * for as long as it holds it. The component sets the real duration, its `CYCLE`.
    */
   --animate-service-fill: service-fill 5s linear both;
@@ -226,7 +226,7 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-/* Services page (2026-10-08, ServiceStage.tsx): a chosen small card grows into the stage. The card and the stage's
+/* Services page (2026-10-08, components/ui/PictureStage.tsx): a chosen small card grows into the stage. The card and the stage's
    layer share the name for the length of it. The rest of the page must switch at once, so the old picture of it is
    dropped: the rule below stops the page's crossfade, and with both pictures still there for 750ms they would sit
    one on the other. */
@@ -239,8 +239,50 @@
 }
 /* Every other navigation stays instant, as before: React starts a view transition for any navigation once a page
    has <ViewTransition>s, and the browser's default is a whole-page crossfade. */
-:root:not(:active-view-transition-type(story-open))::view-transition-old(root),
-:root:not(:active-view-transition-type(story-open))::view-transition-new(root) {
+/* Services page's closing card into the homepage's Ship with us band (2026-10-08; names in lib/site.ts): the card's
+   Get a quote grows it into the full-screen band (the builder: "an animation of expandig in to the full get a quote
+   screen"). The box grows from the card to the screen. The card's own picture grows with it, kept in proportion and
+   cut at the sides, and fades as it goes; the band fades in over it, kept at its own size and centred in the box, as
+   its words are centred on the screen. The two fades overlap, so the box is never plain black on the black page. */
+::view-transition-group(.quote-open) {
+  animation-duration: 800ms;
+  animation-timing-function: var(--ease-premium);
+  overflow: clip;
+  background: var(--color-ink);
+}
+::view-transition-old(.quote-open),
+::view-transition-new(.quote-open) {
+  height: 100%;
+  object-position: center;
+}
+::view-transition-old(.quote-open) {
+  object-fit: cover;
+  animation: 480ms ease-out both card-open-fade reverse;
+}
+::view-transition-new(.quote-open) {
+  object-fit: none;
+  animation: 480ms ease-in 220ms both card-open-fade;
+}
+/* React switches the rest of the page at once on this navigation (it hides the root's group), which would snap the
+   Services page's white to the band's black at the click. The old page is shown again here and fades off the new one
+   under it. The header gets a name for the length of it, so it stays over the growing band and fades from its dark
+   words to its white ones, where it would otherwise be covered and come back at the end. */
+@media (prefers-reduced-motion: no-preference) {
+  :root:active-view-transition-type(quote-open)::view-transition-group(root) {
+    opacity: 1 !important;
+  }
+  :root:active-view-transition-type(quote-open)::view-transition-old(root) {
+    animation: 300ms ease-out both card-open-fade reverse;
+  }
+  :root:active-view-transition-type(quote-open) body > header {
+    view-transition-name: site-header;
+  }
+  ::view-transition-group(site-header) {
+    animation-duration: 300ms;
+  }
+}
+:root:not(:active-view-transition-type(story-open, quote-open))::view-transition-old(root),
+:root:not(:active-view-transition-type(story-open, quote-open))::view-transition-new(root) {
   animation: none;
 }
 @media (prefers-reduced-motion: reduce) {

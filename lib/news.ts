@@ -15,9 +15,9 @@ export type NewsPost = {
   /** One or two sentences. */
   summary: string;
   /**
-   * A picture for the post, as a path under /public: across half of the news page's big panel while the post is the
-   * newest (NewsLead), then beside its words in the news page's rows (NewsZigzag) and on its
-   * card in the homepage's block (NewsCards). The "Earlier" list shows none.
+   * A picture for the post, as a path under /public: on the news page's stage and its small card while the post is
+   * one of the three newest (PictureStage), and on its card in the homepage's block (NewsCards). The "Earlier" list
+   * shows none.
    */
   image?: string;
   /** An unconfirmed post: shown while developing, never in a production build. */
@@ -66,7 +66,8 @@ export const newsPosts: NewsPost[] = [
     image: "/images/news-dispatch-desk.jpg",
     draft: true,
   },
-  // Older than the news page's row of four: these open from See more, as the list.
+  // The news page's stage takes the three newest; every older post is a line of the list under it, the two above
+  // this line as well (without their pictures). These three never had one.
   {
     date: "2024-09-18",
     title: "Sacramento yard takes the truck parking",

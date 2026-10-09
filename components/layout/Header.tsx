@@ -29,7 +29,7 @@ const HEADER_MID = 36;
 
 /**
  * The band marked `data-header-theme="dark"` under the header, if any, so the logo and CTAs switch to light. A band
- * marked `data-header-glass="none"` as well (the homepage hero) keeps the film clear of the dark glass bar.
+ * marked `data-header-glass="matte"` as well (the homepage hero) gets the see-through matte bar instead of the ink one.
  */
 function darkBandUnder() {
   return Array.from(document.querySelectorAll<HTMLElement>('[data-header-theme="dark"]')).find((band) => {
@@ -161,7 +161,8 @@ function NavItem({ href, active, fill, light, children, ...rest }: NavItemProps)
  * logo top-left, plain text links in the middle with a thin line under the current page (on the homepage, under the
  * section you're reading, filling as you scroll through it: SectionMark), and the two CTAs on the
  * right as a matched pair of interactive hover buttons. Over dark bands everything is white — on the hero's film with
- * no bar, on the others over an ink frosted bar once the page has scrolled (2026-10-01); over light sections a white
+ * no bar at the top and matte glass once the page has scrolled (2026-10-09), on the others over an ink frosted bar once
+ * the page has scrolled (2026-10-01); over light sections a white
  * frosted bar fades in (no hairline under it since 2026-10-02) and everything turns ink — Get a quote outlined, Apply now solid. It stays in view as you scroll
  * — except on phones, where it slides away on scroll down and drops back on scroll up. Careers is a plain link
  * since 2026-09-25 (owner: remove the dropdown); it opens the job application, which covers all three jobs. During the homepage
@@ -180,7 +181,7 @@ export function Header() {
   // The homepage opens on the dark hero, so start light there — otherwise the CTAs flash solid black on load
   // until the first check below runs.
   const [onDark, setOnDark] = useState(isHome);
-  const [glassOff, setGlassOff] = useState(isHome);
+  const [matte, setMatte] = useState(isHome);
   const [mobileOpen, setMobileOpen] = useState(false);
   // The homepage section being read, as its nav link's href, and how far through each one the page is.
   const [reading, setReading] = useState<string | null>(null);
@@ -201,7 +202,7 @@ export function Header() {
   function checkBand() {
     const band = darkBandUnder();
     setOnDark(Boolean(band));
-    setGlassOff(band?.dataset.headerGlass === "none");
+    setMatte(band?.dataset.headerGlass === "matte");
     setSolid(intro.get() >= 1 && window.scrollY > 12);
     setReading(sectionOnReadingLine(fills));
   }
@@ -281,7 +282,9 @@ export function Header() {
             Over light sections, once the page has scrolled, a white bar fades in behind everything so
             the links stay readable; it also shows while the phone menu is open, since the links turn dark then.
             Over dark bands the same frosted bar in ink (owner, 2026-10-01: the white logo and links ran into the
-            safety band's heading as it scrolled under them). None over the homepage hero, so the film shows through.
+            safety band's heading as it scrolled under them). Over the homepage hero, matte glass instead: the film
+            blurred behind the bar with barely a tint, so it keeps its colour (the builder, 2026-10-09: "add matte glass
+            on scroll while on hero… as soon as i am off hero use same logic as now").
           */}
           <div
             aria-hidden
@@ -294,7 +297,14 @@ export function Header() {
             aria-hidden
             className={cx(
               "absolute inset-0 -z-10 bg-ink/85 backdrop-blur-xl transition-opacity duration-500",
-              solid && onDark && !glassOff && !mobileOpen ? "opacity-100" : "opacity-0",
+              solid && onDark && !matte && !mobileOpen ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <div
+            aria-hidden
+            className={cx(
+              "absolute inset-0 -z-10 bg-ink/20 backdrop-blur-xl transition-opacity duration-500",
+              solid && onDark && matte && !mobileOpen ? "opacity-100" : "opacity-0",
             )}
           />
           <Container className="flex h-18 items-center gap-4 xl:gap-6">

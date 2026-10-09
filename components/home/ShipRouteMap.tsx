@@ -34,6 +34,11 @@ type ShipRouteMapProps = {
   playing: boolean;
   /** True while the quote button is closed: made-up trips come and go on the map (DemoQuotes). */
   demo: boolean;
+  /**
+   * The states the made-up trips may use, where a card shows only part of the map (the Services page's QuoteCard).
+   * Every state without it, as on the homepage.
+   */
+  demoStates?: readonly StateCode[];
   className?: string;
 };
 
@@ -54,7 +59,7 @@ type ShipRouteMapProps = {
  *
  * Under reduced motion there's no wave, pulse, draw, ride or demo trip: the states and pins just appear.
  */
-export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride, sweep, playing, demo, className }: ShipRouteMapProps) {
+export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride, sweep, playing, demo, demoStates, className }: ShipRouteMapProps) {
   const still = useReducedMotion() ?? false;
   const svgRef = useRef<SVGSVGElement>(null);
   const solidRef = useRef<SVGPathElement>(null);
@@ -137,7 +142,7 @@ export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride,
           ))}
         </g>
 
-        {!still && <DemoQuotes active={demo && playing} />}
+        {!still && <DemoQuotes active={demo && playing} only={demoStates} />}
 
         {route && <Route key={route} d={route} still={still} solidRef={solidRef} />}
         <circle ref={loadRef} r={5} className="fill-brand" style={{ opacity: 0 }} />
@@ -241,13 +246,18 @@ function Pin({
 const DEMO_MS = 4400;
 const TRIP_MS = 4100;
 
-/** Two states far enough apart that the arc reads as a trip, not a hop; never starting where the last one ended. */
-function randomTrip(last: StateCode | null): [StateCode, StateCode] {
+/**
+ * Two states far enough apart that the arc reads as a trip, not a hop; never starting where the last one ended.
+ * With `only`, both are taken from those states, and a shorter arc counts as a trip, since they lie closer together.
+ */
+function randomTrip(last: StateCode | null, only?: readonly StateCode[]): [StateCode, StateCode] {
+  const pool = only ? usStates.filter((state) => only.includes(state.code)) : usStates;
+  const apart = only ? 110 : 260;
   for (;;) {
-    const a = usStates[Math.floor(Math.random() * usStates.length)];
-    const b = usStates[Math.floor(Math.random() * usStates.length)];
+    const a = pool[Math.floor(Math.random() * pool.length)];
+    const b = pool[Math.floor(Math.random() * pool.length)];
     if (a.code === last || a.code === b.code) continue;
-    if (Math.hypot(b.cx - a.cx, b.cy - a.cy) < 260) continue;
+    if (Math.hypot(b.cx - a.cx, b.cy - a.cy) < apart) continue;
     return [a.code, b.code];
   }
 }
@@ -259,7 +269,7 @@ function randomTrip(last: StateCode | null): [StateCode, StateCode] {
  * dashed arc draws, a dot rides it — then it fades and the next begins. While `active` is false (the button pressed,
  * or the band off screen) no new trip starts and the one on the map fades out.
  */
-function DemoQuotes({ active }: { active: boolean }) {
+function DemoQuotes({ active, only }: { active: boolean; only?: readonly StateCode[] }) {
   const [trip, setTrip] = useState<{ id: number; from: StateCode; to: StateCode } | null>(null);
 
   useEffect(() => {
@@ -270,7 +280,7 @@ function DemoQuotes({ active }: { active: boolean }) {
     let id = 0;
     let last: StateCode | null = null;
     const next = () => {
-      const [from, to] = randomTrip(last);
+      const [from, to] = randomTrip(last, only);
       last = to;
       id += 1;
       setTrip({ id, from, to });
@@ -281,7 +291,7 @@ function DemoQuotes({ active }: { active: boolean }) {
       window.clearTimeout(first);
       window.clearInterval(timer);
     };
-  }, [active]);
+  }, [active, only]);
 
   return (
     <g

@@ -2,10 +2,10 @@
 
 import { useLenis } from "lenis/react";
 import { useInView, useReducedMotion } from "motion/react";
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, ViewTransition, type CSSProperties, type RefObject } from "react";
 import { labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { quoteLink } from "@/lib/site";
+import { QUOTE_BAND, QUOTE_OPEN, quoteLink } from "@/lib/site";
 import type { StateCode } from "@/lib/us-states";
 import { QuoteBar } from "./QuoteBar";
 import { ShipRouteMap } from "./ShipRouteMap";
@@ -77,6 +77,9 @@ export function ShipWithUs() {
   useQuoteLinks(ref, skip, requestOpen);
 
   return (
+    // Shares its name with the Services page's closing card: that card's Get a quote grows it into this band
+    // (2026-10-08). Only that link's `quote-open` navigation plays it; see QUOTE_BAND in lib/site.ts.
+    <ViewTransition name={QUOTE_BAND} share={{ [QUOTE_OPEN]: "quote-open", default: "none" }} default="none">
     <section
       ref={ref}
       // Get a quote's anchor (lib/site.ts). The scroll itself is useQuoteLinks', so it lands right with the slide-over.
@@ -119,6 +122,7 @@ export function ShipWithUs() {
         <QuoteBar onStates={onStates} onSent={onSent} openRequest={openRequest} onOpenChange={setFormOpen} />
       </div>
     </section>
+    </ViewTransition>
   );
 }
 
