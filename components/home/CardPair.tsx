@@ -17,8 +17,8 @@ export type PairCard = Pick<SafetySystem, "name" | "video" | "crop" | "image">;
  * on a frame until then and pause again when the pointer leaves, and leaving the pair puts it back as it started. Cards
  * are buttons: focus opens one, a click or tap plays or pauses its clip — how touch screens play them. Below `sm` the
  * cards stack, every one open — or, with `phoneRow`, stand side by side as two tall 9:16 cards, like a row of Shorts
- * (a trial on the services pair only, the builder, 2026-10-09: on phones nearly every block was one picture on top of
- * another, then words). From `lg` the widths assume the pair spans 7 of 12 columns. Square corners, no box.
+ * (the builder, 2026-10-09: on phones nearly every block was one picture on top of another, then words; first the
+ * services pair, then Why work with us's two shop pairs the same day; only the safety band's road pair still stacks). From `lg` the widths assume the pair spans 7 of 12 columns. Square corners, no box.
  */
 
 /** One list of clips per section, so starting one stops whichever was playing. Keyed by card name. */

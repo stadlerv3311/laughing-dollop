@@ -142,8 +142,9 @@ export function SafetyBand({ between }: { between?: ReactNode }) {
                 <p className="mt-5 text-pretty text-[17px] leading-relaxed text-ink/70">{road.body}</p>
                 {hasReadout && <Readout system={safetySystems[road.systems[open]]} active={active} />}
                 {/* Under the words about GPS, the map that shows it (the builder, 2026-10-08, a box drawn there on a
-                    screenshot: "fleet map link"). */}
-                <div className="mt-9">
+                    screenshot: "fleet map link"). In the middle of the screen on phones (the builder, 2026-10-09:
+                    "move fleet map to the middle of the screen"); at the words' left edge from `sm`. */}
+                <div className="mt-9 max-sm:flex max-sm:justify-center">
                   <PairLink link={fleetMapLink} />
                 </div>
               </div>

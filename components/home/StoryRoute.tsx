@@ -10,11 +10,14 @@ import type { Milestone } from "@/lib/story";
 const DELAY = 0.3;
 const RIDE = 2;
 /**
- * Below `lg` the ride stops at each mark long enough to read its line, then moves on: seconds at a stop, and from one
- * to the next.
+ * Below `lg` the ride stops at each mark for its line to show, then moves on: seconds at a stop, and from one to the
+ * next. It starts at once (START) and is quick: 0.6 and 0.5 since later on 2026-10-09, the day it was built (the
+ * builder: "loads to late needs more speed"; at 1.6 and 0.9 after a 0.3s wait the last mark lit 5.3s in, now 2.3s).
+ * A line that went by too fast is a press away.
  */
-const HOLD = 1.6;
-const LEG = 0.9;
+const START = 0.05;
+const HOLD = 0.6;
+const LEG = 0.5;
 /** Below `lg` the road runs between a mark and its label: this far under the mark, half the gap between the two. */
 const ROAD_UNDER_MARK = 18;
 const WIDE = "(width >= 64rem)";
@@ -44,7 +47,8 @@ const WIDE = "(width >= 64rem)";
 export function StoryRoute({ milestones }: { milestones: Milestone[] }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
-  const inView = useInView(wrapRef, { once: true, amount: 0.4 });
+  // As soon as a little of the row is on screen (0.15 of it since 2026-10-09; it waited for 0.4).
+  const inView = useInView(wrapRef, { once: true, amount: 0.15 });
   const still = useReducedMotion() ?? false;
 
   // Each stop's distance along the road, in px; how far down the row the road runs (0 from `lg`, where it's the row's
@@ -118,8 +122,8 @@ export function StoryRoute({ milestones }: { milestones: Milestone[] }) {
     const values = shares.flatMap((s, i) => (i < shares.length - 1 ? [s, s] : [s]));
     const total = (shares.length - 1) * (HOLD + LEG);
     const times = values.map((_, k) => (Math.floor(k / 2) * (HOLD + LEG) + (k % 2) * HOLD) / total);
-    const first = setTimeout(() => reach(progress.get()), DELAY * 1000);
-    const controls = animate(progress, values, { delay: DELAY, duration: total, times, ease: "easeInOut" });
+    const first = setTimeout(() => reach(progress.get()), START * 1000);
+    const controls = animate(progress, values, { delay: START, duration: total, times, ease: "easeInOut" });
     return () => {
       clearTimeout(first);
       controls.stop();

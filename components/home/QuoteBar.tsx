@@ -194,10 +194,11 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   function open() {
     const form = formRef.current;
     if (!form || phase !== "closed") return;
-    setHeight(form.offsetHeight + 16);
+    const tall = form.offsetHeight + 16;
+    raise(tall);
+    setHeight(tall);
     setEntrance((n) => n + 1);
     setPhase(still ? "open" : "opening");
-    raise();
   }
 
   // On phones the form is one tall column low in the band, and the keyboard takes the lower half of the screen: it
@@ -206,10 +207,18 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   // that is already in the clear. Below `md` only, where the fields are stacked. Phones tuck the header away on the
   // way down (Header.tsx, below `sm`), so there the card goes right to the top, 8px in, and all five fields and
   // the button fit over the keyboard; where the header stays, the card stops under it.
-  function raise() {
+  // The button sits at the foot of the band on phones and the form grows up from there, so where the card's top will
+  // be is read with the card held at its open height for a moment, and no transition, before it starts to open.
+  function raise(tall: number) {
     const card = cardRef.current;
     if (!card || !window.matchMedia(STACKED).matches) return;
+    card.style.transition = "none";
+    card.style.height = `${tall}px`;
     const place = card.getBoundingClientRect().top + window.scrollY;
+    card.style.height = "";
+    // Back at the button's height before the transition is given back, so it opens from there.
+    void card.offsetHeight;
+    card.style.transition = "";
     const tucks = window.matchMedia("(width < 40rem)").matches && place - 8 > window.scrollY;
     const top = tucks ? place - 8 : place - 16 - (document.querySelector<HTMLElement>("body > header")?.offsetHeight ?? 0);
     if (lenis) lenis.scrollTo(top, { duration: 0.7, immediate: still, lock: true, force: true });

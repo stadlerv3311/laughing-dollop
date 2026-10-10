@@ -39,6 +39,12 @@ type ShipRouteMapProps = {
    * Every state without it, as on the homepage.
    */
   demoStates?: readonly StateCode[];
+  /**
+   * On phones (below `md`, where the map is a block of its own between the heading and the button) the made-up trips
+   * are filmed: the view closes in on the pickup, pulls back a little and follows the dot, closes in on the delivery,
+   * then goes back to the whole map. Ship with us only.
+   */
+  camera?: boolean;
   className?: string;
 };
 
@@ -57,9 +63,17 @@ type ShipRouteMapProps = {
  * somebody is getting a quote"; DemoQuotes). Pressing Get a quote clears them, so only the wave stays and the map is
  * the visitor's own.
  *
+ * With `camera`, on phones, the view moves with each made-up trip (the builder, 2026-10-09: "when an point appears it
+ * does an close up then moves back just a bit and follows the dot to delivery state. when at delivery it does a close
+ * up dot stops then camera goes in to innitial position"; DemoTrip). The dots, the wave and the marks sit on one
+ * stage that is scaled and moved as a whole, inside a window that reaches the screen's side edges and a little over
+ * and under the map's box, fading out at its top and bottom, so a close view has no hard edge. On phones that box
+ * is all the room between the heading and the button (the builder, same day, of the camera: "it can use a bit more
+ * screen height"), with the whole map in its middle at rest, the size it always was: only a close view fills it.
+ *
  * Under reduced motion there's no wave, pulse, draw, ride or demo trip: the states and pins just appear.
  */
-export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride, sweep, playing, demo, demoStates, className }: ShipRouteMapProps) {
+export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride, sweep, playing, demo, demoStates, camera = false, className }: ShipRouteMapProps) {
   const still = useReducedMotion() ?? false;
   const svgRef = useRef<SVGSVGElement>(null);
   const solidRef = useRef<SVGPathElement>(null);
@@ -72,8 +86,9 @@ export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride,
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
-    const observer = new ResizeObserver(() => {
-      const box = svg.getBoundingClientRect();
+    // The laid-out size, not the size on screen: the camera scales the stage the map is on.
+    const observer = new ResizeObserver(([entry]) => {
+      const box = entry.contentRect;
       const scale = Math.min(box.width / US_MAP_WIDTH, box.height / US_MAP_HEIGHT);
       if (scale > 0) setUnit(1 / scale);
     });
@@ -112,6 +127,17 @@ export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride,
 
   return (
     <div aria-hidden className={cx("pointer-events-none", className)}>
+      {/* The camera's window and, in it, the stage it moves: the window is 1.75rem taller than the map at each end
+          (the fade) and as wide as the screen, the stage is the map's own box. Without `camera`, and from `md`, both
+          are simply the map's box and nothing is cut. */}
+      <div
+        className={cx(
+          "absolute inset-0",
+          camera &&
+            "max-md:-inset-x-5 max-md:-inset-y-7 max-md:overflow-hidden max-md:[mask-image:linear-gradient(to_bottom,transparent,#000_1.75rem,#000_calc(100%-1.75rem),transparent)] sm:max-md:-inset-x-8",
+        )}
+      >
+      <div data-ship-stage className={cx("absolute inset-0 origin-top-left", camera && "max-md:inset-x-5 max-md:inset-y-7 sm:max-md:inset-x-8")}>
       <Image src="/images/us-dots.svg" alt="" fill sizes="80rem" className="select-none object-contain invert" />
 
       {!still && (
@@ -142,7 +168,7 @@ export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride,
           ))}
         </g>
 
-        {!still && <DemoQuotes active={demo && playing} only={demoStates} />}
+        {!still && <DemoQuotes active={demo && playing} only={demoStates} camera={camera} />}
 
         {route && <Route key={route} d={route} still={still} solidRef={solidRef} />}
         <circle ref={loadRef} r={5} className="fill-brand" style={{ opacity: 0 }} />
@@ -152,6 +178,8 @@ export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride,
           <Pin key={`d-${delivery}-${arrived}`} code={delivery} kind="delivery" label={deliveryCity} shift={apart ? 1 : 0} unit={unit} still={still} />
         )}
       </svg>
+      </div>
+      </div>
     </div>
   );
 }
@@ -242,9 +270,39 @@ function Pin({
   );
 }
 
-/** A new made-up trip every DEMO_MS; each one plays for TRIP_MS of that. */
-const DEMO_MS = 4400;
-const TRIP_MS = 4100;
+/**
+ * A made-up trip's beats, in seconds: the pickup lands at 0, the delivery at `delivery`, the arc draws, the dot rides,
+ * the trip fades. The next one starts GAP_MS after this one has ended (DemoQuotes), so a trip is never cut short by
+ * the one after it: on a fixed interval the first trip lost its last 0.8s, which filmed was the camera's way back, and
+ * the view jumped (the builder, 2026-10-09: "the loop kinda resets without camera pulling back").
+ */
+type Beats = {
+  delivery: number;
+  draw: readonly [from: number, length: number];
+  ride: readonly [from: number, length: number];
+  fade: readonly [from: number, length: number];
+};
+const GAP_MS = 300;
+const PLAIN: Beats = { delivery: 0.35, draw: [0.35, 0.9], ride: [1.4, 1.4], fade: [3.5, 0.6] };
+/**
+ * Filmed, the trip is longer, so the camera has time for each move: in on the pickup, back a little, along with the
+ * dot (a slower ride, so it can be followed), in on the delivery, and out to the whole map. The trip's marks stay
+ * until the camera is nearly back and only then fade, so the way out is seen with the trip still on the map.
+ */
+const FILMED: Beats = { delivery: 0.7, draw: [0.7, 1.1], ride: [2.3, 2.8], fade: [8.2, 0.7] };
+/**
+ * The camera's moves, as [from, length] in seconds, and how close it gets: on a pin, and while following the dot.
+ * Tuned twice the day it was built (the builder: "reduce speed by a tiny bit and intesity too", then "when you doing
+ * close up do it closer. and a bit a slower. and intensity slower too"): the close views are nearer, 2.7 (2.4 at
+ * first, 2.1 between), and every move is longer and softer — about twice the first lengths, and eased as a sine
+ * (`glide`), which never moves faster than about half again its average, where the cubic ease peaked at three times.
+ */
+const SHOTS = { in: [0.1, 1.5], back: [1.9, 0.9], arrive: [5.1, 1.2], out: [6.9, 1.6] } as const;
+const CLOSE = 2.7;
+const FOLLOW = 1.6;
+const PHONE = "(width < 48rem)";
+/** Whether the trips are filmed just now: the map has a camera and the screen is a phone's. */
+const filming = (camera: boolean) => camera && window.matchMedia(PHONE).matches;
 
 /**
  * Two states far enough apart that the arc reads as a trip, not a hop; never starting where the last one ended.
@@ -269,8 +327,10 @@ function randomTrip(last: StateCode | null, only?: readonly StateCode[]): [State
  * dashed arc draws, a dot rides it — then it fades and the next begins. While `active` is false (the button pressed,
  * or the band off screen) no new trip starts and the one on the map fades out.
  */
-function DemoQuotes({ active, only }: { active: boolean; only?: readonly StateCode[] }) {
+function DemoQuotes({ active, only, camera }: { active: boolean; only?: readonly StateCode[]; camera: boolean }) {
   const [trip, setTrip] = useState<{ id: number; from: StateCode; to: StateCode } | null>(null);
+  // What the trip on the map calls when it has played to its end: start the next. Nothing while not `active`.
+  const ended = useRef<() => void>(() => {});
 
   useEffect(() => {
     if (!active) {
@@ -285,11 +345,15 @@ function DemoQuotes({ active, only }: { active: boolean; only?: readonly StateCo
       id += 1;
       setTrip({ id, from, to });
     };
-    const first = window.setTimeout(next, 800);
-    const timer = window.setInterval(next, DEMO_MS);
+    let timer = window.setTimeout(next, 800);
+    ended.current = () => {
+      // One next trip, however often it's called.
+      window.clearTimeout(timer);
+      timer = window.setTimeout(next, GAP_MS);
+    };
     return () => {
-      window.clearTimeout(first);
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
+      ended.current = () => {};
     };
   }, [active, only]);
 
@@ -298,13 +362,28 @@ function DemoQuotes({ active, only }: { active: boolean; only?: readonly StateCo
       className="transition-opacity duration-400 ease-premium"
       style={{ opacity: active ? 0.85 : 0 }}
     >
-      {trip && <DemoTrip key={trip.id} id={trip.id} from={trip.from} to={trip.to} />}
+      {trip && <DemoTrip key={trip.id} id={trip.id} from={trip.from} to={trip.to} camera={camera} onEnd={() => ended.current()} />}
     </g>
   );
 }
 
-/** One made-up trip's whole life, driven by one animation frame loop so nothing re-renders while it plays. */
-function DemoTrip({ id, from, to }: { id: number; from: StateCode; to: StateCode }) {
+/**
+ * How far to move the stage along one axis, so that at `zoom` the point `focus` is in the middle of a view `size`
+ * long, as far as the map's edges allow: the map (`length` long, starting `start` into the stage) is never pulled away
+ * from an edge of the view it can reach, and while it's still shorter than the view it stays centred. All in px.
+ */
+function frame1d(size: number, zoom: number, start: number, length: number, focus: number) {
+  if (zoom * length <= size) return size / 2 - zoom * (start + length / 2);
+  return Math.min(-zoom * start, Math.max(size - zoom * (start + length), size / 2 - zoom * focus));
+}
+
+/**
+ * One made-up trip's whole life, driven by one animation frame loop so nothing re-renders while it plays. With
+ * `camera` on a phone the same loop moves the camera (FILMED, SHOTS): the map's stage is scaled about the point the dot is at
+ * (the pickup until it sets off, the delivery once it has arrived) and held to the map's own edges (frame1d), so a
+ * state at the map's edge is shown close without half the view being empty.
+ */
+function DemoTrip({ id, from, to, camera, onEnd }: { id: number; from: StateCode; to: StateCode; camera: boolean; onEnd: () => void }) {
   const groupRef = useRef<SVGGElement>(null);
   const deliveryRef = useRef<SVGGElement>(null);
   const revealRef = useRef<SVGPathElement>(null);
@@ -325,24 +404,59 @@ function DemoTrip({ id, from, to }: { id: number; from: StateCode; to: StateCode
     const length = solid.getTotalLength();
     const clamp = (x: number) => Math.min(1, Math.max(0, x));
     const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const film = filming(camera) ? group.closest<HTMLElement>("[data-ship-stage]") : null;
+    const beats = film ? FILMED : PLAIN;
+    // The camera's ease, and the dot's while it's filmed, since the camera goes where the dot goes.
+    const glide = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
+    const shot = ([at, length]: readonly [number, number], s: number, pace = ease) => pace(clamp((s - at) / length));
+    if (film) film.style.transition = "none";
     const start = performance.now();
     let frame = 0;
-    // Seconds: the pickup at 0, the delivery at 0.35, the arc draws 0.35–1.25, the ride 1.4–2.8, the fade 3.5–4.1.
     const step = (now: number) => {
       const s = (now - start) / 1000;
-      group.style.opacity = String(s < 3.5 ? clamp(s / 0.3) : 1 - clamp((s - 3.5) / 0.6));
-      drop.style.opacity = String(clamp((s - 0.35) / 0.2));
-      reveal.style.strokeDashoffset = String(1 - ease(clamp((s - 0.35) / 0.9)));
-      const r = ease(clamp((s - 1.4) / 1.4));
+      group.style.opacity = String(s < beats.fade[0] ? clamp(s / 0.3) : 1 - clamp((s - beats.fade[0]) / beats.fade[1]));
+      drop.style.opacity = String(clamp((s - beats.delivery) / 0.2));
+      reveal.style.strokeDashoffset = String(1 - shot(beats.draw, s));
+      const r = shot(beats.ride, s, film ? glide : ease);
       const point = solid.getPointAtLength(length * r);
       load.setAttribute("cx", String(point.x));
       load.setAttribute("cy", String(point.y));
-      load.style.opacity = s > 1.4 && s < 2.8 ? "1" : "0";
+      // Filmed, the dot stays where it stopped, on the delivery, until the trip fades.
+      load.style.opacity = s > beats.ride[0] && (film || s < beats.ride[0] + beats.ride[1]) ? "1" : "0";
       solid.style.strokeDashoffset = String(1 - r);
-      if (s * 1000 < TRIP_MS) frame = requestAnimationFrame(step);
+      if (film) {
+        const zoom =
+          1 +
+          (CLOSE - 1) * (shot(SHOTS.in, s, glide) - shot(SHOTS.out, s, glide)) +
+          (CLOSE - FOLLOW) * (shot(SHOTS.arrive, s, glide) - shot(SHOTS.back, s, glide));
+        // The map is drawn as large as fits the stage, centred in it (the stage is taller than the map on a phone).
+        const width = film.offsetWidth;
+        const height = film.offsetHeight;
+        const fit = Math.min(width / US_MAP_WIDTH, height / US_MAP_HEIGHT);
+        const left = (width - US_MAP_WIDTH * fit) / 2;
+        const top = (height - US_MAP_HEIGHT * fit) / 2;
+        const dx = frame1d(width, zoom, left, US_MAP_WIDTH * fit, left + point.x * fit);
+        const dy = frame1d(height, zoom, top, US_MAP_HEIGHT * fit, top + point.y * fit);
+        film.style.transform = `translate(${dx}px, ${dy}px) scale(${zoom})`;
+      }
+      if (s < beats.fade[0] + beats.fade[1]) {
+        frame = requestAnimationFrame(step);
+        return;
+      }
+      if (film) film.style.transform = "";
+      onEnd();
     };
     frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      // Cut short (the button pressed, the band scrolled away): the camera glides back to the whole map.
+      if (film) {
+        film.style.transition = "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)";
+        film.style.transform = "";
+      }
+    };
+    // One trip, start to end: whether it's filmed is settled as it starts, and `onEnd` is called once, at its end.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

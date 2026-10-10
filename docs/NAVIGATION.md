@@ -50,7 +50,7 @@
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
 | Change the homepage numbers (years, miles, loads, states) | `lib/site.ts` → `companyStats`; layout in `components/home/TrustBar.tsx` |
 | Change quote form fields, error messages or the thank-you screen | `components/home/QuoteBar.tsx` (the receipt is its thank-you) |
-| Change the quote map's lit states, pins, route line or wave | `components/home/ShipRouteMap.tsx` |
+| Change the quote map's lit states, pins, route line or wave, or the phone camera's moves on the made-up trips (`FILMED`, `SHOTS`, `CLOSE`, `FOLLOW`) | `components/home/ShipRouteMap.tsx` |
 | Connect the quote form to the backend | `lib/forms.ts` → `submitQuote` (keep `QuoteRequest` in sync) |
 | Change the careers page's jobs, paragraphs or Why here points | `lib/site.ts` → `applyRoutes` (`title`, `summary`, `reasons`); layout in `components/careers/CareersOverview.tsx` |
 | Change the job application's questions, answers, copy or thank-you screen | `components/careers/JobApplication.tsx` (the order and the questions per job are in `stepsFor`, which adds "Which job?" after the contact questions when the URL names no job and drops the driver's years after "Not yet"; what is sent is `JobApplication` in `lib/forms.ts`; the jobs' names, lines and photos come from `applyRoutes` in `lib/site.ts`, the line on the driver photo from `driverSlogans[0]`; the picture behind "Which job?" before a job is picked is `DEFAULT_IMAGE` in the same file, `public/images/apply-docks.jpg`) |
@@ -180,10 +180,10 @@ What each component takes, as the code has it. `*` is required; a value after `=
 | `MobileMenu` | `open*`, `pathname*`, `onNavigate*` |
 | `MenuToggle` | `open*`, `onToggle*`, `light = false` |
 | `HeroHeadline` | `lit*` (boolean), `className` |
-| `Pair` | `cards*` (two `PairCard`s), `start*` and `open*` (0 or 1), `onOpen*`, `onActive`, `phoneRow` (on phones, the two cards side by side and tall, 9:16, instead of stacked; only the safety band's services pair, a trial since 2026-10-09), `reduceMotion*`, and `videos*`, `play*`, `pause*` from `usePairVideos()` |
+| `Pair` | `cards*` (two `PairCard`s), `start*` and `open*` (0 or 1), `onOpen*`, `onActive`, `phoneRow` (on phones, the two cards side by side and tall, 9:16, instead of stacked; the safety band's services pair and Why work with us's two shop pairs, since 2026-10-09; the safety band's road pair still stacks), `reduceMotion*`, and `videos*`, `play*`, `pause*` from `usePairVideos()` |
 | `QuoteBar` | `onStates*`, `onSent*`, `openRequest*` (number), `onOpenChange` |
 | `SafetyBand` | `between` (what sits between its two pairs: the numbers band) |
-| `ShipRouteMap` | `pickup*` and `delivery*` (a state code or `null`), `pickupCity`, `deliveryCity`, `ride*` and `sweep*` (numbers, counted up to replay), `playing*`, `demo*`, `demoStates`, `className` |
+| `ShipRouteMap` | `pickup*` and `delivery*` (a state code or `null`), `pickupCity`, `deliveryCity`, `ride*` and `sweep*` (numbers, counted up to replay), `playing*`, `demo*`, `demoStates`, `camera` (on phones the made-up trips are filmed: close on the pickup, along with the dot, close on the delivery, back to the whole map; Ship with us only), `className` |
 | `SlideOverStack` | `under*`, `over*`, `dark = false` |
 | `StoryHeadline` | `id*`, `lines*` (string[]), `accent`, `tone = "brand"` (`"brand"` \| `"paper"`), `as = "h2"` (`"h1"` \| `"h2"`), `light = false`, `inline = false`, `solid = false`, `large = false`, `sans = false`, `className` |
 | `StoryRoute` | `milestones*` (`Milestone[]`, `lib/story.ts`) |

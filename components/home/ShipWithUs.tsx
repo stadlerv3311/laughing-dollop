@@ -93,11 +93,13 @@ export function ShipWithUs() {
       // up after it (180px on a phone), pulling the band's top off the screen's.
       // The large viewport height, not the small one (2026-10-09): a phone's toolbar has folded away by the time the
       // page has scrolled this far, and a band only `svh` tall left a strip of the next section showing under it.
-      // On phones the heading, map and button start from the top, 112px down, instead of sitting in the middle (the
-      // builder, 2026-10-09: "lets move up … and the button too", then "even more higher"). It also keeps the button
-      // where it is as it opens into the form, so QuoteBar can bring the form up clear of the keyboard. Centred as
+      // On phones the heading starts from the top, 112px down, instead of sitting in the middle (the builder,
+      // 2026-10-09: "lets move up … and the button too", then "even more higher"), and the button sits at the foot of
+      // the screen, where a thumb reaches it (the builder, same day: "move get a quote lower so its thumb accessible"),
+      // with the map half way between the two. The foot's padding is what the browser's toolbar takes when it's
+      // showing, and 2rem: the band is `lvh` tall, so without it the button would sit under the toolbar. Centred as
       // before from `md`, where the map lies behind the words.
-      className="relative isolate flex min-h-lvh [overflow-anchor:none] flex-col items-center justify-center overflow-hidden bg-ink px-5 pt-26 pb-8 text-center text-paper max-md:justify-start max-md:pt-28 sm:px-8 md:pt-22 md:pb-12"
+      className="relative isolate flex min-h-lvh [overflow-anchor:none] flex-col items-center justify-center overflow-hidden bg-ink px-5 pt-26 pb-8 text-center text-paper max-md:justify-start max-md:pt-28 max-md:pb-[calc(100lvh-100svh+2rem)] sm:px-8 md:pt-22 md:pb-12"
     >
       <ShipRouteMap
         pickup={pickup}
@@ -108,11 +110,15 @@ export function ShipWithUs() {
         sweep={sweep}
         playing={inView}
         demo={!formOpen}
-        className="relative order-2 my-7 aspect-[960/613] w-full md:absolute md:inset-x-[2vw] md:top-22 md:bottom-4 md:order-none md:my-0 md:aspect-auto md:w-auto"
+        camera
+        // On phones the map's box takes all the room between the heading and the button (28px from each, their
+        // margins), so the camera's close views have that height; the whole map sits in its middle, as wide as the
+        // column. Never shorter than the map itself (its width × 613/960), for when the form opens and takes the room.
+        className="relative order-2 w-full max-md:min-h-[calc((100vw-2.5rem)*0.6385)] max-md:flex-1 sm:max-md:min-h-[calc((100vw-4rem)*0.6385)] md:absolute md:inset-x-[2vw] md:top-22 md:bottom-4 md:order-none md:w-auto"
       />
 
       {/* A soft pool of ink behind the heading, so the dots and the wave never run through the words. */}
-      <div className="relative z-10 order-1 max-w-[64rem] before:absolute before:-inset-x-[12%] before:-inset-y-12 before:-z-10 before:bg-[radial-gradient(closest-side,rgb(37_37_37/0.92)_45%,transparent)]">
+      <div className="relative z-10 order-1 max-w-[64rem] max-md:mb-7 before:absolute before:-inset-x-[12%] before:-inset-y-12 before:-z-10 before:bg-[radial-gradient(closest-side,rgb(37_37_37/0.92)_45%,transparent)]">
         <p className={cx(labelClass, "text-paper/70")}>Ship with us</p>
         {/* A size up from the other band headings (owner: "give it more weight"), held at 72px so it stays under the hero's. */}
         <h2
@@ -124,7 +130,7 @@ export function ShipWithUs() {
         </h2>
       </div>
 
-      <div className="relative z-10 order-3 flex w-full justify-center md:mt-11">
+      <div className="relative z-10 order-3 flex w-full justify-center max-md:mt-7 md:mt-11">
         <QuoteBar onStates={onStates} onSent={onSent} openRequest={openRequest} onOpenChange={setFormOpen} />
       </div>
     </section>
