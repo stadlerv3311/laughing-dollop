@@ -180,7 +180,7 @@ What each component takes, as the code has it. `*` is required; a value after `=
 | `MobileMenu` | `open*`, `pathname*`, `onNavigate*` |
 | `MenuToggle` | `open*`, `onToggle*`, `light = false` |
 | `HeroHeadline` | `lit*` (boolean), `className` |
-| `Pair` | `cards*` (two `PairCard`s), `start*` and `open*` (0 or 1), `onOpen*`, `onActive`, `phoneRow` (on phones, the two cards side by side and tall, 9:16, instead of stacked; the safety band's services pair and Why work with us's two shop pairs, since 2026-10-09; the safety band's road pair still stacks), `reduceMotion*`, and `videos*`, `play*`, `pause*` from `usePairVideos()` |
+| `Pair` | `cards*` (two `PairCard`s), `start*` and `open*` (0 or 1), `onOpen*`, `onActive`, `phoneSlide` (on phones a pair is two tall 9:16 cards side by side, since 2026-10-09; with this it is a short row that slides instead, the open card wide and the closed one a narrow strip, like Why ___ stay's job cards; the safety band's road pair only), `reduceMotion*`, and `videos*`, `play*`, `pause*` from `usePairVideos()` |
 | `QuoteBar` | `onStates*`, `onSent*`, `openRequest*` (number), `onOpenChange` |
 | `SafetyBand` | `between` (what sits between its two pairs: the numbers band) |
 | `ShipRouteMap` | `pickup*` and `delivery*` (a state code or `null`), `pickupCity`, `deliveryCity`, `ride*` and `sweep*` (numbers, counted up to replay), `playing*`, `demo*`, `demoStates`, `camera` (on phones the made-up trips are filmed: close on the pickup, along with the dot, close on the delivery, back to the whole map; Ship with us only), `className` |

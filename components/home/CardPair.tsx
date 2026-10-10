@@ -15,10 +15,17 @@ export type PairCard = Pick<SafetySystem, "name" | "video" | "crop" | "image">;
  * Two cards side by side that open up like the apply cards, shared by the safety band's services and road pairs and
  * Why work with us's two shop pairs (moved there 2026-10-03, owner; split in two 2026-10-05). Hovering a card widens it and plays its clip; the clips stand paused
  * on a frame until then and pause again when the pointer leaves, and leaving the pair puts it back as it started. Cards
- * are buttons: focus opens one, a click or tap plays or pauses its clip — how touch screens play them. Below `sm` the
- * cards stack, every one open — or, with `phoneRow`, stand side by side as two tall 9:16 cards, like a row of Shorts
- * (the builder, 2026-10-09: on phones nearly every block was one picture on top of another, then words; first the
- * services pair, then Why work with us's two shop pairs the same day; only the safety band's road pair still stacks). From `lg` the widths assume the pair spans 7 of 12 columns. Square corners, no box.
+ * are buttons: focus opens one, a click or tap plays or pauses its clip — how touch screens play them. Hovering is the
+ * mouse's alone (pointer events, since 2026-10-09): a tap also arrives as a hover just before its click, which started
+ * the clip and then stopped it again.
+ *
+ * Below `sm` the two cards stand side by side as tall 9:16 cards, like a row of Shorts (the builder, 2026-10-09: on
+ * phones nearly every block was one picture on top of another, then words; first the services pair, then Why work
+ * with us's two shop pairs the same day). With `phoneSlide` they are a short row that slides instead, as Why ___
+ * stay's job cards do: the open card wide and named, the closed one a narrow strip, and a tap opens it (the builder,
+ * the same day, of the road pair: "the same positioning as we have on why drivers stay. sliding pictures"). Until
+ * then a pair stacked on phones, every card open. From `lg` the widths assume the pair spans 7 of 12 columns. Square
+ * corners, no box.
  */
 
 /** One list of clips per section, so starting one stops whichever was playing. Keyed by card name. */
@@ -40,7 +47,7 @@ export function Pair({
   open,
   onOpen,
   onActive,
-  phoneRow = false,
+  phoneSlide = false,
   reduceMotion,
   videos,
   play,
@@ -51,8 +58,8 @@ export function Pair({
   open: number;
   onOpen: (i: number) => void;
   onActive?: (on: boolean) => void;
-  /** Below `sm`, the two cards side by side and tall instead of stacked. */
-  phoneRow?: boolean;
+  /** Below `sm`, a short row with the open card wide, instead of two tall cards of one width. */
+  phoneSlide?: boolean;
   reduceMotion: boolean;
   videos: RefObject<Map<string, HTMLVideoElement>>;
   play: (name: string) => void;
@@ -60,8 +67,11 @@ export function Pair({
 }) {
   return (
     <ul
-      onMouseEnter={() => onActive?.(true)}
-      onMouseLeave={() => {
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") onActive?.(true);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType !== "mouse") return;
         onOpen(start);
         onActive?.(false);
       }}
@@ -70,21 +80,26 @@ export function Pair({
       }}
       // The tighter 0.625rem gap inside a pair (owner, 2026-09-28); the open card takes up the difference, so the
       // closed one keeps its place on the column lines.
-      className={cx("flex gap-2.5 sm:aspect-[1/0.92] sm:flex-row", !phoneRow && "flex-col")}
+      // The sliding row is as tall as the job cards on a phone (WhyWorkWithUs, `h-72`).
+      className={cx("flex gap-2.5 sm:aspect-[1/0.92]", phoneSlide && "max-sm:h-72")}
     >
       {cards.map((system, i) => {
         const isOpen = open === i;
         return (
           <li
             key={system.name}
-            onMouseEnter={() => {
+            onPointerEnter={(event) => {
+              if (event.pointerType !== "mouse") return;
               onOpen(i);
               if (!reduceMotion) play(system.name);
             }}
-            onMouseLeave={() => pause(system.name)}
+            onPointerLeave={(event) => {
+              if (event.pointerType === "mouse") pause(system.name);
+            }}
             className={cx(
-              "relative sm:aspect-auto sm:min-w-0 sm:basis-0 sm:transition-[flex-grow,flex-basis] sm:duration-700 sm:ease-premium motion-reduce:transition-none",
-              phoneRow ? "aspect-9/16 min-w-0 flex-1" : "aspect-4/3",
+              "relative min-w-0 basis-0 transition-[flex-grow,flex-basis] duration-700 ease-premium motion-reduce:transition-none",
+              // On phones: the job cards' 2.4 to 1 when the pair slides, otherwise two tall cards of one width.
+              phoneSlide ? (isOpen ? "max-sm:grow-[2.4]" : "max-sm:grow") : "max-sm:aspect-9/16 max-sm:grow",
               // From lg the widths snap to the section's 12-column grid (owner, 2026-09-28): a pair spans 7 columns,
               // the closed card exactly 2 and the open one 5, so a closed card stands on two whole columns. 100% is
               // the pair's width: one column is (100% − 6 gaps) / 7. The open card is the rest less the pair's own
@@ -118,7 +133,7 @@ export function Pair({
                   src={system.image.src}
                   alt={system.image.alt}
                   fill
-                  sizes={phoneRow ? "(width >= 64rem) 45vw, (width >= 40rem) 100vw, 50vw" : "(width >= 64rem) 45vw, 100vw"}
+                  sizes={`(width >= 64rem) 45vw, (width >= 40rem) 100vw, ${phoneSlide ? 70 : 50}vw`}
                   style={system.image.position ? { objectPosition: system.image.position } : undefined}
                   className="object-cover transition-transform duration-700 ease-premium group-hover:scale-[1.03]"
                 />
@@ -152,14 +167,17 @@ export function Pair({
               <span
                 className={cx(
                   "absolute inset-x-5 bottom-5 block lg:inset-x-6 lg:bottom-6",
-                  // Half the width to stand in, so the name sits closer to the corner and a size down.
-                  phoneRow && "max-sm:inset-x-3.5 max-sm:bottom-3.5",
+                  // Sliding, the closed strip is too narrow for words, so only the open card is named (as on the job
+                  // cards). Otherwise half the width to stand in, so the name sits closer to the corner and a size down.
+                  phoneSlide
+                    ? cx("max-sm:transition-opacity max-sm:duration-500", !isOpen && "max-sm:opacity-0")
+                    : "max-sm:inset-x-3.5 max-sm:bottom-3.5",
                 )}
               >
                 <span
                   className={cx(
                     "block text-balance font-display font-semibold text-xl leading-tight tracking-[-0.03em] lg:text-[1.375rem]",
-                    phoneRow && "max-sm:text-[1.0625rem]",
+                    !phoneSlide && "max-sm:text-[1.0625rem]",
                   )}
                 >
                   {system.name}

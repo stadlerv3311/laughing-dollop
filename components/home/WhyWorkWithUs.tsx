@@ -102,9 +102,6 @@ export function WhyWorkWithUs() {
                   start={group.open}
                   open={equipmentOpen[row]}
                   onOpen={(i) => setEquipmentOpen((all) => all.map((was, r) => (r === row ? i : was)))}
-                  // Both pairs stand side by side on phones, like the services pair (the builder, 2026-10-09: "same
-                  // as service section", then "our shop, maintenance on record too").
-                  phoneRow
                   reduceMotion={still}
                   videos={videos}
                   play={play}

@@ -31,7 +31,8 @@ const SAFETY_HEADLINE = ["Tracked trucks.", "Proven service."];
  * A zigzag again since 2026-10-05 (owner picked idea A of the services report): the heading with a one-line pitch,
  * then the services pair (CardPair) in columns 1–7 with its words, the list of services and Get a quote in 8–12; the
  * numbers band (`between`, TrustBar); then the road pair — GPS and dash cameras — mirrored, in columns 6–12 with its
- * words in 1–5. Below `lg` each picture sits over its words. Square corners and no box (DECISIONS.md → Homepage
+ * words in 1–5. Below `lg` each picture sits over its words; on phones the services pair is two tall cards side by
+ * side and the road pair a short row that slides (CardPair). Square corners and no box (DECISIONS.md → Homepage
  * section look). Copy in lib/services.ts and lib/site.ts → `safetyGroups` / `safetyPitch` (draft).
  *
  * The first zigzag (2026-09-28, owner's sketch) had the road pair first and the shop pair — Maintenance on record and
@@ -86,7 +87,6 @@ export function SafetyBand({ between }: { between?: ReactNode }) {
                 start={servicesGroup.open}
                 open={servicesOpen}
                 onOpen={setServicesOpen}
-                phoneRow
                 reduceMotion={reduceMotion}
                 videos={videos}
                 play={play}
@@ -130,6 +130,8 @@ export function SafetyBand({ between }: { between?: ReactNode }) {
                 open={open}
                 onOpen={setOpen}
                 onActive={setActive}
+                // A sliding row on phones, like Why ___ stay's job cards (the builder, 2026-10-09).
+                phoneSlide
                 reduceMotion={reduceMotion}
                 videos={videos}
                 play={play}
