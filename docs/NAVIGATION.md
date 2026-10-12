@@ -49,7 +49,7 @@
 | Bring back the full-width homepage photo band, or add the B-roll video | `components/unused/HeroMedia.tsx` is still there but unused since 2026-09-17 (move it back to `components/ui/` to use it) — the apply cards took its place in `app/page.tsx` (they now sit in Why work with us) |
 | Replace the draft company history (homepage card + About page) | `lib/story.ts` |
 | Change the homepage numbers (years, miles, loads, states) | `lib/site.ts` → `companyStats`; layout in `components/home/TrustBar.tsx` |
-| Change quote form fields, error messages or the thank-you screen | `components/home/QuoteBar.tsx` (the receipt is its thank-you) |
+| Change quote form fields, error messages or the thank-you screen | `components/home/QuoteBar.tsx` (the receipt is its thank-you; the optional four behind Add more info are `EXTRAS` there, from `md` only) |
 | Change the quote map's lit states, pins, route line or wave, or the phone camera's moves on the made-up trips (`FILMED`, `SHOTS`, `CLOSE`, `FOLLOW`) | `components/home/ShipRouteMap.tsx` |
 | Connect the quote form to the backend | `lib/forms.ts` → `submitQuote` (keep `QuoteRequest` in sync) |
 | Change the careers page's jobs, paragraphs or Why here points | `lib/site.ts` → `applyRoutes` (`title`, `summary`, `reasons`); layout in `components/careers/CareersOverview.tsx` |

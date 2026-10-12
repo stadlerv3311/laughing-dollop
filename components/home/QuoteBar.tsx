@@ -10,12 +10,26 @@ import { quoteLink } from "@/lib/site";
 import { usStates, type StateCode } from "@/lib/us-states";
 import { cityForZip, stateForZip } from "@/lib/zip";
 
-type Values = { pickup: string; delivery: string; date: string; name: string; contact: string };
-const FIELDS = ["pickup", "delivery", "date", "name", "contact"] as const;
-type FieldName = (typeof FIELDS)[number];
+type Values = {
+  pickup: string;
+  delivery: string;
+  date: string;
+  name: string;
+  contact: string;
+  // "Add more info": none of these has to be given.
+  deliveryDate: string;
+  weight: string;
+  freight: string;
+  note: string;
+};
+type FieldName = keyof Values;
+/** The fields that can be wrong, in the order the cursor goes to the first of them. */
+const FIELDS = ["pickup", "delivery", "date", "name", "contact", "deliveryDate"] as const satisfies readonly FieldName[];
+/** The ones behind "Add more info". */
+const EXTRAS = ["deliveryDate", "weight", "freight", "note"] as const satisfies readonly FieldName[];
 type Errors = Partial<Record<FieldName, string>>;
 
-const emptyValues: Values = { pickup: "", delivery: "", date: "", name: "", contact: "" };
+const emptyValues: Values = { pickup: "", delivery: "", date: "", name: "", contact: "", deliveryDate: "", weight: "", freight: "", note: "" };
 const OUTSIDE = "We run in the lower 48 only";
 const stateName = (code: StateCode) => usStates.find((state) => state.code === code)?.name ?? code;
 
@@ -78,6 +92,12 @@ function validate(values: Values): Errors {
   if (!values.name.trim()) errors.name = "Enter your name";
   if (!values.contact.trim()) errors.contact = "Enter a phone or email";
   else if (!contactKind(values.contact)) errors.contact = "Enter a 10-digit phone or an email";
+  // The one extra that can be wrong: a delivery before the pickup (or, with no good pickup date yet, before today).
+  if (values.deliveryDate) {
+    const afterPickup = values.date >= today();
+    if (values.deliveryDate < (afterPickup ? values.date : today()))
+      errors.deliveryDate = afterPickup ? "Pick the pickup date or later" : "Pick today or later";
+  }
   return errors;
 }
 
@@ -92,6 +112,10 @@ function toRequest(values: Values): QuoteRequest {
       phone: kind === "phone" ? values.contact.trim() : undefined,
       email: kind === "email" ? values.contact.trim() : undefined,
     },
+    deliveryDate: values.deliveryDate || undefined,
+    weightLbs: values.weight ? Number(values.weight) : undefined,
+    freight: values.freight.trim() || undefined,
+    note: values.note.trim() || undefined,
   };
 }
 
@@ -141,6 +165,16 @@ type QuoteBarProps = {
  * it looks like. Sending goes through `submitQuote`, the stand-in until the backend teammate's endpoint exists.
  *
  * Until 2026-10-02 this was a three-field bar (Pickup, Delivery, Pickup date) that opened the quote page (`/quote`, now gone) with them filled in.
+ *
+ * Add more info (the builder, 2026-10-12, a box drawn on the card's bottom edge: "lets add add more info. but that its
+ * optional … so do not open it by default"): four more fields nobody has to fill, behind a small button — Delivery
+ * date, Weight, Freight and a Note (all four the builder's pick; weight and freight had been out of the form since
+ * 2026-10-01). Closed, the card is the form it was with one line under it. Pressed, a row of the four opens over that
+ * line, each marked optional, and the line reads Less info; closed again with something typed, it reads More info
+ * added, since what was typed is still sent. The button is that line, centred at the card's foot. From `md` only:
+ * phones have neither the button nor the four (the builder, the same day: "do not add this to the mobile version"),
+ * and the stacked form there only just clears a phone's keyboard as it is. Get another quote, and closing a sent
+ * card, clear the four and fold them away.
  */
 export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteBarProps) {
   const baseId = useId();
@@ -163,6 +197,8 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
 
   const [values, setValues] = useState<Values>(emptyValues);
   const [showErrors, setShowErrors] = useState(false);
+  // Whether the optional fields are open. Folding them away keeps what was typed.
+  const [more, setMore] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   // The date box's earliest day waits for the browser: the homepage's HTML is built ahead of time, and a day worked
   // out there stayed the day of the build.
@@ -267,7 +303,10 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
     if (!card || phase !== "open" || status.kind === "sending") return;
     refocus.current = card.contains(document.activeElement);
     if (status.kind !== "idle") {
-      if (status.kind === "sent") setValues((current) => ({ ...emptyValues, name: current.name, contact: current.contact }));
+      if (status.kind === "sent") {
+        setValues((current) => ({ ...emptyValues, name: current.name, contact: current.contact }));
+        setMore(false);
+      }
       setStatus({ kind: "idle" });
     }
     setShowErrors(false);
@@ -337,7 +376,11 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
     setShowErrors(true);
     const first = FIELDS.find((field) => allErrors[field]);
     if (first) {
-      document.getElementById(id(first))?.focus();
+      // A wrong field that is folded away is opened first: it can't take the cursor until it's on the page.
+      if (EXTRAS.some((field) => field === first) && !more) {
+        setMore(true);
+        requestAnimationFrame(() => document.getElementById(id(first))?.focus());
+      } else document.getElementById(id(first))?.focus();
       return;
     }
 
@@ -365,6 +408,7 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
   function another() {
     setValues((current) => ({ ...emptyValues, name: current.name, contact: current.contact }));
     setShowErrors(false);
+    setMore(false);
     setStatus({ kind: "idle" });
     setEntrance((n) => n + 1);
     requestAnimationFrame(() => document.getElementById(id("pickup"))?.focus({ preventScroll: true }));
@@ -372,6 +416,8 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
 
   const sent = status.kind === "sent";
   const closed = phase === "closed";
+  /** Something is typed in the optional fields, open or folded away. */
+  const added = EXTRAS.some((field) => values[field].trim());
   /** The cells arrive in turn each time the form appears. */
   const animate = entrance > 0 && !still;
   const enter = animate ? "animate-ship-cell-in" : undefined;
@@ -534,7 +580,102 @@ export function QuoteBar({ onStates, onSent, openRequest, onOpenChange }: QuoteB
               className={inputClass}
             />
           </Cell>
-          <span key={`go-${entrance}`} style={delay(6)} className={cx("mt-1.5 md:mt-0 min-[87.5rem]:ml-1.5", enter)}>
+          {/* The optional four, folded away until Add more info is pressed: a row of their own under the form's, two
+              by two below 1400px. Not on phones. They come before the two buttons in the page's order, so a keyboard
+              goes through them on its way to Get a quote. */}
+          <div
+            id={`${baseId}-more`}
+            role="group"
+            aria-label="More about the load, optional"
+            inert={!more}
+            className={cx(
+              "col-span-full hidden transition-[grid-template-rows] duration-500 ease-premium motion-reduce:transition-none md:grid",
+              more ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+            )}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div className="grid grid-cols-2 gap-y-1 pt-1 min-[87.5rem]:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)_minmax(0,1.3fr)_minmax(0,1.9fr)]">
+                <Cell id={id("deliveryDate")} label="Delivery date" hint="optional" error={errors.deliveryDate} icon="date">
+                  <input
+                    id={id("deliveryDate")}
+                    name="deliveryDate"
+                    type="date"
+                    min={values.date || earliest}
+                    value={values.deliveryDate}
+                    onChange={(event) => setField("deliveryDate", event.target.value)}
+                    aria-invalid={Boolean(errors.deliveryDate)}
+                    aria-describedby={errors.deliveryDate ? `${id("deliveryDate")}-error` : undefined}
+                    className={cx(inputClass, !values.deliveryDate && "text-ink/50")}
+                  />
+                </Cell>
+                <Cell id={id("weight")} label="Weight" hint="optional" icon="weight">
+                  <input
+                    id={id("weight")}
+                    name="weight"
+                    value={values.weight}
+                    onChange={(event) => setField("weight", event.target.value.replace(/\D/g, "").slice(0, 6))}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder="Pounds"
+                    className={inputClass}
+                  />
+                </Cell>
+                <Cell id={id("freight")} label="Freight" hint="optional" icon="box">
+                  <input
+                    id={id("freight")}
+                    name="freight"
+                    value={values.freight}
+                    onChange={(event) => setField("freight", event.target.value)}
+                    maxLength={80}
+                    autoComplete="off"
+                    placeholder="What you’re shipping"
+                    className={inputClass}
+                  />
+                </Cell>
+                <Cell id={id("note")} label="Note" hint="optional" icon="note">
+                  <input
+                    id={id("note")}
+                    name="note"
+                    value={values.note}
+                    onChange={(event) => setField("note", event.target.value)}
+                    maxLength={500}
+                    autoComplete="off"
+                    placeholder="Anything we should know"
+                    className={inputClass}
+                  />
+                </Cell>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            key={`more-${entrance}`}
+            style={delay(6)}
+            aria-expanded={more}
+            aria-controls={`${baseId}-more`}
+            onClick={(event) => {
+              setMore(!more);
+              // Opened from the keyboard, the cursor goes up into the first of them; a tap or a click stays put.
+              if (!more && event.detail === 0)
+                requestAnimationFrame(() => document.getElementById(id("deliveryDate"))?.focus({ preventScroll: true }));
+            }}
+            className={cx(
+              // One small line at the card's foot, in the middle. Not on phones.
+              "col-span-full hidden h-7 cursor-pointer items-center justify-center gap-1.5 justify-self-center rounded-full px-3 text-[13px] font-medium whitespace-nowrap text-ink/70 transition-colors duration-200 hover:text-ink focus-visible:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink md:inline-flex",
+              enter,
+            )}
+          >
+            <svg aria-hidden viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="size-3 shrink-0">
+              {more ? <path d="M2 6h8" /> : added ? <path d="M2 6.5 4.8 9 10 3" /> : <path d="M2 6h8M6 2v8" />}
+            </svg>
+            {more ? "Less info" : added ? "More info added" : "Add more info"}
+          </button>
+          <span
+            key={`go-${entrance}`}
+            style={delay(7)}
+            // Held in its place in the form's own row from `md`, whatever comes before it in the page's order.
+            className={cx("mt-1.5 md:col-start-4 md:row-start-2 md:mt-0 min-[87.5rem]:col-start-7 min-[87.5rem]:row-start-1 min-[87.5rem]:ml-1.5", enter)}
+          >
             <InteractiveHoverButton
               type="submit"
               text={status.kind === "sending" ? "Sending" : quoteLink.label}
@@ -593,6 +734,7 @@ const inputClass =
 function Cell({
   id,
   label,
+  hint,
   state,
   place,
   error,
@@ -603,11 +745,13 @@ function Cell({
 }: {
   id: string;
   label: string;
+  /** A word after the name in grey ("optional"). */
+  hint?: string;
   state?: StateCode | null;
   /** "City, ST" for the ZIP, shown in the state's place when the ZIP is in the list. */
   place?: string | null;
   error?: string;
-  icon: "start" | "end" | "date" | "person" | "phone";
+  icon: FieldMark;
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
@@ -633,6 +777,7 @@ function Cell({
         ) : (
           <span className="flex items-baseline gap-2 text-sm font-medium whitespace-nowrap">
             {label}
+            {hint && <span className="font-normal text-ink/70">{hint}</span>}
             {state && (
               <span className="truncate font-normal text-ink/70 min-[87.5rem]:hidden">{place ?? usStates.find((s) => s.code === state)?.name}</span>
             )}
@@ -645,7 +790,9 @@ function Cell({
 }
 
 /** Each field's mark: a hollow dot where the load starts, a solid one where it ends (the map's pins), and the rest. */
-function FieldIcon({ icon }: { icon: "start" | "end" | "date" | "person" | "phone" }) {
+type FieldMark = "start" | "end" | "date" | "person" | "phone" | "weight" | "box" | "note";
+
+function FieldIcon({ icon }: { icon: FieldMark }) {
   const props = { "aria-hidden": true, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.6, className: "size-5 shrink-0" };
   if (icon === "start" || icon === "end")
     return (
@@ -658,6 +805,26 @@ function FieldIcon({ icon }: { icon: "start" | "end" | "date" | "person" | "phon
       <svg {...props}>
         <rect x="3" y="4.5" width="14" height="12" rx="2.5" />
         <path d="M3 8.5h14M7 2.8v3.4M13 2.8v3.4" strokeLinecap="round" />
+      </svg>
+    );
+  if (icon === "weight")
+    return (
+      <svg {...props}>
+        <path d="M6.3 7.6h7.4l2.1 8.6H4.2l2.1-8.6Z" strokeLinejoin="round" />
+        <circle cx="10" cy="5.3" r="2" />
+      </svg>
+    );
+  if (icon === "box")
+    return (
+      <svg {...props}>
+        <path d="M3.5 6.6 10 3.3l6.5 3.3v6.8L10 16.7l-6.5-3.3V6.6Z" strokeLinejoin="round" />
+        <path d="M3.5 6.6 10 9.9l6.5-3.3M10 9.9v6.8" strokeLinejoin="round" />
+      </svg>
+    );
+  if (icon === "note")
+    return (
+      <svg {...props}>
+        <path d="M4 5.5h12M4 10h12M4 14.5h7" strokeLinecap="round" />
       </svg>
     );
   if (icon === "person")

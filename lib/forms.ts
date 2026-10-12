@@ -5,7 +5,8 @@ export type QuoteStop = { zip: string; state: StateCode };
 
 /**
  * What the Get a Quote form sends — the shape to agree with the backend teammate. ZIPs only since 2026-10-01 (owner):
- * no city, weight, freight or company. Phone or email: at least one is there.
+ * no city or company, and weight and freight only if the shipper chooses to add them (2026-10-12). Phone or email: at
+ * least one is there.
  */
 export type QuoteRequest = {
   pickup: QuoteStop;
@@ -13,6 +14,16 @@ export type QuoteRequest = {
   /** When it's ready to be picked up, `YYYY-MM-DD`. */
   pickupDate: string;
   contact: { name: string; phone?: string; email?: string };
+  // The four below are the form's "Add more info" (2026-10-12): nobody has to give them, and each is left out when
+  // it wasn't given. The backend should take a request with none of them.
+  /** When it should arrive, `YYYY-MM-DD`; never before `pickupDate`. */
+  deliveryDate?: string;
+  /** Whole pounds, as typed; not checked against what a van can carry. */
+  weightLbs?: number;
+  /** What the load is, in the shipper's words. */
+  freight?: string;
+  /** Anything else the shipper wanted to say, up to 500 characters. */
+  note?: string;
 };
 
 export type SubmitResult = { ok: true } | { ok: false; message: string };
