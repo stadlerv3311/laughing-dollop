@@ -63,8 +63,14 @@ export function QuoteCard({ id, title }: { id: string; title: string }) {
       ref={ref}
       className="group relative isolate overflow-hidden bg-ink shadow-[inset_0_0_0_1px_rgb(255_255_255/0.25)] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4 has-[a:focus-visible]:outline-paper lg:h-[30rem]"
     >
-      <div className="relative h-64 overflow-hidden sm:h-80 lg:absolute lg:inset-0 lg:h-auto">
-        <div className="absolute top-[10%] left-[6%] aspect-[960/613] w-[150%] sm:left-[10%] sm:w-[110%] lg:top-[6%] lg:left-[50.6%] lg:w-[105%] lg:origin-[5.5%_1.3%] lg:-rotate-6">
+      {/* On phones the homepage's camera films the made-up trips here too (the builder, 2026-10-09: "the animation we
+          have on the main page apply it to map we have in that card"): this box is its window, and the map's box in
+          it, with both coats of dots, is what it moves (ShipRouteMap → `camera`, "outer"). */}
+      <div data-ship-view className="relative h-64 overflow-hidden sm:h-80 lg:absolute lg:inset-0 lg:h-auto">
+        <div
+          data-ship-stage
+          className="absolute top-[10%] left-[6%] aspect-[960/613] w-[150%] origin-top-left sm:left-[10%] sm:w-[110%] lg:top-[6%] lg:left-[50.6%] lg:w-[105%] lg:origin-[5.5%_1.3%] lg:-rotate-6"
+        >
           {/* A second coat of the map's own dots: they are set faint for a whole screen of them. Being the same
               picture, it brightens the country's edge along with the rest, so the edge stands out here as it does on
               the homepage (the builder, 2026-10-08: "on services screen too borders of US have brighter dots"). */}
@@ -77,6 +83,7 @@ export function QuoteCard({ id, title }: { id: string; title: string }) {
             playing={inView}
             demo
             demoStates={ON_CARD}
+            camera="outer"
             className="absolute inset-0"
           />
         </div>

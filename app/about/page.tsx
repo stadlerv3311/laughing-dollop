@@ -68,12 +68,13 @@ export default function AboutPage() {
       <section aria-label="Ship or drive with us" data-header-theme="dark" className="bg-ink py-16 sm:py-[4.375rem] lg:py-[6.25rem]">
         <Container>
           {/*
-            One door for each audience (2026-09-28, from the Samsara review), side by side from lg: shippers and jobs.
+            One door for each audience (2026-09-28, from the Samsara review), side by side: shippers and jobs. At every
+            width since 2026-10-09 (the builder: "i need those card in horizontal"); from lg only until then.
             Each card is cut on a slant, white above and black below, the two mirrored, with the underlined arrow
             link under its words and a road in its black wedge (owner, 2026-10-07: SplitCard). Until then a white card and an outlined black one,
             each with a pill; square corners since earlier the same day.
           */}
-          <Reveal className="grid gap-4 lg:grid-cols-2">
+          <Reveal className="grid grid-cols-2 gap-2.5 sm:gap-4">
             <SplitCard
               title="Have a load to move?"
               text="Tell us where it’s going and what it weighs, and we’ll come back with a price."

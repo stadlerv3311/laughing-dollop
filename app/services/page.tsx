@@ -48,12 +48,15 @@ export default function ServicesPage() {
               {run.title}
             </h2>
           </Reveal>
-          <dl className="mt-[3.5625rem] grid gap-x-6 gap-y-10 sm:mt-[3.8125rem] sm:grid-cols-3 lg:mt-[3.6875rem]">
+          {/* One row of three on phones too (the builder, 2026-10-09: "number band switch to horizontal"; they stood
+              one under another there, most of a screen for three numbers), with the numbers a size down so "70+" fits
+              a third of a 320px phone. */}
+          <dl className="mt-[3.5625rem] grid grid-cols-3 gap-x-3 sm:mt-[3.8125rem] sm:gap-x-6 lg:mt-[3.6875rem]">
             {run.numbers.map((number, index) => (
               // Label first for screen readers (a dt before its dd), number shown first with `order`: TrustBar's way.
               <Reveal key={number.label} delay={index * 0.08} className="flex flex-col items-center gap-3">
                 <dt className="order-2 text-balance text-sm text-ink/70 sm:text-base">{number.label}</dt>
-                <dd className="order-1 font-display text-[3rem] font-semibold leading-none tracking-[-0.03em] sm:text-[4rem] lg:text-[clamp(3.5rem,5.2vw,4.75rem)]">
+                <dd className="order-1 font-display text-[2.5rem] font-semibold leading-none tracking-[-0.03em] sm:text-[4rem] lg:text-[clamp(3.5rem,5.2vw,4.75rem)]">
                   <CountUp value={number.value} suffix={number.suffix} />
                 </dd>
               </Reveal>

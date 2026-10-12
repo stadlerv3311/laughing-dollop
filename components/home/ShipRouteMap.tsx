@@ -43,8 +43,14 @@ type ShipRouteMapProps = {
    * On phones (below `md`, where the map is a block of its own between the heading and the button) the made-up trips
    * are filmed: the view closes in on the pickup, pulls back a little and follows the dot, closes in on the delivery,
    * then goes back to the whole map. Ship with us only.
+   *
+   * `"outer"` is the same filming for a map the caller has already placed in a window of its own (the Services
+   * page's QuoteCard, since 2026-10-09: the map drawn wider than its card, the west on show): the caller marks the
+   * window `data-ship-view` and the box it wants moved `data-ship-stage`, and this map adds no window or fade of its
+   * own. The close views there show the same share of the country as on the homepage, so the camera goes in less far
+   * on a map that is already drawn large, and it leaves from and returns to the view the card has at rest.
    */
-  camera?: boolean;
+  camera?: boolean | "outer";
   className?: string;
 };
 
@@ -133,11 +139,11 @@ export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride,
       <div
         className={cx(
           "absolute inset-0",
-          camera &&
+          camera === true &&
             "max-md:-inset-x-5 max-md:-inset-y-7 max-md:overflow-hidden max-md:[mask-image:linear-gradient(to_bottom,transparent,#000_1.75rem,#000_calc(100%-1.75rem),transparent)] sm:max-md:-inset-x-8",
         )}
       >
-      <div data-ship-stage className={cx("absolute inset-0 origin-top-left", camera && "max-md:inset-x-5 max-md:inset-y-7 sm:max-md:inset-x-8")}>
+      <div data-ship-stage className={cx("absolute inset-0 origin-top-left", camera === true && "max-md:inset-x-5 max-md:inset-y-7 sm:max-md:inset-x-8")}>
       <Image src="/images/us-dots.svg" alt="" fill sizes="80rem" className="select-none object-contain invert" />
 
       {!still && (
@@ -168,7 +174,7 @@ export function ShipRouteMap({ pickup, delivery, pickupCity, deliveryCity, ride,
           ))}
         </g>
 
-        {!still && <DemoQuotes active={demo && playing} only={demoStates} camera={camera} />}
+        {!still && <DemoQuotes active={demo && playing} only={demoStates} camera={Boolean(camera)} />}
 
         {route && <Route key={route} d={route} still={still} solidRef={solidRef} />}
         <circle ref={loadRef} r={5} className="fill-brand" style={{ opacity: 0 }} />
@@ -404,7 +410,14 @@ function DemoTrip({ id, from, to, camera, onEnd }: { id: number; from: StateCode
     const length = solid.getTotalLength();
     const clamp = (x: number) => Math.min(1, Math.max(0, x));
     const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-    const film = filming(camera) ? group.closest<HTMLElement>("[data-ship-stage]") : null;
+    // The stage the camera moves and, where the caller gave the map a window of its own, that window (`view`): the
+    // stage is then the first one marked inside it, the caller's, not this map's own box.
+    const view = group.closest<HTMLElement>("[data-ship-view]");
+    const film = !filming(camera)
+      ? null
+      : view
+        ? view.querySelector<HTMLElement>("[data-ship-stage]")
+        : group.closest<HTMLElement>("[data-ship-stage]");
     const beats = film ? FILMED : PLAIN;
     // The camera's ease, and the dot's while it's filmed, since the camera goes where the dot goes.
     const glide = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
@@ -425,19 +438,37 @@ function DemoTrip({ id, from, to, camera, onEnd }: { id: number; from: StateCode
       load.style.opacity = s > beats.ride[0] && (film || s < beats.ride[0] + beats.ride[1]) ? "1" : "0";
       solid.style.strokeDashoffset = String(1 - r);
       if (film) {
-        const zoom =
-          1 +
-          (CLOSE - 1) * (shot(SHOTS.in, s, glide) - shot(SHOTS.out, s, glide)) +
-          (CLOSE - FOLLOW) * (shot(SHOTS.arrive, s, glide) - shot(SHOTS.back, s, glide));
         // The map is drawn as large as fits the stage, centred in it (the stage is taller than the map on a phone).
         const width = film.offsetWidth;
         const height = film.offsetHeight;
         const fit = Math.min(width / US_MAP_WIDTH, height / US_MAP_HEIGHT);
         const left = (width - US_MAP_WIDTH * fit) / 2;
         const top = (height - US_MAP_HEIGHT * fit) / 2;
-        const dx = frame1d(width, zoom, left, US_MAP_WIDTH * fit, left + point.x * fit);
-        const dy = frame1d(height, zoom, top, US_MAP_HEIGHT * fit, top + point.y * fit);
-        film.style.transform = `translate(${dx}px, ${dy}px) scale(${zoom})`;
+        // What the map is seen through: the stage's own box, or the caller's window with the stage somewhere in it.
+        const across = view ? view.clientWidth : width;
+        const down = view ? view.clientHeight : height;
+        const x0 = view ? film.offsetLeft : 0;
+        const y0 = view ? film.offsetTop : 0;
+        // A map drawn wider than its window is close already, so the camera goes in that much less: a close view
+        // shows the same share of the country in any window. 1 on the homepage, where the map is as wide as its box.
+        const wide = Math.min(1, across / (US_MAP_WIDTH * fit));
+        const close = Math.max(1, CLOSE * wide);
+        const follow = Math.max(1, FOLLOW * wide);
+        // How far in the camera is, 0 at the resting view and 1 from the first close view to the last.
+        const into = shot(SHOTS.in, s, glide) - shot(SHOTS.out, s, glide);
+        const zoom = 1 + (close - 1) * into + (close - follow) * (shot(SHOTS.arrive, s, glide) - shot(SHOTS.back, s, glide));
+        const x = left + point.x * fit;
+        const y = top + point.y * fit;
+        const placed = (at: number) => [
+          frame1d(across, at, left, US_MAP_WIDTH * fit, x) - x0,
+          frame1d(down, at, top, US_MAP_HEIGHT * fit, y) - y0,
+        ];
+        // The resting view is the caller's own and needn't be one the camera would choose (the card shows the west
+        // with a margin over it), so the camera's place is counted from it: nothing moves at the start or the end.
+        // On the homepage the rest is the camera's own whole-map view, and this takes nothing off.
+        const [dx, dy] = placed(zoom);
+        const [restX, restY] = placed(1);
+        film.style.transform = `translate(${dx - (1 - into) * restX}px, ${dy - (1 - into) * restY}px) scale(${zoom})`;
       }
       if (s < beats.fade[0] + beats.fade[1]) {
         frame = requestAnimationFrame(step);
