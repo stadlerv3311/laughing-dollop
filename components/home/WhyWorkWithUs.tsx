@@ -180,8 +180,9 @@ function RiseHeading({ id, lines, className }: { id: string; lines: readonly str
 }
 
 /**
- * One apply card, as on the old Where you'd fit. band — photo, dark foot, role and job, the job's line when open —
- * minus its Apply now: it's a button that opens it, not a link. Square corners, no box.
+ * One apply card, as on the old Where you'd fit. band — photo, dark foot and the job's name, the same title-only
+ * caption as the shop cards (CardPair) since 2026-11-10 — minus its Apply now: it's a button that opens it, not a
+ * link. Square corners, no box.
  */
 function JobCard({
   card,
@@ -226,17 +227,10 @@ function JobCard({
             !isOpen && "max-md:opacity-0",
           )}
         >
-          <span className="block text-sm text-paper/80">{card.role}</span>
-          <span className="mt-1 block font-display font-semibold text-xl leading-tight tracking-[-0.03em] lg:text-[1.75rem] xl:text-[1.375rem]">
+          {/* The job's name only, as on the shop cards (the builder, 2026-11-10: "i want to make only title style"):
+              the place over it ("On the road") and the line under it are gone from the card. */}
+          <span className="block text-balance font-display font-semibold text-xl leading-tight tracking-[-0.03em] lg:text-[1.375rem]">
             {card.title}
-          </span>
-          <span
-            className={cx(
-              "hidden overflow-hidden transition-[opacity,max-height] duration-500 ease-premium motion-reduce:transition-none md:block md:w-[24rem] md:max-w-full",
-              isOpen ? "max-h-40 opacity-100 md:delay-200" : "max-h-0 opacity-0",
-            )}
-          >
-            <span className="mt-2 block max-w-[24rem] text-pretty leading-relaxed text-paper/80">{card.body}</span>
           </span>
         </span>
       </button>
@@ -280,15 +274,48 @@ function Reasons({ seat, still }: { seat: WorkSeat; still: boolean }) {
           <span aria-hidden className="block text-[13px] tabular-nums text-ink/70">
             {String(i + 1).padStart(2, "0")}
           </span>
-          <Roll id={`${seat.job}-t${i}`} delay={i * 0.07} still={still}>
-            <span className="mt-3 block text-lg font-medium leading-snug tracking-[-0.02em]">{reason.title}</span>
-          </Roll>
-          <Roll id={`${seat.job}-b${i}`} delay={i * 0.07} still={still}>
-            <span className="block pt-2.5 text-[15px] leading-relaxed text-ink/70">{reason.body}</span>
-          </Roll>
+          {/* Every job's reason in this slot sits here unseen, stacked in one cell, so the slot is always as tall as
+              the longest of them and the page under the section stays put on a job change (the builder,
+              2026-11-10: "when we go between positions work with us top jumps around"; up to 73px). */}
+          <span className="grid">
+            {JOBS.map(({ seat: other }) => {
+              const ghost = other.reasons[i];
+              return ghost ? (
+                <span key={other.job} aria-hidden className="invisible [grid-area:1/1]">
+                  <ReasonText title={ghost.title} body={ghost.body} />
+                </span>
+              ) : null;
+            })}
+            <span className="[grid-area:1/1]">
+              <Roll id={`${seat.job}-t${i}`} delay={i * 0.07} still={still}>
+                <ReasonTitle>{reason.title}</ReasonTitle>
+              </Roll>
+              <Roll id={`${seat.job}-b${i}`} delay={i * 0.07} still={still}>
+                <ReasonBody>{reason.body}</ReasonBody>
+              </Roll>
+            </span>
+          </span>
         </li>
       ))}
     </ul>
+  );
+}
+
+function ReasonTitle({ children }: { children: React.ReactNode }) {
+  return <span className="mt-3 block text-lg font-medium leading-snug tracking-[-0.02em]">{children}</span>;
+}
+
+function ReasonBody({ children }: { children: React.ReactNode }) {
+  return <span className="block pt-2.5 text-[15px] leading-relaxed text-ink/70">{children}</span>;
+}
+
+/** A reason's two lines as the hidden sizers draw them, the same type as the rolling ones. */
+function ReasonText({ title, body }: { title: string; body: string }) {
+  return (
+    <>
+      <ReasonTitle>{title}</ReasonTitle>
+      <ReasonBody>{body}</ReasonBody>
+    </>
   );
 }
 

@@ -50,7 +50,8 @@ lib/
   site.ts                    → company name, every nav link (single source for Header, menu, Footer), homepage numbers,
                                rolling slogans, the three apply cards, Why work with us (`whyWorkWithUs`),
                                the footer's link groups (`footerGroups`) and the FMCSA record (`company`: legal name,
-                               phone, address, USDOT, MC)
+                               phone, address, USDOT, MC; since 2026-10-13 also `email` and `socials`, stand-ins
+                               until the owner sends the real ones)
   cx.ts                      → className join helper
   forms.ts                   → QuoteRequest type + submitQuote stub, JobApplication type + submitJobApplication stub (backend contract goes here)
   services.ts                → the three services, the Services page's words (`servicesPage`) and the safety band's services pair (`servicesGroup`)

@@ -505,10 +505,19 @@ export const footerGroups: { label: string; links: NavLink[] }[] = [
 
 // The company as registered with the FMCSA — from the SAFER carrier snapshot for USDOT 3141514, which the owner
 // pointed to (2026-10-01). Shown in the footer. The phone is the number on record; the owner has to confirm it's the
-// one shippers and drivers should call. No email yet.
+// one shippers and drivers should call.
+//
+// STAND-INS, not facts (the builder, 2026-10-13, trying the footer with the number leading): `email` is a made-up
+// address and the two `socials` go to Facebook's and Instagram's own front pages. The owner has to send the real
+// address and the two page links before this goes live; until then mail to that address reaches nobody we know.
 export const company = {
   legalName: "ITrucking Solutions Inc.",
   phone: { label: "(916) 836-8136", href: "tel:+19168368136" },
+  email: { label: "info@itruckingsolutions.com", href: "mailto:info@itruckingsolutions.com" },
+  socials: [
+    { name: "Facebook", href: "https://www.facebook.com/" },
+    { name: "Instagram", href: "https://www.instagram.com/" },
+  ],
   address: ["6245 Virk Lane", "Citrus Heights, CA 95621"],
   usdot: "3141514",
   mc: "MC-99508",
