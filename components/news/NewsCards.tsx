@@ -3,9 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useId, useState, useSyncExternalStore } from "react";
-import { labelClass } from "@/components/ui";
 import { cx } from "@/lib/cx";
-import { formatNewsDate, newsHref, type NewsPost } from "@/lib/news";
+import { newsHref, type NewsPost } from "@/lib/news";
 
 /** From here up the cards sit in a row and open one at a time; under it they stack, all open. */
 const WIDE = "(width >= 64rem)";
@@ -22,25 +21,25 @@ function subscribe(onChange: () => void) {
  * #111111", "when you pres another pictuter it slides back then text appears in front of it", "then when you hover
  * over another picture"; and, of how many, "we can fit 3 if do it like this").
  *
- * From `lg` a row of three pictures the height of the job cards. One post is open: its day, headline and sentence
- * stand to the right of its picture, on the page's white. The other two are their pictures only, with the day and the
- * headline over the foot. Pointing at, tabbing to or pressing another picture slides the
+ * From `lg` a row of three pictures the height of the job cards. One post is open: its headline and sentence stand
+ * to the right of its picture, on the page's white. The other two are their pictures only, with the headline over the
+ * foot. No dates anywhere on the cards since 2026-11-10 (the builder: "from news lets remove dates too"). Pointing at, tabbing to or pressing another picture slides the
  * open panel back behind its picture while the new one slides out, and its words come up once it is out. The two
  * panels trade width at the same pace, so the three pictures keep their size and only move sideways. The newest post
  * starts open, and the last one opened stays open.
  *
  * The words were on a #111111 panel for an hour, the figure in the drawing (owner, once it was built: "we can remove
- * that black and keep it white"). So no box: the day and the sentence in ink at 70%, the headline in full ink, the day
- * level with the top of the picture and the headline and sentence with its foot.
+ * that black and keep it white"). So no box: the sentence in ink at 70%, the headline in full ink, both level with
+ * the picture's foot.
  *
  * Under `lg` there is nothing to point with, so the cards stack, every one open (owner: "yes for the phone"), each a
  * picture beside its words, the words centred against it. The picture changes sides from one row to the next (the
  * builder's sketch, 2026-10-09: picture left, then right, then left; on phones the picture sat over its words until
  * then, and from `sm` it was always on the left). On phones the picture is a square a little under half the row and
- * the words are the day and the headline only: the sentence doesn't fit beside a picture that size. The pictures are
+ * the words are the headline only: the sentence doesn't fit beside a picture that size. The pictures are
  * then not buttons.
  *
- * A closed panel is taken out of the accessibility tree and its picture's button carries the day and the headline, so
+ * A closed panel is taken out of the accessibility tree and its picture's button carries the headline, so
  * a screen reader hears each post once. No alt text on the pictures: they are stock or stand-ins, not pictures of the
  * events (see lib/news.ts).
  *
@@ -64,7 +63,6 @@ export function NewsCards({ posts }: { posts: NewsPost[] }) {
       {shown.map((post, i) => {
         const isOpen = open === i;
         const panelId = `${id}-${i}`;
-        const day = formatNewsDate(post.date);
         const pictureClass =
           "group relative block aspect-square w-[46%] shrink-0 overflow-hidden bg-ink text-left text-paper sm:aspect-auto sm:w-2/5 lg:w-auto lg:min-w-0 lg:flex-1 lg:basis-0";
         const picture = (
@@ -92,8 +90,7 @@ export function NewsCards({ posts }: { posts: NewsPost[] }) {
                 isOpen ? "opacity-0 duration-200" : "opacity-100 delay-300 duration-500",
               )}
             >
-              <span className="block text-sm text-paper/80">{day}</span>
-              <span className="mt-1 block font-display text-lg leading-tight font-semibold tracking-[-0.03em] text-balance xl:text-[1.375rem]">
+              <span className="block font-display text-lg leading-tight font-semibold tracking-[-0.03em] text-balance xl:text-[1.375rem]">
                 {post.title}
               </span>
             </span>
@@ -134,10 +131,10 @@ export function NewsCards({ posts }: { posts: NewsPost[] }) {
                     isOpen ? "lg:opacity-100 lg:delay-[450ms] lg:duration-500" : "lg:opacity-0 lg:duration-150",
                   )}
                 >
-                  <time dateTime={post.date} className={cx(labelClass, "block text-ink/70")}>
-                    {day}
-                  </time>
-                  <h3 className="mt-1.5 font-display text-[1.0625rem] leading-[1.2] font-semibold tracking-[-0.03em] text-balance sm:mt-2 sm:text-2xl sm:leading-[1.15] lg:mt-auto lg:pt-6 xl:text-[1.75rem] xl:leading-[1.12]">
+                  {/* No day over the headline since 2026-11-10 (the builder: "from news lets remove dates too"), as
+                      the job cards lost their place line the same day. From `lg` the headline still sits at the
+                      picture's foot. */}
+                  <h3 className="font-display text-[1.0625rem] leading-[1.2] font-semibold tracking-[-0.03em] text-balance sm:text-2xl sm:leading-[1.15] lg:mt-auto xl:text-[1.75rem] xl:leading-[1.12]">
                     <Link
                       href={newsHref(post)}
                       className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-ink"
